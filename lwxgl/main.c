@@ -43,7 +43,7 @@ typedef struct {
 
 typedef struct {
 	int x, y, w, h, fgu, bgu, fgp, bgp, bgh, fgh;
-	char* label;
+	char* label; void (*onclick)(void);
 } ButtonElement;
 
 typedef struct {
@@ -186,6 +186,17 @@ void GHandleWindowEvents() {
 			mouse_down = event.xbutton.button;
 		} else if (event.type == ButtonRelease) {
 			mouse_down = 0;
+			for (int i = 0; i < 512; i++) {
+				Element *e = elements[i];
+				if (e != NULL) {
+					if (e->type == 1) {
+						ButtonElement *btn = (ButtonElement *)e->elem;
+						int inside = mouse_x >= btn->x && mouse_x <= btn->x + btn->w &&
+							mouse_y >= btn->y && mouse_y <= btn->y + btn->h;
+						if (inside) btn->onclick();
+					}
+				}
+			}
 		}
 	}
 }
@@ -214,7 +225,7 @@ void GCreateText(int id, int x, int y, int color, char* text) {
 
 void GCreateButton(int id, int x, int y, int w, int h,
                    int fgu, int bgu, int fgh, int bgh,
-                   int fgp, int bgp, char *label) {
+                   int fgp, int bgp, char *label, void (*onclick)(void)) {
 
     ButtonElement *btn_elem = malloc(sizeof(ButtonElement));
 
@@ -222,7 +233,7 @@ void GCreateButton(int id, int x, int y, int w, int h,
 
     *btn_elem = (ButtonElement){
         .x = x, .y = y, .w = w, .h = h, .fgu = fgu, .bgh = bgh, .fgh = fgh,
-        .bgu = bgu, .fgp = fgp, .bgp = bgp, .label = label
+        .bgu = bgu, .fgp = fgp, .bgp = bgp, .label = label, .onclick = onclick
     };
 
     allocate_element(id, 1, btn_elem);
@@ -238,4 +249,8 @@ void GSimpleWindowLoop() {
 		usleep(1000);
 		tick++;
 	}
+}
+
+void GDeleteWindow() {
+	closing = 1;
 }
