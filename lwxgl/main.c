@@ -227,3 +227,15 @@ void GCreateButton(int id, int x, int y, int w, int h,
 
     allocate_element(id, 1, btn_elem);
 }
+
+void GSimpleWindowLoop() {
+	int tick = 0;
+	while (!GWindowShouldClose()) {
+		if (tick % 16 == 0) {
+			GRenderWindow();
+		}
+		GHandleWindowEvents();
+		usleep(1000);
+		tick++;
+	}
+}
