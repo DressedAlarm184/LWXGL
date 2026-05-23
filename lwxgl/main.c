@@ -10,7 +10,7 @@
 
 Display *display; Window window; GC gc; Pixmap back_buffer;
 unsigned long colors[256] = {0}; int bgcol;
-int screen, cursor_x = -1, cursor_y = -1, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
+int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
 Atom wm_delete; XEvent event; Pixmap stipple; XFontStruct* font;
 
 static const struct {
@@ -40,6 +40,11 @@ typedef struct {
 	int x, y, color;
 	const char *text;
 } TextElement;
+
+typedef struct {
+	int x, y, w, h, fgu, bgu, fgp, bgp, bgh, fgh;
+	char* label;
+} ButtonElement;
 
 typedef struct {
 	int type;
@@ -93,7 +98,7 @@ int GCreateWindow(int w, int h, char* name, int bgcolor) {
 	wm_delete = XInternAtom(display, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(display, window, &wm_delete, 1);
 	
-	XSelectInput(display, window, ExposureMask);
+	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
 	
 	XMapWindow(display, window);
 	
@@ -143,6 +148,19 @@ void GRenderWindow() {
 				TextElement *txt = (TextElement *)e->elem;
 				XSetForeground(display, gc, colors[txt->color]);
 				XDrawString(display, back_buffer, gc, txt->x, txt->y, txt->text, strlen(txt->text));
+			} else if (e->type == 1) {
+				ButtonElement *btn = (ButtonElement *)e->elem;
+				int inside = mouse_x >= btn->x && mouse_x <= btn->x + btn->w &&
+					mouse_y >= btn->y && mouse_y <= btn->y + btn->h;
+				if (inside) {
+					XSetForeground(display, gc, colors[btn->bgh]);
+				} else XSetForeground(display, gc, colors[btn->bgu]);
+				XFillRectangle(display, back_buffer, gc, btn->x + 1, btn->y + 1, btn->w - 1, btn->h - 1);
+				if (inside) {
+					XSetForeground(display, gc, mouse_down == 1 ? colors[btn->fgp] : colors[btn->fgh]);
+				} else XSetForeground(display, gc, colors[btn->fgu]);
+				XDrawRectangle(display, back_buffer, gc, btn->x, btn->y, btn->w - 1, btn->h - 1);
+				XDrawString(display, back_buffer, gc, btn->x + (btn->w / 2) - (strlen(btn->label) * 9) / 2, btn->y + btn->h / 2 + 4, btn->label, strlen(btn->label));
 			}
 		}
 	}
@@ -158,7 +176,17 @@ void GHandleWindowEvents() {
 			GRenderWindow();
 		} else if (event.type == ClientMessage && (Atom)event.xclient.data.l[0] == wm_delete) {
 			closing = 1;
-		} 
+		} else if (event.type == MotionNotify) {
+			mouse_x = event.xmotion.x, mouse_y = event.xmotion.y;
+		} else if (event.type == ButtonPress) {
+			mouse_down = event.xbutton.button;
+		} else if (event.type == LeaveNotify) {
+			mouse_x = -1, mouse_x = -1;
+		} else if (event.type == ButtonPress) {
+			mouse_down = event.xbutton.button;
+		} else if (event.type == ButtonRelease) {
+			mouse_down = 0;
+		}
 	}
 }
 
@@ -182,4 +210,20 @@ void GCreateText(int id, int x, int y, int color, char* text) {
 	TextElement *text_elem = malloc(sizeof(TextElement));
 	text_elem->x = x; text_elem->y = y; text_elem->text = text; text_elem->color = color;
 	allocate_element(id, 0, text_elem);
+}
+
+void GCreateButton(int id, int x, int y, int w, int h,
+                   int fgu, int bgu, int fgh, int bgh,
+                   int fgp, int bgp, char *label) {
+
+    ButtonElement *btn_elem = malloc(sizeof(ButtonElement));
+
+    if (!btn_elem) return;
+
+    *btn_elem = (ButtonElement){
+        .x = x, .y = y, .w = w, .h = h, .fgu = fgu, .bgh = bgh, .fgh = fgh,
+        .bgu = bgu, .fgp = fgp, .bgp = bgp, .label = label
+    };
+
+    allocate_element(id, 1, btn_elem);
 }

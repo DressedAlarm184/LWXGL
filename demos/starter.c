@@ -9,6 +9,7 @@ int main() {
 		return 1;
 	}
 	GCreateText(0, 10, 20, 15, "Hello, World!");
+	GCreateButton(1, 330, 160, 60, 30, 0, 15, 15, 0, 14, 0, "Test");
 	while (!GWindowShouldClose()) {
 		if (tick % 16 == 0) GRenderWindow();
 		GHandleWindowEvents();
