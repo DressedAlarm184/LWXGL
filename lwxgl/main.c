@@ -47,6 +47,11 @@ typedef struct {
 } ButtonElement;
 
 typedef struct {
+	int x, y, w, h, fgu, bgu, bgh, fgh, max;
+	char input[128];
+} InputElement;
+
+typedef struct {
 	int type;
 	void *elem;
 } Element;
@@ -98,7 +103,7 @@ int GCreateWindow(int w, int h, char* name, int bgcolor) {
 	wm_delete = XInternAtom(display, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(display, window, &wm_delete, 1);
 	
-	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
+	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask);
 	
 	XMapWindow(display, window);
 	
@@ -159,6 +164,19 @@ void GRenderWindow() {
 				} else XSetForeground(display, gc, colors[btn->fgu]);
 				XDrawRectangle(display, back_buffer, gc, btn->x, btn->y, btn->w - 1, btn->h - 1);
 				XDrawString(display, back_buffer, gc, btn->x + (btn->w / 2) - (strlen(btn->label) * 9) / 2, btn->y + btn->h / 2 + 4, btn->label, strlen(btn->label));
+			} else if (e->type == 2) {
+				InputElement *input = (InputElement *)e->elem;
+				int inside = mouse_x >= input->x && mouse_x <= input->x + input->w &&
+					mouse_y >= input->y && mouse_y <= input->y + input->h;
+				if (inside) {
+					XSetForeground(display, gc, colors[input->bgh]);
+				} else XSetForeground(display, gc, colors[input->bgu]);
+				XFillRectangle(display, back_buffer, gc, input->x + 1, input->y + 1, input->w - 1, input->h - 1);
+				if (inside) {
+					XSetForeground(display, gc, colors[input->fgh]);
+				} else XSetForeground(display, gc, colors[input->fgu]);
+				XDrawRectangle(display, back_buffer, gc, input->x, input->y, input->w - 1, input->h - 1);
+				XDrawString(display, back_buffer, gc, input->x + 5, input->y + input->h / 2 + 4, input->input, strlen(input->input));
 			}
 		}
 	}
@@ -195,24 +213,45 @@ void GHandleWindowEvents() {
 					}
 				}
 			}
+		} else if (event.type == KeyPress) {
+			XKeyEvent key = event.xkey; KeySym keysym;
+			char ch; int len = XLookupString(&key, &ch, 1, &keysym, NULL);
+			ch = (len == 0) ? 0 : ch;
+			for (int i = 0; i < 512; i++) {
+				Element *e = elements[i];
+				if (e != NULL) {
+					if (e->type == 2) {
+						InputElement *input = (InputElement *)e->elem;
+						int inside = mouse_x >= input->x && mouse_x <= input->x + input->w &&
+						             mouse_y >= input->y && mouse_y <= input->y + input->h;
+						if (!inside) continue;
+						int length = strlen(input->input);
+						if (ch == 8) {
+							if (length > 0) input->input[length - 1] = 0;
+						} else if (ch >= 32 && ch < 127) {
+							if (length < input->max) input->input[length] = ch;
+						}
+					}
+				}
+			}
 		}
 	}
 }
 
 void GDeleteElement(int index) {
 	free(elements[index]->elem);
-    free(elements[index]);
-    elements[index] = NULL;
+	free(elements[index]);
+	elements[index] = NULL;
 }
 
 Element *allocate_element(int index, int type, void *data) {
-    if (elements[index] != NULL) {
-        GDeleteElement(index);
-    }
-    Element *e = malloc(sizeof(Element));
-    e->type = type;e->elem = data;
-    elements[index] = e;
-    return e;
+	if (elements[index] != NULL) {
+		GDeleteElement(index);
+	}
+	Element *e = malloc(sizeof(Element));
+	e->type = type;e->elem = data;
+	elements[index] = e;
+	return e;
 }
 
 int GWindowShouldClose() {
@@ -226,19 +265,17 @@ void GCreateText(int id, int x, int y, int color, char* text) {
 }
 
 void GCreateButton(int id, int x, int y, int w, int h,
-                   int fgu, int bgu, int fgh, int bgh,
-                   int fgp, int bgp, char *label, void (*onclick)(void)) {
+				int fgu, int bgu, int fgh, int bgh,
+				int fgp, int bgp, char *label, void (*onclick)(void)) {
 
-    ButtonElement *btn_elem = malloc(sizeof(ButtonElement));
+	ButtonElement *btn_elem = malloc(sizeof(ButtonElement));
 
-    if (!btn_elem) return;
+	*btn_elem = (ButtonElement){
+		.x = x, .y = y, .w = w, .h = h, .fgu = fgu, .bgh = bgh, .fgh = fgh,
+		.bgu = bgu, .fgp = fgp, .bgp = bgp, .label = label, .onclick = onclick
+	};
 
-    *btn_elem = (ButtonElement){
-        .x = x, .y = y, .w = w, .h = h, .fgu = fgu, .bgh = bgh, .fgh = fgh,
-        .bgu = bgu, .fgp = fgp, .bgp = bgp, .label = label, .onclick = onclick
-    };
-
-    allocate_element(id, 1, btn_elem);
+	allocate_element(id, 1, btn_elem);
 }
 
 void GSimpleWindowLoop() {
@@ -255,4 +292,22 @@ void GSimpleWindowLoop() {
 
 void GDeleteWindow() {
 	closing = 1;
+}
+
+void GCreateInput(int id, int x, int y, int w, int h, int fgu, int bgu, int fgh, int bgh, int max) {
+	InputElement *input = malloc(sizeof(InputElement));
+
+	*input = (InputElement){
+		.x = x, .y = y, .w = w, .h = h, .fgu = fgu, .bgh = bgh, .fgh = fgh, .bgu = bgu, .max = max
+	};
+
+	memset(input->input, 0, 128);
+
+	allocate_element(id, 2, input);
+}
+
+char* GGetInput(int id) {
+	Element *e = elements[id];
+	InputElement *input = (InputElement *)e->elem;
+	return input->input;
 }

@@ -8,3 +8,5 @@ void GCreateButton(int id, int x, int y, int w, int h, int fgu, int bgu, int fgh
 void GSimpleWindowLoop();
 void GDeleteWindow();
 void GDeleteElement(int index);
+void GCreateInput(int id, int x, int y, int w, int h, int fgu, int bgu, int fgh, int bgh, int max);
+char* GGetInput(int id);
