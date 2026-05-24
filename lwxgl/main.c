@@ -52,6 +52,10 @@ typedef struct {
 } InputElement;
 
 typedef struct {
+	int x, y, w, h, fg, bg;
+} RectElement;
+
+typedef struct {
 	int type;
 	void *elem;
 } Element;
@@ -178,6 +182,16 @@ void GRenderWindow() {
 				XDrawRectangle(display, back_buffer, gc, input->x, input->y, input->w - 1, input->h - 1);
 				char buffer[128]; sprintf(buffer, "%s%c", input->input, inside ? '_' : ' ');
 				XDrawString(display, back_buffer, gc, input->x + 5, input->y + input->h / 2 + 4, buffer, strlen(buffer));
+			} else if (e->type == 3) {
+				RectElement *rect = (RectElement *)e->elem;
+				if (rect->bg >= 0) {
+					XSetForeground(display, gc, colors[rect->bg]);
+					XFillRectangle(display, back_buffer, gc, rect->x, rect->y, rect->w, rect->h);
+				}
+				if (rect->fg >= 0) {
+					XSetForeground(display, gc, colors[rect->fg]);
+					XDrawRectangle(display, back_buffer, gc, rect->x, rect->y, rect->w - 1, rect->h - 1);
+				}
 			}
 		}
 	}
@@ -311,4 +325,14 @@ char* GGetInput(int id) {
 	Element *e = elements[id];
 	InputElement *input = (InputElement *)e->elem;
 	return input->input;
+}
+
+void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
+	RectElement *rect = malloc(sizeof(RectElement));
+
+	*rect = (RectElement){
+		.x = x, .y = y, .w = w, .h = h, .fg = fg, .bg = bg
+	};
+
+	allocate_element(id, 3, rect);
 }
