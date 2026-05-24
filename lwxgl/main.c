@@ -38,7 +38,7 @@ static const struct {
 
 typedef struct {
 	int x, y, color;
-	const char *text;
+	char *text;
 } TextElement;
 
 typedef struct {
@@ -160,7 +160,18 @@ void GRenderWindow() {
 			if (e->type == 0) {
 				TextElement *txt = (TextElement *)e->elem;
 				XSetForeground(display, gc, colors[txt->color]);
-				XDrawString(display, back_buffer, gc, txt->x, txt->y, txt->text, strlen(txt->text));
+				const char *start = txt->text, *p = txt->text;
+				int y = txt->y;
+				while (1) {
+					if (*p == '\n' || *p == '\0') {
+						int len = p - start;
+						XDrawString(display, back_buffer, gc, txt->x, y, start, len);
+						y += 16;
+						if (*p == '\0') break;
+						start = p + 1;
+					}
+					p++;
+				}
 			} else if (e->type == 1) {
 				ButtonElement *btn = (ButtonElement *)e->elem;
 				int inside = mouse_x >= btn->x && mouse_x <= btn->x + btn->w &&

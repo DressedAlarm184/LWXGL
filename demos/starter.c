@@ -16,7 +16,7 @@ int main() {
 		return 1;
 	}
 	GCreateText(0, 10, 20, 15, "Hello, World!");
-	GCreateText(1, 10, 35, 15, "Demo program to show capabilities.");
+	GCreateText(1, 10, 35, 15, "Demo program to show capabilities.\nNewlines in strings now!");
 	GCreateButton(3, 260, 160, 60, 30, 0, 15, 15, 0, 14, 0, "Quit", onclick_Quit);
 	GCreateButton(4, 330, 160, 60, 30, 0, 15, 15, 0, 14, 0, "Test", onclick_Test);
 	GSimpleWindowLoop();
