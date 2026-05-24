@@ -130,9 +130,7 @@ void GTerminateWindow() {
 	XCloseDisplay(display);
 	for (int i = 0; i < 512; i++) {
 		if (elements[i] != NULL) {
-			free(elements[i]->elem);
-			free(elements[i]);
-			elements[i] = NULL;
+			GDeleteElement(i);
 		}
 	}
 }
@@ -153,7 +151,7 @@ void GRenderWindow() {
 				int inside = mouse_x >= btn->x && mouse_x <= btn->x + btn->w &&
 					mouse_y >= btn->y && mouse_y <= btn->y + btn->h;
 				if (inside) {
-					XSetForeground(display, gc, colors[btn->bgh]);
+					XSetForeground(display, gc, mouse_down == 1 ? colors[btn->bgp] : colors[btn->bgh]);
 				} else XSetForeground(display, gc, colors[btn->bgu]);
 				XFillRectangle(display, back_buffer, gc, btn->x + 1, btn->y + 1, btn->w - 1, btn->h - 1);
 				if (inside) {
@@ -201,11 +199,15 @@ void GHandleWindowEvents() {
 	}
 }
 
+void GDeleteElement(int index) {
+	free(elements[index]->elem);
+    free(elements[index]);
+    elements[index] = NULL;
+}
+
 Element *allocate_element(int index, int type, void *data) {
     if (elements[index] != NULL) {
-        free(elements[index]->elem);
-        free(elements[index]);
-        elements[index] = NULL;
+        GDeleteElement(index);
     }
     Element *e = malloc(sizeof(Element));
     e->type = type;e->elem = data;
