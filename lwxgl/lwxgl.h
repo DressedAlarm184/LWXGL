@@ -11,3 +11,6 @@ void GDeleteElement(int index);
 void GCreateInput(int id, int x, int y, int w, int h, int fgu, int bgu, int fgh, int bgh, int max);
 char* GGetInput(int id);
 void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg);
+void GCreateImage(int id, int x, int y, int w, int h);
+char* GGetImageData(int id);
+void GUpdateImage(int id);

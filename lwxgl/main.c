@@ -56,6 +56,12 @@ typedef struct {
 } RectElement;
 
 typedef struct {
+    int x, y, w, h;
+    XImage *ximage;
+    char *data, *imgdata;
+} ImageElement;
+
+typedef struct {
 	int type;
 	void *elem;
 } Element;
@@ -130,6 +136,11 @@ int GCreateWindow(int w, int h, char* name, int bgcolor) {
 }
 
 void GTerminateWindow() {
+	for (int i = 0; i < 512; i++) {
+		if (elements[i] != NULL) {
+			GDeleteElement(i);
+		}
+	}
 	XFreeFont(display, font);
 	XFreeGC(display, gc);
 	XFreePixmap(display, back_buffer);
@@ -137,11 +148,6 @@ void GTerminateWindow() {
 	XFreeColors(display, DefaultColormap(display, screen), colors, 16, 0);
 	XDestroyWindow(display, window);
 	XCloseDisplay(display);
-	for (int i = 0; i < 512; i++) {
-		if (elements[i] != NULL) {
-			GDeleteElement(i);
-		}
-	}
 }
 
 void GRenderWindow() {
@@ -192,6 +198,9 @@ void GRenderWindow() {
 					XSetForeground(display, gc, colors[rect->fg]);
 					XDrawRectangle(display, back_buffer, gc, rect->x, rect->y, rect->w - 1, rect->h - 1);
 				}
+			} else if (e->type == 4) {
+				ImageElement *img = (ImageElement *)e->elem;
+				XPutImage(display, back_buffer, gc, img->ximage, 0, 0, img->x, img->y, img->w, img->h);
 			}
 		}
 	}
@@ -253,19 +262,24 @@ void GHandleWindowEvents() {
 	}
 }
 
-void GDeleteElement(int index) {
-	free(elements[index]->elem);
-	free(elements[index]);
-	elements[index] = NULL;
+void GDeleteElement(int id) {
+	if (elements[id]->type == 4) {
+		ImageElement *img = (ImageElement *)elements[id]->elem;
+		XDestroyImage(img->ximage);
+		free(img->data);
+	}
+	free(elements[id]->elem);
+	free(elements[id]);
+	elements[id] = NULL;
 }
 
-Element *allocate_element(int index, int type, void *data) {
-	if (elements[index] != NULL) {
-		GDeleteElement(index);
+Element *allocate_element(int id, int type, void *data) {
+	if (elements[id] != NULL) {
+		GDeleteElement(id);
 	}
 	Element *e = malloc(sizeof(Element));
 	e->type = type;e->elem = data;
-	elements[index] = e;
+	elements[id] = e;
 	return e;
 }
 
@@ -335,4 +349,27 @@ void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	};
 
 	allocate_element(id, 3, rect);
+}
+
+void GCreateImage(int id, int x, int y, int w, int h) {
+	ImageElement *img = (ImageElement *)malloc(sizeof(ImageElement));
+	img->x = x; img->y = y; img->w = h, img->h = h;
+	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
+	img->data = (char *)calloc(w * h, 1), img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
+	img->ximage->data = img->imgdata;
+	allocate_element(id, 4, img);
+}
+
+char* GGetImageData(int id) {
+	ImageElement *img = (ImageElement *)elements[id]->elem;
+	return img->data;
+}
+
+void GUpdateImage(int id) {
+	ImageElement *img = (ImageElement *)elements[id]->elem;;
+	for (int y = 0; y < img->h; y++) {
+		for (int x = 0; x < img->w; x++) {
+			XPutPixel(img->ximage, x, y, colors[img->data[y * img->w + x]]);
+		}
+	}
 }
