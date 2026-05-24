@@ -33,7 +33,7 @@ int main() {
 	GCreateText(0, 10, 20, 15, buffer);
 	GCreateButton(3, 160, 166, 60, 24, 15, 3, 15, 1, 15, 8, "Inc", onclick_Inc);
 	GCreateButton(4, 230, 166, 60, 24, 15, 3, 15, 1, 15, 8, "Dec", onclick_Dec);
-	GCreateInput(5, 10, 137, 100, 24, 15, 4, 15, 8, 10);
+	GCreateInput(5, 10, 137, 100, 24, 15, 4, 15, 8, 9);
 	GCreateButton(6, 10, 166, 60, 24, 15, 3, 15, 1, 15, 8, "Set", onclick_Set);
 	GSimpleWindowLoop();
 	GTerminateWindow();

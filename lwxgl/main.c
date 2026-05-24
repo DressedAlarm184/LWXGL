@@ -176,7 +176,8 @@ void GRenderWindow() {
 					XSetForeground(display, gc, colors[input->fgh]);
 				} else XSetForeground(display, gc, colors[input->fgu]);
 				XDrawRectangle(display, back_buffer, gc, input->x, input->y, input->w - 1, input->h - 1);
-				XDrawString(display, back_buffer, gc, input->x + 5, input->y + input->h / 2 + 4, input->input, strlen(input->input));
+				char buffer[128]; sprintf(buffer, "%s%c", input->input, inside ? '_' : ' ');
+				XDrawString(display, back_buffer, gc, input->x + 5, input->y + input->h / 2 + 4, buffer, strlen(buffer));
 			}
 		}
 	}
