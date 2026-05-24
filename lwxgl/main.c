@@ -310,11 +310,11 @@ void GCreateButton(int id, int x, int y, int w, int h,
 void GSimpleWindowLoop() {
 	int tick = 0;
 	while (!GWindowShouldClose()) {
-		if (tick % 16 == 0) {
+		if (tick % 10 == 0) {
 			GRenderWindow();
 		}
 		GHandleWindowEvents();
-		usleep(1000);
+		usleep(2000);
 		tick++;
 	}
 }
