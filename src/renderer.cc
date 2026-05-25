@@ -63,36 +63,22 @@ namespace Renderers {
 		ImageElement *img = (ImageElement *)e->elem;
 		XPutImage(display, back_buffer, gc, img->ximage, 0, 0, img->x, img->y, img->w, img->h);
 	}
+
+	void (*Functions[])(Element*) = {
+		Text, Button, Input, Rect, Image
+	};
 }
 
 void GRenderWindow() {
 	XSetForeground(display, gc, colors[bgcol]);
-	XFillRectangle(display, back_buffer, gc, 0, 0, 840, 600);
+	XFillRectangle(display, back_buffer, gc, 0, 0, win_w, win_h);
 
 	for (int i = 0; i < elements.size(); i++) {
 		Element *e = elements[i];
 		if (e == NULL) continue;
-		switch (e->type) {
-			case 0:
-				Renderers::Text(e);
-				break;
-			case 1:
-				Renderers::Button(e);
-				break;
-			case 2:
-				Renderers::Input(e);
-				break;
-			case 3:
-				Renderers::Rect(e);
-				break;
-			case 4:
-				Renderers::Image(e);
-				break;
-			default:
-				break;
-		}
+		Renderers::Functions[e->type](e);
 	}
 
-	XCopyArea(display, back_buffer, window, gc, 0, 0, 840, 600, 0, 0);
+	XCopyArea(display, back_buffer, window, gc, 0, 0, win_w, win_h, 0, 0);
 	XSync(display, False);
 }

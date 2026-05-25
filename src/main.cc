@@ -9,9 +9,11 @@
 #include <ctype.h>
 #include <vector>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
-Display *display; Window window; GC gc; Pixmap back_buffer;
-unsigned long colors[256] = {0}; int bgcol;
+Display *display; Window window = None; GC gc; Pixmap back_buffer;
+unsigned long colors[256] = {0}; int bgcol, win_w, win_h;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
 Atom wm_delete; XEvent event; Pixmap stipple; XFontStruct* font;
 

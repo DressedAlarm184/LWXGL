@@ -1,6 +1,7 @@
 namespace Events {
 	void EButtonRelease(XEvent event) {
-		mouse_down = 0;
+		if (event.xbutton.button == mouse_down) mouse_down = 0;
+		if (event.xbutton.button != 1) return;
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
@@ -45,12 +46,10 @@ void GHandleWindowEvents() {
 			closing = 1;
 		} else if (event.type == MotionNotify) {
 			mouse_x = event.xmotion.x, mouse_y = event.xmotion.y;
-		} else if (event.type == ButtonPress) {
-			mouse_down = event.xbutton.button;
 		} else if (event.type == LeaveNotify) {
 			mouse_x = -1, mouse_x = -1;
 		} else if (event.type == ButtonPress) {
-			mouse_down = event.xbutton.button;
+			if (mouse_down == 0) mouse_down = event.xbutton.button;
 		} else if (event.type == ButtonRelease) {
 			Events::EButtonRelease(event);
 		} else if (event.type == KeyPress) {

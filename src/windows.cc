@@ -1,4 +1,8 @@
 int GCreateWindow(int w, int h, char* name, int bgcolor) {
+	win_w = w, win_h = h;
+
+	if (window != None) return 3;
+
 	display = XOpenDisplay(NULL);
 	if (display == NULL) return 1;
 
@@ -85,14 +89,32 @@ int GWindowShouldClose() {
 }
 
 void GSimpleWindowLoop() {
-	int tick = 0;
+	using namespace std::chrono;
+	
+	unsigned long long tick = 0;
+	const microseconds FRAME_TIME(16667);
+	auto last_time = steady_clock::now();
+
 	while (!GWindowShouldClose()) {
-		if (tick % 10 == 0) {
-			GRenderWindow();
+		auto now = steady_clock::now();
+		auto elapsed = duration_cast<microseconds>(now - last_time);
+		
+		if (elapsed >= FRAME_TIME) {
+			GHandleWindowEvents();
+			GRenderWindow(); 
+			
+			last_time += FRAME_TIME;
+			tick++;
+			
+			if (now - last_time > FRAME_TIME * 2) {
+				last_time = now;
+			}
+		} else {
+			auto time_to_sleep = FRAME_TIME - elapsed;
+			if (time_to_sleep > milliseconds(2)) {
+				std::this_thread::sleep_for(time_to_sleep - milliseconds(1));
+			} else std::this_thread::yield();
 		}
-		GHandleWindowEvents();
-		usleep(2000);
-		tick++;
 	}
 }
 
