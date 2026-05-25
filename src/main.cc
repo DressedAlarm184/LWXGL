@@ -12,10 +12,16 @@
 #include <chrono>
 #include <thread>
 
-Display *display; Window window = None; GC gc; Pixmap back_buffer;
+Display *display; Window window = None; GC gc; Pixmap bb;
 unsigned long colors[256] = {0}; int bgcol, win_w, win_h;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
 Atom wm_delete; XEvent event; Pixmap stipple; XFontStruct* font;
+
+struct {
+	int avg_wt[60] = {0};
+	float fps;
+	int active = 0, enabled = 0;
+} debug_metrics;
 
 static const struct {
 	unsigned char r;

@@ -18,6 +18,7 @@ namespace Events {
 		XKeyEvent key = event.xkey; KeySym keysym;
 		char ch; int len = XLookupString(&key, &ch, 1, &keysym, NULL);
 		ch = (len == 0) ? 0 : ch;
+		if (keysym == XK_F12) debug_metrics.enabled = !debug_metrics.enabled;
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;

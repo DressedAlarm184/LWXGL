@@ -58,7 +58,7 @@ int GCreateWindow(int w, int h, char* name, int bgcolor) {
 	XSetWMNormalHints(display, window, &hints);
 	
 	XSetFont(display, gc, font->fid);
-	back_buffer = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
+	bb = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
 	
 	static unsigned char stipple_bits[] = {0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55};
 	stipple = XCreateBitmapFromData(display, window, (char*)stipple_bits, 8, 8);
@@ -77,7 +77,7 @@ void GTerminateWindow() {
 	}
 	XFreeFont(display, font);
 	XFreeGC(display, gc);
-	XFreePixmap(display, back_buffer);
+	XFreePixmap(display, bb);
 	XFreePixmap(display, stipple);
 	XFreeColors(display, DefaultColormap(display, screen), colors, 16, 0);
 	XDestroyWindow(display, window);
@@ -91,8 +91,9 @@ int GWindowShouldClose() {
 void GSimpleWindowLoop() {
 	using namespace std::chrono;
 	
-	unsigned long long tick = 0;
+	debug_metrics.active = 1;
 	const microseconds FRAME_TIME(16667);
+	unsigned long long tick = 0;
 	auto last_time = steady_clock::now();
 
 	while (!GWindowShouldClose()) {
@@ -100,11 +101,18 @@ void GSimpleWindowLoop() {
 		auto elapsed = duration_cast<microseconds>(now - last_time);
 		
 		if (elapsed >= FRAME_TIME) {
+			auto work_start = steady_clock::now();
+			
 			GHandleWindowEvents();
 			GRenderWindow(); 
 			
-			last_time += FRAME_TIME;
-			tick++;
+			auto work_time = duration_cast<microseconds>(steady_clock::now() - work_start);
+			float current_fps = 1000000.0 / elapsed.count(); int index = tick % 60;
+			
+			debug_metrics.avg_wt[index] = work_time.count();
+			debug_metrics.fps = current_fps;
+			
+			last_time += FRAME_TIME,tick++;
 			
 			if (now - last_time > FRAME_TIME * 2) {
 				last_time = now;
