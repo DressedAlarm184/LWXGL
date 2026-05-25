@@ -7,6 +7,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <vector>
+#include <cstdlib>
 
 Display *display; Window window; GC gc; Pixmap back_buffer;
 unsigned long colors[256] = {0}; int bgcol;

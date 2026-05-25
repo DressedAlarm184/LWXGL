@@ -1,7 +1,7 @@
 namespace Events {
 	void EButtonRelease(XEvent event) {
 		mouse_down = 0;
-		for (int i = 0; i < 512; i++) {
+		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
 			if (e->type == 1) {
@@ -17,7 +17,7 @@ namespace Events {
 		XKeyEvent key = event.xkey; KeySym keysym;
 		char ch; int len = XLookupString(&key, &ch, 1, &keysym, NULL);
 		ch = (len == 0) ? 0 : ch;
-		for (int i = 0; i < 512; i++) {
+		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
 			if (e->type == 2) {

@@ -66,7 +66,7 @@ int GCreateWindow(int w, int h, char* name, int bgcolor) {
 }
 
 void GTerminateWindow() {
-	for (int i = 0; i < 512; i++) {
+	for (int i = 0; i < elements.size(); i++) {
 		if (elements[i] != NULL) {
 			GDeleteElement(i);
 		}

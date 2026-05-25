@@ -69,7 +69,7 @@ void GRenderWindow() {
 	XSetForeground(display, gc, colors[bgcol]);
 	XFillRectangle(display, back_buffer, gc, 0, 0, 840, 600);
 
-	for (int i = 0; i < 512; i++) {
+	for (int i = 0; i < elements.size(); i++) {
 		Element *e = elements[i];
 		if (e == NULL) continue;
 		switch (e->type) {
