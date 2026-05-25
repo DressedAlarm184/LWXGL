@@ -1,3 +1,4 @@
+#pragma once
 int GCreateWindow(int w, int h, char* name, int bgcol);
 void GTerminateWindow();
 int GWindowShouldClose();
