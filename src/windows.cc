@@ -1,0 +1,101 @@
+int GCreateWindow(int w, int h, char* name, int bgcolor) {
+	display = XOpenDisplay(NULL);
+	if (display == NULL) return 1;
+
+	font = XLoadQueryFont(display, "9x15");
+	if (!font) {
+		XCloseDisplay(display);
+		return 2;
+	}
+
+	screen = DefaultScreen(display);
+	Colormap colormap = DefaultColormap(display, screen);
+	XColor dummy_exact, xcolor;
+
+	for (int i = 0; i < 16; i++) {
+		xcolor.red   = color_pallete[i].r * 257;
+		xcolor.green = color_pallete[i].g * 257;
+		xcolor.blue  = color_pallete[i].b * 257;
+		xcolor.flags = DoRed | DoGreen | DoBlue;
+		if (XAllocColor(display, colormap, &xcolor)) {
+			colors[i] = xcolor.pixel;
+		} else {
+			XFreeFont(display, font);
+			XCloseDisplay(display);
+			return 127 + i;
+		}
+	}
+
+	srand(time(NULL));
+	gc = XCreateGC(display, RootWindow(display, screen), 0, NULL);
+	XSetLineAttributes(display, gc, 1, LineSolid, CapButt, JoinMiter);
+	
+	window = XCreateSimpleWindow(
+		display,
+		RootWindow(display, screen),
+		0, 0, w, h, 1,
+		BlackPixel(display, screen),
+		WhitePixel(display, screen)
+	);
+
+	XStoreName(display, window, name);
+
+	wm_delete = XInternAtom(display, "WM_DELETE_WINDOW", False);
+	XSetWMProtocols(display, window, &wm_delete, 1);
+	
+	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask);
+	
+	XMapWindow(display, window);
+	
+	XSizeHints hints;
+	hints.flags = PMinSize | PMaxSize;
+	hints.min_width = w; hints.min_height = h;
+	hints.max_width = w; hints.max_height = h;
+	XSetWMNormalHints(display, window, &hints);
+	
+	XSetFont(display, gc, font->fid);
+	back_buffer = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
+	
+	static unsigned char stipple_bits[] = {0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55};
+	stipple = XCreateBitmapFromData(display, window, (char*)stipple_bits, 8, 8);
+	XSetStipple(display, gc, stipple);
+
+	bgcol = bgcolor;
+
+	return 0;
+}
+
+void GTerminateWindow() {
+	for (int i = 0; i < 512; i++) {
+		if (elements[i] != NULL) {
+			GDeleteElement(i);
+		}
+	}
+	XFreeFont(display, font);
+	XFreeGC(display, gc);
+	XFreePixmap(display, back_buffer);
+	XFreePixmap(display, stipple);
+	XFreeColors(display, DefaultColormap(display, screen), colors, 16, 0);
+	XDestroyWindow(display, window);
+	XCloseDisplay(display);
+}
+
+int GWindowShouldClose() {
+	return closing;
+}
+
+void GSimpleWindowLoop() {
+	int tick = 0;
+	while (!GWindowShouldClose()) {
+		if (tick % 10 == 0) {
+			GRenderWindow();
+		}
+		GHandleWindowEvents();
+		usleep(2000);
+		tick++;
+	}
+}
+
+void GDeleteWindow() {
+	closing = 1;
+}

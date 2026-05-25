@@ -1,6 +1,6 @@
 build:
 	#!/bin/bash
-	gcc -fPIC -shared -o libLWXGL.so src/main.c -lX11
+	g++ -fPIC -shared -o libLWXGL.so src/main.cc -lX11
 
 install:
 	#!/bin/bash
