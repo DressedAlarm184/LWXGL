@@ -9,7 +9,7 @@ void GHandleWindowEvents();
 void GRenderWindow();
 void GCreateText(int id, int x, int y, int color, char* text);
 void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, char* label, void (*onclick)(void));
-void GSimpleWindowLoop(void (*on_every)(int));
+void GSimpleWindowLoop(int target_fps, void (*on_every)(int));
 void GDeleteWindow();
 void GDeleteElement(int index);
 void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max);

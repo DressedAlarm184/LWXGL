@@ -88,11 +88,11 @@ int GWindowShouldClose() {
 	return closing;
 }
 
-void GSimpleWindowLoop(void (*on_every)(int)) {
+void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
 	using namespace std::chrono;
 	
 	debug_metrics.active = 1;
-	const microseconds FRAME_TIME(16667);
+	const microseconds FRAME_TIME(1000000/target_fps);
 	unsigned long long tick = 0;
 	auto last_time = steady_clock::now();
 
@@ -109,9 +109,10 @@ void GSimpleWindowLoop(void (*on_every)(int)) {
 			if (on_every != NULL) on_every(tick);
 			
 			auto work_time = duration_cast<microseconds>(steady_clock::now() - work_start);
-			float current_fps = 1000000.0 / elapsed.count(); int index = tick % 60;
+			float current_fps = 1000000.0 / elapsed.count();
 			
-			debug_metrics.avg_wt[index] = work_time.count();
+			for (int i = 0; i < 59; i++) debug_metrics.avg_wt[i] = debug_metrics.avg_wt[i + 1];
+			debug_metrics.avg_wt[59] = work_time.count();
 			debug_metrics.fps = current_fps;
 			
 			last_time += FRAME_TIME,tick++;
