@@ -1,24 +1,38 @@
 namespace Events {
+	namespace UserProvided {
+		void (*Key)(int key) = NULL;
+		void (*Click)(int x, int y, int btn) = NULL;
+	}
+
 	void EButtonRelease(XEvent event) {
 		if (event.xbutton.button == mouse_down) mouse_down = 0;
-		if (event.xbutton.button != 1) return;
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
 			if (e->type == 1) {
 				ButtonElement *btn = (ButtonElement *)e->elem;
 				int inside = mouse_x >= btn->x && mouse_x <= btn->x + btn->w &&
-					mouse_y >= btn->y && mouse_y <= btn->y + btn->h;
-				if (inside) btn->onclick();
+				mouse_y >= btn->y && mouse_y <= btn->y + btn->h;
+				if (inside) {
+					if (event.xbutton.button != 1) return;
+					btn->onclick();
+					return;
+				}
 			}
-		}	
-	} 
+		}
+		if (UserProvided::Click != NULL) {
+			UserProvided::Click(mouse_x, mouse_y, event.xbutton.button);
+		}
+	}
 
 	void EKeyPress(XEvent event) {
 		XKeyEvent key = event.xkey; KeySym keysym;
 		char ch; int len = XLookupString(&key, &ch, 1, &keysym, NULL);
 		ch = (len == 0) ? 0 : ch;
-		if (keysym == XK_F12) debug_metrics.enabled = !debug_metrics.enabled;
+		if (keysym == XK_F12) {
+			debug_metrics.enabled = !debug_metrics.enabled;
+			return;
+		}
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
@@ -33,7 +47,11 @@ namespace Events {
 				} else if (ch >= 32 && ch < 127) {
 					if (length < input->max) input->input[length] = ch;
 				}
+				return;
 			}
+		}
+		if (UserProvided::Key != NULL) {
+			UserProvided::Key(ch);
 		}
 	}
 }
@@ -57,4 +75,12 @@ void GHandleWindowEvents() {
 			Events::EKeyPress(event);
 		}
 	}
+}
+
+void GEventAttachKey(void (*Key)(int key)) {
+	Events::UserProvided::Key = Key;
+}
+
+void GEventAttachClick(void (*Click)(int x, int y, int btn)) {
+	Events::UserProvided::Click = Click;
 }
