@@ -76,8 +76,9 @@ void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
 	};
 
 	memset(input->input, 0, 128);
-
 	allocate_element(id, 2, input);
+
+	if (input->w == -1) input->w = (input->max + 1) * 9 + 10;
 }
 
 char* GGetInput(int id) {
