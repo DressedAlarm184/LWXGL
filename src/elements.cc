@@ -58,26 +58,21 @@ void GCreateText(int id, int x, int y, int color, char* text) {
 	allocate_element(id, 0, text_elem);
 }
 
-void GCreateButton(int id, int x, int y, int w, int h,
-				int fgu, int bgu, int fgh, int bgh,
-				int fgp, int bgp, char *label, void (*onclick)(void)) {
-
+void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, char* label, void (*onclick)(void)) {
 	ButtonElement *btn_elem = (ButtonElement*)malloc(sizeof(ButtonElement));
 
 	*btn_elem = (ButtonElement){
-		.x = x, .y = y, .w = w, .h = h, .fgu = fgu, .bgu = bgu, .fgp = fgp, .bgp = bgp, .bgh = bgh, .fgh = fgh, .label = label, .onclick = onclick
+		.x = x, .y = y, .w = w, .h = h, .fgu = H(u), .bgu = L(u), .fgp = H(p), .bgp = L(p), .bgh = L(hvr), .fgh = H(hvr), .label = label, .onclick = onclick
 	};
 
 	allocate_element(id, 1, btn_elem);
 }
 
-void GCreateInput(int id, int x, int y, int w, int h,
-				int fgu, int bgu, int fgh, int bgh, int max) {
-
+void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
 	InputElement *input = (InputElement*)malloc(sizeof(InputElement));
 
 	*input = (InputElement){
-		.x = x, .y = y, .w = w, .h = h, .fgu = fgu, .bgu = bgu, .bgh = bgh, .fgh = fgh, .max = max
+		.x = x, .y = y, .w = w, .h = h, .fgu = H(u), .bgu = L(u), .bgh = L(hvr), .fgh = H(hvr), .max = max
 	};
 
 	memset(input->input, 0, 128);

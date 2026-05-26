@@ -46,6 +46,9 @@ static const struct {
 	{255, 255, 255}    // 15: White
 };
 
+#define L(b)   ((b) & 0x0F)
+#define H(b)  (((b) >> 4) & 0x0F)
+
 #include "elements.cc"
 #include "windows.cc"
 #include "renderer.cc"
