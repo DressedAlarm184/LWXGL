@@ -27,7 +27,7 @@ namespace Events {
 
 	void EKeyPress(XEvent event) {
 		XKeyEvent key = event.xkey; KeySym keysym;
-		char ch; int len = XLookupString(&key, &ch, 1, &keysym, NULL);
+		unsigned char ch = 0; int len = XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
 		ch = (len == 0) ? 0 : ch;
 		if (keysym == XK_F12) {
 			debug_metrics.enabled = !debug_metrics.enabled;
@@ -51,6 +51,17 @@ namespace Events {
 			}
 		}
 		if (UserProvided::Key != NULL) {
+			if (ch == 0) {
+				switch (keysym) {
+					case XK_Left: ch = GKeyLeft; break;
+					case XK_Right: ch = GKeyRight; break;
+					case XK_Up: ch = GKeyUp; break;
+					case XK_Down: ch = GKeyDown; break;
+				}
+				if (keysym >= XK_F1 && keysym <= XK_F12) {
+					ch = keysym - XK_F1 + GKeyFnBase + 1;
+				}
+			}
 			UserProvided::Key(ch);
 		}
 	}
