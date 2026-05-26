@@ -4,7 +4,27 @@ namespace Events {
 		void (*Click)(int x, int y, int btn) = NULL;
 	}
 
-	void EButtonRelease(XEvent event) {
+	void EExpose(XEvent& event) {
+		GRenderWindow();
+	}
+
+	void EClientMessage(XEvent& event) {
+		if ((Atom)event.xclient.data.l[0] == wm_delete) closing = 1;
+	}
+
+	void EMotionNotify(XEvent& event) {
+		mouse_x = event.xmotion.x, mouse_y = event.xmotion.y;
+	}
+
+	void ELeaveNotify(XEvent& event) {
+		mouse_x = -1, mouse_x = -1;
+	}
+
+	void EButtonPress(XEvent& event) {
+		if (mouse_down == 0) mouse_down = event.xbutton.button;
+	}
+
+	void EButtonRelease(XEvent& event) {
 		if (event.xbutton.button == mouse_down) mouse_down = 0;
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
@@ -25,7 +45,7 @@ namespace Events {
 		}
 	}
 
-	void EKeyPress(XEvent event) {
+	void EKeyPress(XEvent& event) {
 		XKeyEvent key = event.xkey; KeySym keysym;
 		unsigned char ch = 0; int len = XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
 		ch = (len == 0) ? 0 : ch;
@@ -65,25 +85,24 @@ namespace Events {
 			UserProvided::Key(ch);
 		}
 	}
+
+	std::unordered_map<int, void(*)(XEvent&)>Handlers = {
+		{Expose, EExpose},
+		{ClientMessage, EClientMessage},
+		{MotionNotify, EMotionNotify},
+		{LeaveNotify, ELeaveNotify},
+		{ButtonPress, EButtonPress},
+		{ButtonRelease, EButtonRelease},
+		{KeyPress, EKeyPress}
+	};
 }
 
 void GHandleWindowEvents() {
 	while (XPending(display) > 0) {
 		XNextEvent(display, &event);
-		if (event.type == Expose) {
-			GRenderWindow();
-		} else if (event.type == ClientMessage && (Atom)event.xclient.data.l[0] == wm_delete) {
-			closing = 1;
-		} else if (event.type == MotionNotify) {
-			mouse_x = event.xmotion.x, mouse_y = event.xmotion.y;
-		} else if (event.type == LeaveNotify) {
-			mouse_x = -1, mouse_x = -1;
-		} else if (event.type == ButtonPress) {
-			if (mouse_down == 0) mouse_down = event.xbutton.button;
-		} else if (event.type == ButtonRelease) {
-			Events::EButtonRelease(event);
-		} else if (event.type == KeyPress) {
-			Events::EKeyPress(event);
+		auto it = Events::Handlers.find(event.type);
+		if (it != Events::Handlers.end()) {
+			it->second(event);
 		}
 	}
 }
