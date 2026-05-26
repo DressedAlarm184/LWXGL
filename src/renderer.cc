@@ -3,7 +3,7 @@ namespace Renderers {
 		TextElement *txt = (TextElement *)e->elem;
 		XSetForeground(display, gc, colors[txt->color]);
 		const char *start = txt->text, *p = txt->text;
-		int y = txt->y;
+		int y = txt->y + 11;
 		while (1) {
 			if (*p == '\n' || *p == '\0') {
 				int len = p - start;
