@@ -99,7 +99,7 @@ void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
 
 void GCreateImage(int id, int x, int y, int w, int h) {
 	ImageElement *img = (ImageElement *)malloc(sizeof(ImageElement));
-	img->x = x; img->y = y; img->w = h, img->h = h;
+	img->x = x; img->y = y; img->w = w, img->h = h;
 	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
 	img->data = (char *)calloc(w * h, 1), img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
 	img->ximage->data = img->imgdata;
@@ -117,5 +117,46 @@ void GUpdateImage(int id) {
 		for (int x = 0; x < img->w; x++) {
 			XPutPixel(img->ximage, x, y, colors[img->data[y * img->w + x]]);
 		}
+	}
+}
+
+void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
+	if (fg == -1) fg = bg;
+	ImageElement *img = (ImageElement *)elements[id]->elem;
+	for (int cy = y; cy < y + h; cy++) {
+		for (int cx = x; cx < x + w; cx++) {
+			int color = (cx == x || cx == w + x - 1) ? fg : (cy == y || cy == y + h - 1) ? fg : bg;
+			if (color != -1) img->data[cx + cy * img->w] = color;
+		}
+	}
+}
+
+void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
+	ImageElement *img = (ImageElement *)elements[id]->elem;
+	for (int y = cy - r; y <= cy + r; y++) {
+		for (int x = cx - r; x <= cx + r; x++) {
+			int dx = x - cx, dy = y - cy;
+			int d2 = dx*dx + dy*dy;
+			int inside = (d2 <= r * r);
+			if (!inside) continue;
+			int on_border = (d2 <= r * r && d2 >= (r-1)*(r-1));
+			if (fg != -1 && on_border) {
+				img->data[x + y * img->w] = (uint32_t)fg;
+			} else if (bg != -1) {
+				img->data[x + y * img->w] = (uint32_t)bg;
+			}
+		}
+	}
+}
+
+void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
+	ImageElement *img = (ImageElement *)elements[id]->elem;
+	int dx = x2 - x1, dy = y2 - y1;
+	int steps = std::max(std::abs(dx), std::abs(dy));
+	float x_inc = dx / (float)steps, y_inc = dy / (float)steps;
+	float x = x1, y = y1;
+	for (int i = 0; i <= steps; i++) {
+		img->data[(int)std::round(x) + (int)std::round(y) * img->w] = color;
+		x += x_inc, y += y_inc;
 	}
 }

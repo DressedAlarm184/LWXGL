@@ -18,6 +18,9 @@ void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg);
 void GCreateImage(int id, int x, int y, int w, int h);
 char* GGetImageData(int id);
 void GUpdateImage(int id);
+void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg);
+void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg);
+void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color);
 #ifdef __cplusplus
 }
 #endif

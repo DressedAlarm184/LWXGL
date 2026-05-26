@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <chrono>
 #include <thread>
+#include <cmath>
 
 Display *display; Window window = None; GC gc; Pixmap bb;
 unsigned long colors[256] = {0}; int bgcol, win_w, win_h;
