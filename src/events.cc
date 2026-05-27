@@ -114,3 +114,7 @@ void GEventAttachKey(void (*Key)(int key)) {
 void GEventAttachClick(void (*Click)(int x, int y, int btn)) {
 	Events::UserProvided::Click = Click;
 }
+
+void GQueryMouse(int* x, int* y, int* btn) {
+	*x = mouse_x, *y = mouse_y, *btn = mouse_down;
+}
