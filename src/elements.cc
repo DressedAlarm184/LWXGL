@@ -135,14 +135,11 @@ void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	for (int y = cy - r; y <= cy + r; y++) {
 		for (int x = cx - r; x <= cx + r; x++) {
-			int dx = x - cx, dy = y - cy;
-			int d2 = dx*dx + dy*dy;
-			int inside = (d2 <= r * r);
-			if (!inside) continue;
-			int on_border = (d2 <= r * r && d2 >= (r-1)*(r-1));
+			int dx = x - cx, dy = y - cy, d2 = dx * dx + dy * dy;
+			int on_border = (d2 <= r * r && d2 >= (r - 1) * (r - 1));
 			if (fg != -1 && on_border) {
 				img->data[x + y * img->w] = (uint32_t)fg;
-			} else if (bg != -1) {
+			} else if (bg != -1 && d2 <= r * r) {
 				img->data[x + y * img->w] = (uint32_t)bg;
 			}
 		}
