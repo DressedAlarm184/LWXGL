@@ -187,6 +187,8 @@ void GPrimitiveSprite(int id, int sx, int sy, int color, char* sprite) {
 					while (runs--) img->data[y * img->w + x++] = 0;
 				} else if (*rle == '$') {
 					x = sx, y += runs;
+				} else if (*rle == '>') {
+					x+= runs;
 				}
 				count = 0;
 			}
