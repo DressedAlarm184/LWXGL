@@ -13,6 +13,7 @@
 #include <thread>
 #include <cmath>
 #include <unordered_map>
+#include <functional>
 
 Display *display; Window window = None; GC gc; Pixmap bb;
 unsigned long colors[256] = {0}; int bgcol, win_w, win_h;

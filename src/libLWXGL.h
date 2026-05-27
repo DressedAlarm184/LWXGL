@@ -23,6 +23,7 @@ void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg);
 void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color);
 void GEventAttachKey(void (*Key)(int key));
 void GEventAttachClick(void (*Click)(int x, int y, int btn));
+void GPrimitiveSprite(int id, int sx, int sy, int color, char* sprite);
 
 #define GKeyLeft 170
 #define GKeyRight 171

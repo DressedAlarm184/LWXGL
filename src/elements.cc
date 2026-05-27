@@ -160,3 +160,42 @@ void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 		x += x_inc, y += y_inc;
 	}
 }
+
+void GPrimitiveSprite(int id, int sx, int sy, int color, char* sprite) {
+	ImageElement *img = (ImageElement *)elements[id]->elem;
+	int x = sx, y = sy;
+
+	std::function<void(char*, int)> draw = [&](char* rle, int len) {
+		int count = 0;
+		for (int i = 0; (*rle != 0 && *rle != '!' && i < len); i++) {
+			if (*rle >= '0' && *rle <= '9') {
+				count = count * 10 + (*rle - '0');
+			} else if (*rle == '[') {
+				rle++;
+				char *start = rle, *end = rle;
+				for (int depth = 1; *end && depth > 0;) {
+					if (*end == '[') depth++;
+					else if (*end == ']') depth--;
+					end++;
+				}
+				int len = (int)((end - 1) - start);
+				int runs = (count > 0) ? count : 1;
+				while (runs--) draw(rle, len);
+				rle = end - 1, count = 0;
+			} else {
+				int runs = (count == 0) ? 1 : count;
+				if (*rle == '#') {
+					while (runs--) img->data[y * img->w + x++] = color;
+				} else if (*rle == '.') {
+					while (runs--) img->data[y * img->w + x++] = 0;
+				} else if (*rle == '$') {
+					x = sx, y += runs;
+				}
+				count = 0;
+			}
+			rle++;
+		}
+	};
+
+	draw(sprite, strlen(sprite));
+}
