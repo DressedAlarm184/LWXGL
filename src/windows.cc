@@ -47,7 +47,7 @@ int GCreateWindow(int w, int h, char* name, int bgcolor) {
 	wm_delete = XInternAtom(display, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(display, window, &wm_delete, 1);
 	
-	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask);
+	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | LeaveWindowMask);
 	
 	XMapWindow(display, window);
 	
