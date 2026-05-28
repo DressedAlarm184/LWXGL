@@ -60,8 +60,8 @@ int GCreateWindow(int w, int h, char* name, int bgcolor) {
 	XSetFont(display, gc, font->fid);
 	bb = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
 	
-	static unsigned char stipple_bits[] = {0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55};
-	stipple = XCreateBitmapFromData(display, window, (char*)stipple_bits, 8, 8);
+	static unsigned char stipple_bits[] = {0x01, 0x02};
+	stipple = XCreateBitmapFromData(display, window, (char*)stipple_bits, 2, 2);
 	XSetStipple(display, gc, stipple);
 
 	bgcol = bgcolor;
@@ -91,7 +91,7 @@ int GWindowShouldClose() {
 void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
 	using namespace std::chrono;
 	
-	debug_metrics.active = 1;
+	State::debug_metrics.active = 1;
 	const microseconds FRAME_TIME(1000000/target_fps);
 	unsigned long long tick = 0;
 	auto last_time = steady_clock::now();
@@ -111,9 +111,9 @@ void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
 			auto work_time = duration_cast<microseconds>(steady_clock::now() - work_start);
 			float current_fps = 1000000.0 / elapsed.count();
 			
-			for (int i = 0; i < 59; i++) debug_metrics.avg_wt[i] = debug_metrics.avg_wt[i + 1];
-			debug_metrics.avg_wt[59] = work_time.count();
-			debug_metrics.fps = current_fps;
+			for (int i = 0; i < 59; i++) State::debug_metrics.avg_wt[i] = State::debug_metrics.avg_wt[i + 1];
+			State::debug_metrics.avg_wt[59] = work_time.count();
+			State::debug_metrics.fps = current_fps;
 			
 			last_time += FRAME_TIME, tick++;
 			
@@ -131,4 +131,11 @@ void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
 
 void GDeleteWindow() {
 	closing = 1;
+}
+
+void GSpawnModal(int type, char* msg, void (*on_confirm)()) {
+	State::active_modal_state.active = 1;
+	State::active_modal_state.msg = msg;
+	State::active_modal_state.on_confirm = on_confirm;
+	State::active_modal_state.type = type;
 }

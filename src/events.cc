@@ -17,7 +17,7 @@ namespace Events {
 	}
 
 	void ELeaveNotify(XEvent& event) {
-		mouse_x = -1, mouse_x = -1;
+		mouse_x = -1, mouse_y = -1;
 	}
 
 	void EButtonPress(XEvent& event) {
@@ -26,6 +26,15 @@ namespace Events {
 
 	void EButtonRelease(XEvent& event) {
 		if (event.xbutton.button == mouse_down) mouse_down = 0;
+		if (State::active_modal_state.active) {
+			if (mouse_y < 200 && mouse_y > 180 && mouse_x > (win_w / 2 + 120) && mouse_x < (win_w / 2 + 150)) {
+				if (State::active_modal_state.on_confirm != NULL) State::active_modal_state.on_confirm();
+				State::active_modal_state.active = 0;
+			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > (win_w / 2 + 50) && mouse_x < (win_w / 2 + 115)) {
+				State::active_modal_state.active = 0;
+			}
+			return;
+		}
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
@@ -35,7 +44,7 @@ namespace Events {
 				mouse_y >= btn->y && mouse_y <= btn->y + btn->h;
 				if (inside) {
 					if (event.xbutton.button != 1) return;
-					btn->onclick();
+					if (btn->onclick != NULL) btn->onclick();
 					return;
 				}
 			}
@@ -50,9 +59,10 @@ namespace Events {
 		unsigned char ch = 0; int len = XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
 		ch = (len == 0) ? 0 : ch;
 		if (keysym == XK_F12) {
-			debug_metrics.enabled = !debug_metrics.enabled;
+			State::debug_metrics.enabled = !State::debug_metrics.enabled;
 			return;
 		}
+		if (State::active_modal_state.active) return;
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;

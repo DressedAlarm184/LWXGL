@@ -25,6 +25,7 @@ void GEventAttachKey(void (*Key)(int key));
 void GEventAttachClick(void (*Click)(int x, int y, int btn));
 void GPrimitiveSprite(int id, int sx, int sy, int color, char* sprite);
 void GQueryMouse(int* x, int* y, int* btn);
+void GSpawnModal(int type, char* msg, void (*on_confirm)());
 
 #define GKeyLeft 170
 #define GKeyRight 171

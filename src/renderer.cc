@@ -2,24 +2,21 @@ namespace Renderers {
 	void Text(Element* e) {
 		TextElement *txt = (TextElement *)e->elem;
 		XSetForeground(display, gc, colors[txt->color]);
-		const char *start = txt->text, *p = txt->text;
+		const char *str = txt->text;
 		int y = txt->y + 11;
-		while (1) {
-			if (*p == '\n' || *p == '\0') {
-				int len = p - start;
-				XDrawString(display, bb, gc, txt->x, y, start, len);
-				y += 16;
-				if (*p == '\0') break;
-				start = p + 1;
-			}
-			p++;
+		while (*str != '\0') {
+			int len = 0;
+			while (str[len] != '\0' && str[len] != '\n') len++;
+			XDrawString(display, bb, gc, txt->x, y, str, len);
+			str += len, y += 16;;
+			if (*str == '\n') str++;
 		}
 	}
 
 	void Button(Element* e) {
 		ButtonElement *btn = (ButtonElement *)e->elem;
 		int inside = mouse_x >= btn->x && mouse_x <= btn->x + btn->w &&
-			mouse_y >= btn->y && mouse_y <= btn->y + btn->h;
+			mouse_y >= btn->y && mouse_y <= btn->y + btn->h && !State::active_modal_state.active;
 		if (inside) {
 			XSetForeground(display, gc, mouse_down == 1 ? colors[btn->bgp] : colors[btn->bgh]);
 		} else XSetForeground(display, gc, colors[btn->bgu]);
@@ -34,7 +31,7 @@ namespace Renderers {
 	void Input(Element* e) {
 		InputElement *input = (InputElement *)e->elem;
 		int inside = mouse_x >= input->x && mouse_x <= input->x + input->w &&
-			mouse_y >= input->y && mouse_y <= input->y + input->h;
+			mouse_y >= input->y && mouse_y <= input->y + input->h && !State::active_modal_state.active;
 		if (inside) {
 			XSetForeground(display, gc, colors[input->bgh]);
 		} else XSetForeground(display, gc, colors[input->bgu]);
@@ -69,16 +66,37 @@ namespace Renderers {
 	};
 
 	void DrawDebugOverlay() {
-		int wt = 0; for (int i = 0; i < 60; i++) wt += debug_metrics.avg_wt[i]; wt /= 60;
+		int wt = 0; for (int i = 0; i < 60; i++) wt += State::debug_metrics.avg_wt[i]; wt /= 60;
 		XSetForeground(display, gc, colors[0]);
 		XFillRectangle(display, bb, gc, 5, 5, 140, 40);
 		XSetForeground(display, gc, colors[15]);
 		XDrawRectangle(display, bb, gc, 7, 7, 135, 35);
 		char wt_buffer[32] = {0}, fps_buffer[32] = {0};
 		int wt_len = sprintf(wt_buffer, "FT: %d (us)", wt);
-		int fps_len = sprintf(fps_buffer, "FPS: %.1f", debug_metrics.fps);
+		int fps_len = sprintf(fps_buffer, "FPS: %.1f", State::debug_metrics.fps);
 		XDrawString(display, bb, gc, 11, 23, wt_buffer, wt_len);
 		XDrawString(display, bb, gc, 11, 37, fps_buffer, fps_len);
+	}
+
+	void DrawActiveModal() {
+		XSetForeground(display, gc, colors[0]);
+		XFillRectangle(display, bb, gc, win_w / 2 - 153, 47, 306, 156);
+		XSetForeground(display, gc, colors[15]);
+		XDrawRectangle(display, bb, gc, win_w / 2 - 151, 49, 301, 151);
+		int y = 68; char* str = State::active_modal_state.msg;
+		while (*str != '\0') {
+			int len = 0;
+			while (str[len] != '\0' && str[len] != '\n' && len < 31) len++;
+			XDrawString(display, bb, gc, win_w / 2 - 141, y, str, len);
+			str += len, y += 16;;
+			if (*str == '\n') str++;
+		}
+		XSetForeground(display, gc, colors[10]);
+		XDrawString(display, bb, gc, win_w / 2 + 125, 193, "OK", 2);
+		if (State::active_modal_state.type == 1) {
+			XSetForeground(display, gc, colors[12]);
+			XDrawString(display, bb, gc, win_w / 2 + 55, 193, "Cancel", 6);
+		}
 	}
 }
 
@@ -92,7 +110,9 @@ void GRenderWindow() {
 		Renderers::Functions[e->type](e);
 	}
 
-	if (debug_metrics.active == 1 && debug_metrics.enabled == 1)
+	if (State::active_modal_state.active == 1) Renderers::DrawActiveModal();
+
+	if (State::debug_metrics.active == 1 && State::debug_metrics.enabled == 1)
 		Renderers::DrawDebugOverlay();
 
 	XCopyArea(display, bb, window, gc, 0, 0, win_w, win_h, 0, 0);

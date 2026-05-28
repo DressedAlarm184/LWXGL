@@ -20,11 +20,21 @@ unsigned long colors[256] = {0}; int bgcol, win_w, win_h;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
 Atom wm_delete; XEvent event; Pixmap stipple; XFontStruct* font;
 
-struct {
-	int avg_wt[60] = {0};
-	float fps;
-	int active = 0, enabled = 0;
-} debug_metrics;
+namespace State {
+	struct {
+		int avg_wt[60] = {0};
+		float fps;
+		int active = 0, enabled = 0;
+	} debug_metrics;
+
+	struct {
+		int active = 0, type = 0;
+		char* msg;
+		void (*on_confirm)();
+	} active_modal_state;
+
+	int (*on_exit)();
+}
 
 static const struct {
 	unsigned char r;
