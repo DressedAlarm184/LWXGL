@@ -20,23 +20,19 @@ unsigned long colors[256] = {0}; int bgcol, win_w, win_h;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
 Atom wm_delete; XEvent event; Pixmap stipple; XFontStruct* font;
 
-namespace State {
-	struct {
-		int avg_wt[60] = {0};
-		float fps;
-		int active = 0, enabled = 0;
-	} debug_metrics;
+struct {
+	int avg_wt[60] = {0};
+	float fps;
+	int active = 0, enabled = 0;
+} debug_metrics;
 
-	struct {
-		int active = 0, type = 0;
-		const char* msg;
-		void (*on_confirm)();
-	} active_modal_state;
+struct {
+	int active = 0, type = 0;
+	const char* msg;
+	void (*on_confirm)();
+} active_modal_state;
 
-	int (*on_exit)() = NULL;
-}
-
-static const struct {
+struct {
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
@@ -63,6 +59,6 @@ static const struct {
 #define H(b)  (((b) >> 4) & 0x0F)
 
 #include "elements.cc"
+#include "events.cc"
 #include "windows.cc"
 #include "renderer.cc"
-#include "events.cc"

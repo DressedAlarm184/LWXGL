@@ -2,6 +2,7 @@ namespace Events {
 	namespace UserProvided {
 		void (*Key)(int key) = NULL;
 		void (*Click)(int x, int y, int btn) = NULL;
+		int (*Delete)() = NULL;
 	}
 
 	void EExpose(XEvent& event) {
@@ -26,12 +27,12 @@ namespace Events {
 
 	void EButtonRelease(XEvent& event) {
 		if (event.xbutton.button == mouse_down) mouse_down = 0;
-		if (State::active_modal_state.active) {
+		if (GQueryModalOpen()) {
 			if (mouse_y < 200 && mouse_y > 180 && mouse_x > (win_w / 2 + 120) && mouse_x < (win_w / 2 + 150)) {
-				if (State::active_modal_state.on_confirm != NULL) State::active_modal_state.on_confirm();
-				State::active_modal_state.active = 0;
+				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
+				active_modal_state.active = 0;
 			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > (win_w / 2 + 50) && mouse_x < (win_w / 2 + 115)) {
-				State::active_modal_state.active = 0;
+				active_modal_state.active = 0;
 			}
 			return;
 		}
@@ -59,10 +60,10 @@ namespace Events {
 		unsigned char ch = 0; int len = XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
 		ch = (len == 0) ? 0 : ch;
 		if (keysym == XK_F12) {
-			State::debug_metrics.enabled = !State::debug_metrics.enabled;
+			debug_metrics.enabled = !debug_metrics.enabled;
 			return;
 		}
-		if (State::active_modal_state.active) return;
+		if (GQueryModalOpen()) return;
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
@@ -107,6 +108,7 @@ namespace Events {
 	};
 }
 
+__attribute__((visibility("default")))
 void GHandleWindowEvents() {
 	while (XPending(display) > 0) {
 		XNextEvent(display, &event);
@@ -117,18 +119,22 @@ void GHandleWindowEvents() {
 	}
 }
 
+__attribute__((visibility("default")))
 void GEventAttachKey(void (*Key)(int key)) {
 	Events::UserProvided::Key = Key;
 }
 
+__attribute__((visibility("default")))
 void GEventAttachClick(void (*Click)(int x, int y, int btn)) {
 	Events::UserProvided::Click = Click;
 }
 
+__attribute__((visibility("default")))
 void GQueryMouse(int* x, int* y, int* btn) {
 	*x = mouse_x, *y = mouse_y, *btn = mouse_down;
 }
 
+__attribute__((visibility("default")))
 void GEventAttachDelete(int (*on_exit)()) {
-	State::on_exit = on_exit;
+	Events::UserProvided::Delete = on_exit;
 }
