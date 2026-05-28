@@ -28,6 +28,7 @@ void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite);
 void GQueryMouse(int* x, int* y, int* btn);
 void GSpawnModal(int type, const char* msg, void (*on_confirm)());
 void GEventAttachDelete(int (*on_exit)());
+int GQueryModalOpen();
 
 #define GKeyLeft 170
 #define GKeyRight 171

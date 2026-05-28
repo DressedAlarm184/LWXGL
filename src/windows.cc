@@ -141,3 +141,7 @@ void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
 	State::active_modal_state.on_confirm = on_confirm;
 	State::active_modal_state.type = type;
 }
+
+int GQueryModalOpen() {
+	return State::active_modal_state.active;
+}
