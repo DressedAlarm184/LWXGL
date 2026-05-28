@@ -9,7 +9,7 @@ namespace Events {
 	}
 
 	void EClientMessage(XEvent& event) {
-		if ((Atom)event.xclient.data.l[0] == wm_delete) closing = 1;
+		if ((Atom)event.xclient.data.l[0] == wm_delete) GDeleteWindow();
 	}
 
 	void EMotionNotify(XEvent& event) {
@@ -127,4 +127,8 @@ void GEventAttachClick(void (*Click)(int x, int y, int btn)) {
 
 void GQueryMouse(int* x, int* y, int* btn) {
 	*x = mouse_x, *y = mouse_y, *btn = mouse_down;
+}
+
+void GEventAttachDelete(int (*on_exit)()) {
+	State::on_exit = on_exit;
 }

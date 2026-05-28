@@ -1,4 +1,4 @@
-int GCreateWindow(int w, int h, char* name, int bgcolor) {
+int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	win_w = w, win_h = h;
 
 	if (window != None) return 3;
@@ -130,10 +130,12 @@ void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
 }
 
 void GDeleteWindow() {
-	closing = 1;
+	if (State::on_exit != NULL) {
+		closing = State::on_exit();
+	} else closing = 1;
 }
 
-void GSpawnModal(int type, char* msg, void (*on_confirm)()) {
+void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
 	State::active_modal_state.active = 1;
 	State::active_modal_state.msg = msg;
 	State::active_modal_state.on_confirm = on_confirm;

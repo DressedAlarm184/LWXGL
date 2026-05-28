@@ -29,11 +29,11 @@ namespace State {
 
 	struct {
 		int active = 0, type = 0;
-		char* msg;
+		const char* msg;
 		void (*on_confirm)();
 	} active_modal_state;
 
-	int (*on_exit)();
+	int (*on_exit)() = NULL;
 }
 
 static const struct {

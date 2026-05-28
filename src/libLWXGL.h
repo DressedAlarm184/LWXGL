@@ -2,13 +2,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-int GCreateWindow(int w, int h, char* name, int bgcol);
+
+int GCreateWindow(int w, int h, const char* name, int bgcol);
 void GTerminateWindow();
 int GWindowShouldClose();
 void GHandleWindowEvents();
 void GRenderWindow();
-void GCreateText(int id, int x, int y, int color, char* text);
-void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, char* label, void (*onclick)(void));
+void GCreateText(int id, int x, int y, int color, const char* text);
+void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void));
 void GSimpleWindowLoop(int target_fps, void (*on_every)(int));
 void GDeleteWindow();
 void GDeleteElement(int index);
@@ -23,9 +24,10 @@ void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg);
 void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color);
 void GEventAttachKey(void (*Key)(int key));
 void GEventAttachClick(void (*Click)(int x, int y, int btn));
-void GPrimitiveSprite(int id, int sx, int sy, int color, char* sprite);
+void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite);
 void GQueryMouse(int* x, int* y, int* btn);
-void GSpawnModal(int type, char* msg, void (*on_confirm)());
+void GSpawnModal(int type, const char* msg, void (*on_confirm)());
+void GEventAttachDelete(int (*on_exit)());
 
 #define GKeyLeft 170
 #define GKeyRight 171

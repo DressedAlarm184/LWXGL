@@ -1,11 +1,11 @@
 typedef struct {
 	int x, y, color;
-	char *text;
+	const char *text;
 } TextElement;
 
 typedef struct {
 	int x, y, w, h, fgu, bgu, fgp, bgp, bgh, fgh;
-	char* label; void (*onclick)(void);
+	const char* label; void (*onclick)(void);
 } ButtonElement;
 
 typedef struct {
@@ -52,13 +52,13 @@ Element *allocate_element(int id, int type, void *data) {
 	return e;
 }
 
-void GCreateText(int id, int x, int y, int color, char* text) {
+void GCreateText(int id, int x, int y, int color, const char* text) {
 	TextElement *text_elem = (TextElement*)malloc(sizeof(TextElement));
 	text_elem->x = x; text_elem->y = y; text_elem->text = text; text_elem->color = color;
 	allocate_element(id, 0, text_elem);
 }
 
-void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, char* label, void (*onclick)(void)) {
+void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void)) {
 	ButtonElement *btn_elem = (ButtonElement*)malloc(sizeof(ButtonElement));
 
 	*btn_elem = (ButtonElement){
@@ -158,18 +158,18 @@ void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 	}
 }
 
-void GPrimitiveSprite(int id, int sx, int sy, int color, char* sprite) {
+void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	int x = sx, y = sy;
 
-	std::function<void(char*, int)> draw = [&](char* rle, int len) {
+	std::function<void(const char*, int)> draw = [&](const char* rle, int len) {
 		int count = 0;
 		for (int i = 0; (*rle != 0 && *rle != '!' && i < len); i++) {
 			if (*rle >= '0' && *rle <= '9') {
 				count = count * 10 + (*rle - '0');
 			} else if (*rle == '[') {
 				rle++;
-				char *start = rle, *end = rle;
+				const char *start = rle, *end = rle;
 				for (int depth = 1; *end && depth > 0;) {
 					if (*end == '[') depth++;
 					else if (*end == ']') depth--;

@@ -83,7 +83,7 @@ namespace Renderers {
 		XFillRectangle(display, bb, gc, win_w / 2 - 153, 47, 306, 156);
 		XSetForeground(display, gc, colors[15]);
 		XDrawRectangle(display, bb, gc, win_w / 2 - 151, 49, 301, 151);
-		int y = 68; char* str = State::active_modal_state.msg;
+		int y = 68; const char* str = State::active_modal_state.msg;
 		while (*str != '\0') {
 			int len = 0;
 			while (str[len] != '\0' && str[len] != '\n' && len < 31) len++;
