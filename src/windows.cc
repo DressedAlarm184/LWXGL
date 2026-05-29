@@ -18,9 +18,9 @@ int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	XColor dummy_exact, xcolor;
 
 	for (int i = 0; i < 16; i++) {
-		xcolor.red   = color_pallete[i].r * 257;
-		xcolor.green = color_pallete[i].g * 257;
-		xcolor.blue  = color_pallete[i].b * 257;
+		xcolor.red   = color_palette[i].r * 257;
+		xcolor.green = color_palette[i].g * 257;
+		xcolor.blue  = color_palette[i].b * 257;
 		xcolor.flags = DoRed | DoGreen | DoBlue;
 		if (XAllocColor(display, colormap, &xcolor)) {
 			colors[i] = xcolor.pixel;

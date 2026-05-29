@@ -40,7 +40,7 @@ struct {
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
-} color_pallete[16] = {
+} color_palette[16] = {
 	{0,   0,   0},     // 00: Black
 	{3,   3,   173},   // 01: Dark Blue
 	{0,   170, 0},     // 02: Dark Green
