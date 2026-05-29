@@ -74,27 +74,28 @@ namespace Events {
 		XKeyEvent key = event.xkey; KeySym keysym;
 		unsigned char ch = 0; int len = XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
 		ch = translate_keypress(ch, keysym);
+		if (ch == 0) return;
+		if (keysym == XK_Escape && (key.state & ControlMask)) {
+			GDeleteWindow();
+			return;
+		}
 		if (keysym == XK_F12) {
 			debug_metrics.enabled = !debug_metrics.enabled;
 			return;
 		}
-		if (ch != 0) {
-			bool already_pressed = false;
+		bool already_pressed = false;
+		for (int i = 0; i < 8; i++) {
+			if (active_keycodes[i] != key.keycode) continue;
+			pressed_keys[i] = ch;
+			already_pressed = true;
+			break;
+		}
+		if (!already_pressed) {
 			for (int i = 0; i < 8; i++) {
-				if (active_keycodes[i] == key.keycode) {
-					pressed_keys[i] = ch;
-					already_pressed = true;
-					break;
-				}
-			}
-			if (!already_pressed) {
-				for (int i = 0; i < 8; i++) {
-					if (active_keycodes[i] == 0) {
-						pressed_keys[i] = ch;
-						active_keycodes[i] = key.keycode;
-						break;
-					}
-				}
+				if (active_keycodes[i] != 0) continue;
+				pressed_keys[i] = ch;
+				active_keycodes[i] = key.keycode;
+				break;
 			}
 		}
 		if (GQueryModalOpen()) return;
