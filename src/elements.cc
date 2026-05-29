@@ -147,6 +147,7 @@ void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	for (int cy = y; cy < y + h; cy++) {
 		for (int cx = x; cx < x + w; cx++) {
+			if (cx < 0 || cx >= img->w || cy < 0 || cy >= img->h) continue;
 			int color = (cx == x || cx == w + x - 1) ? fg : (cy == y || cy == y + h - 1) ? fg : bg;
 			if (color != -1) img->data[cx + cy * img->w] = color;
 		}
@@ -158,6 +159,7 @@ void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	for (int y = cy - r; y <= cy + r; y++) {
 		for (int x = cx - r; x <= cx + r; x++) {
+			if (x < 0 || x >= img->w || y < 0 || y >= img->h) continue;
 			int dx = x - cx, dy = y - cy, d2 = dx * dx + dy * dy;
 			int on_border = (d2 <= r * r && d2 >= (r - 1) * (r - 1));
 			if (fg != -1 && on_border) {
@@ -177,7 +179,9 @@ void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 	float x_inc = dx / (float)steps, y_inc = dy / (float)steps;
 	float x = x1, y = y1;
 	for (int i = 0; i <= steps; i++) {
-		img->data[(int)std::round(x) + (int)std::round(y) * img->w] = color;
+		int pixel_x = (int)std::round(x), pixel_y = (int)std::round(y);
+		if (pixel_x < 0 || pixel_x >= img->w || pixel_y < 0 || pixel_y >= img->h) continue;
+		img->data[pixel_x + pixel_y * img->w] = color;
 		x += x_inc, y += y_inc;
 	}
 }
