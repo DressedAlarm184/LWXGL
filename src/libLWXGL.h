@@ -17,7 +17,7 @@ void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max);
 char* GGetInput(int id);
 void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg);
 void GCreateImage(int id, int x, int y, int w, int h);
-char* GGetImageData(int id);
+unsigned char* GGetImageData(int id);
 void GUpdateImage(int id);
 void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg);
 void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg);

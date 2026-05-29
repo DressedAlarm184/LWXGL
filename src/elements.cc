@@ -20,7 +20,8 @@ typedef struct {
 typedef struct {
 	int x, y, w, h;
 	XImage *ximage;
-	char *data, *imgdata;
+	unsigned char *data, *prev;
+	char *imgdata;
 } ImageElement;
 
 typedef struct {
@@ -37,6 +38,7 @@ void GDeleteElement(int id) {
 		ImageElement *img = (ImageElement *)elements[id]->elem;
 		XDestroyImage(img->ximage);
 		free(img->data);
+		free(img->prev);
 	}
 	free(elements[id]->elem);
 	free(elements[id]);
@@ -108,23 +110,33 @@ void GCreateImage(int id, int x, int y, int w, int h) {
 	ImageElement *img = (ImageElement *)malloc(sizeof(ImageElement));
 	img->x = x; img->y = y; img->w = w, img->h = h;
 	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
-	img->data = (char *)calloc(w * h, 1), img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
+	img->data = (unsigned char *)calloc(w * h, 1);
+	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
+	img->prev = (unsigned char *)calloc(w * h, 1);
 	img->ximage->data = img->imgdata;
 	allocate_element(id, 4, img);
 }
 
 __attribute__((visibility("default")))
-char* GGetImageData(int id) {
+unsigned char* GGetImageData(int id) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	return img->data;
 }
 
 __attribute__((visibility("default")))
 void GUpdateImage(int id) {
-	ImageElement *img = (ImageElement *)elements[id]->elem;;
-	for (int y = 0; y < img->h; y++) {
-		for (int x = 0; x < img->w; x++) {
-			XPutPixel(img->ximage, x, y, colors[img->data[y * img->w + x]]);
+	ImageElement *img = (ImageElement *)elements[id]->elem;
+	int w = img->w, h = img->h;
+	unsigned char *src = (unsigned char*)img->data;
+	unsigned char *prev = (unsigned char*)img->prev; 
+	int (*put_pixel)(XImage *, int, int, unsigned long) = img->ximage->f.put_pixel;
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			if (*src != *prev) {
+				put_pixel(img->ximage, x, y, colors[*src]);
+				*prev = *src; 
+			}
+			src++, prev++;
 		}
 	}
 }
