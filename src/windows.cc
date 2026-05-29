@@ -48,7 +48,7 @@ int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	wm_delete = XInternAtom(display, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(display, window, &wm_delete, 1);
 	
-	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | LeaveWindowMask);
+	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | LeaveWindowMask | KeyReleaseMask);
 	
 	XMapWindow(display, window);
 	
@@ -64,6 +64,8 @@ int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	static unsigned char stipple_bits[] = {0x01, 0x02};
 	stipple = XCreateBitmapFromData(display, window, (char*)stipple_bits, 2, 2);
 	XSetStipple(display, gc, stipple);
+
+	XkbSetDetectableAutoRepeat(display, True, NULL);
 
 	bgcol = bgcolor;
 

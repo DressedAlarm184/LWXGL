@@ -1,3 +1,18 @@
+int translate_keypress(int ch, KeySym& keysym) {
+	if (ch == 0) {
+		switch (keysym) {
+			case XK_Left: ch = GKeyLeft; break;
+			case XK_Right: ch = GKeyRight; break;
+			case XK_Up: ch = GKeyUp; break;
+			case XK_Down: ch = GKeyDown; break;
+		}
+		if (keysym >= XK_F1 && keysym <= XK_F12) {
+			ch = keysym - XK_F1 + GKeyFnBase + 1;
+		}
+	}
+	return ch;
+}
+
 namespace Events {
 	namespace UserProvided {
 		void (*Key)(int key) = NULL;
@@ -58,10 +73,29 @@ namespace Events {
 	void EKeyPress(XEvent& event) {
 		XKeyEvent key = event.xkey; KeySym keysym;
 		unsigned char ch = 0; int len = XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
-		ch = (len == 0) ? 0 : ch;
+		ch = translate_keypress(ch, keysym);
 		if (keysym == XK_F12) {
 			debug_metrics.enabled = !debug_metrics.enabled;
 			return;
+		}
+		if (ch != 0) {
+			bool already_pressed = false;
+			for (int i = 0; i < 8; i++) {
+				if (active_keycodes[i] == key.keycode) {
+					pressed_keys[i] = ch;
+					already_pressed = true;
+					break;
+				}
+			}
+			if (!already_pressed) {
+				for (int i = 0; i < 8; i++) {
+					if (active_keycodes[i] == 0) {
+						pressed_keys[i] = ch;
+						active_keycodes[i] = key.keycode;
+						break;
+					}
+				}
+			}
 		}
 		if (GQueryModalOpen()) return;
 		for (int i = 0; i < elements.size(); i++) {
@@ -82,18 +116,16 @@ namespace Events {
 			}
 		}
 		if (UserProvided::Key != NULL) {
-			if (ch == 0) {
-				switch (keysym) {
-					case XK_Left: ch = GKeyLeft; break;
-					case XK_Right: ch = GKeyRight; break;
-					case XK_Up: ch = GKeyUp; break;
-					case XK_Down: ch = GKeyDown; break;
-				}
-				if (keysym >= XK_F1 && keysym <= XK_F12) {
-					ch = keysym - XK_F1 + GKeyFnBase + 1;
-				}
-			}
 			UserProvided::Key(ch);
+		}
+	}
+
+	void EKeyRelease(XEvent& event) {
+		for (int i = 0; i < 8; i++) {
+			if (active_keycodes[i] == event.xkey.keycode) {
+				pressed_keys[i] = 0;
+				active_keycodes[i] = 0;
+			}
 		}
 	}
 
@@ -104,7 +136,8 @@ namespace Events {
 		{LeaveNotify, ELeaveNotify},
 		{ButtonPress, EButtonPress},
 		{ButtonRelease, EButtonRelease},
-		{KeyPress, EKeyPress}
+		{KeyPress, EKeyPress},
+		{KeyRelease, EKeyRelease},
 	};
 }
 
@@ -137,4 +170,17 @@ void GQueryMouse(int* x, int* y, int* btn) {
 __attribute__((visibility("default")))
 void GEventAttachDelete(int (*on_exit)()) {
 	Events::UserProvided::Delete = on_exit;
+}
+
+__attribute__((visibility("default")))
+unsigned char* GQueryKeyboard() {
+	return pressed_keys;
+}
+
+__attribute__((visibility("default")))
+int GQueryKeyDown(int ch) {
+	for (int i = 0; i < 8; i++) {
+		if (pressed_keys[i] == ch) return 1;
+	}
+	return 0;
 }

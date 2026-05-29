@@ -29,6 +29,8 @@ void GQueryMouse(int* x, int* y, int* btn);
 void GSpawnModal(int type, const char* msg, void (*on_confirm)());
 void GEventAttachDelete(int (*on_exit)());
 int GQueryModalOpen();
+unsigned char* GQueryKeyboard();
+int GQueryKeyDown(int ch);
 
 #define GKeyLeft 170
 #define GKeyRight 171

@@ -1,6 +1,7 @@
 #include "libLWXGL.h"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/XKBlib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +20,9 @@ Display *display; Window window = None; GC gc; Pixmap bb;
 unsigned long colors[256] = {0}; int bgcol, win_w, win_h;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
 Atom wm_delete; XEvent event; Pixmap stipple; XFontStruct* font;
+
+unsigned char pressed_keys[8] = {0};
+unsigned int active_keycodes[8] = {0};
 
 struct {
 	int avg_wt[60] = {0};
