@@ -187,9 +187,20 @@ void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 }
 
 __attribute__((visibility("default")))
-void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite) {
+void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int scale) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	int x = sx, y = sy;
+
+	auto set_pixel = [&](int color) {
+		for (int yoff = 0; yoff < scale; yoff++) {
+			for (int xoff = 0; xoff < scale; xoff++) {
+				int px = x + xoff, py = y + yoff;
+				if (px >= 0 && px < img->w && py >= 0 && py < img->h) {
+					img->data[py * img->w + px] = color;
+				}
+			}
+		}
+	};
 
 	std::function<void(const char*, int)> draw = [&](const char* rle, int len) {
 		int count = 0;
@@ -211,13 +222,19 @@ void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite) {
 			} else {
 				int runs = (count == 0) ? 1 : count;
 				if (*rle == '#') {
-					while (runs--) img->data[y * img->w + x++] = color;
-				} else if (*rle == '.') {
-					while (runs--) img->data[y * img->w + x++] = 0;
-				} else if (*rle == '$') {
-					x = sx, y += runs;
+				while (runs-- > 0) {
+					set_pixel(color);
+					x += scale;
+				}
+			} else if (*rle == '.') {
+				while (runs-- > 0) {
+					set_pixel(0);
+					x += scale;
+				}
+			} else if (*rle == '$') {
+					x = sx, y += runs * scale;
 				} else if (*rle == '>') {
-					x+= runs;
+					x += runs * scale;
 				}
 				count = 0;
 			}
