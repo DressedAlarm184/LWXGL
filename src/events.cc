@@ -47,7 +47,8 @@ namespace Events {
 				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
 				active_modal_state.active = 0;
 			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > (win_w / 2 + 50) && mouse_x < (win_w / 2 + 115)) {
-				active_modal_state.active = 0;
+				if (active_modal_state.type == 1)
+					active_modal_state.active = 0;
 			}
 			return;
 		}
