@@ -1,13 +1,13 @@
 int translate_keypress(int ch, KeySym& keysym) {
 	if (ch == 0) {
 		switch (keysym) {
-			case XK_Left: ch = GKeyLeft; break;
-			case XK_Right: ch = GKeyRight; break;
-			case XK_Up: ch = GKeyUp; break;
-			case XK_Down: ch = GKeyDown; break;
+			case XK_Left: ch = LWXGL_KEY_LEFT; break;
+			case XK_Right: ch = LWXGL_KEY_RIGHT; break;
+			case XK_Up: ch = LWXGL_KEY_UP; break;
+			case XK_Down: ch = LWXGL_KEY_DOWN; break;
 		}
 		if (keysym >= XK_F1 && keysym <= XK_F12) {
-			ch = keysym - XK_F1 + GKeyFnBase + 1;
+			ch = keysym - XK_F1 + LWXGL_KEY_FN + 1;
 		}
 	}
 	return ch;

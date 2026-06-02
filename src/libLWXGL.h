@@ -32,11 +32,11 @@ int GQueryModalOpen();
 unsigned char* GQueryKeyboard();
 int GQueryKeyDown(int ch);
 
-#define GKeyLeft 170
-#define GKeyRight 171
-#define GKeyUp 172
-#define GKeyDown 173
-#define GKeyFnBase 150
+#define LWXGL_KEY_LEFT 170
+#define LWXGL_KEY_RIGHT 171
+#define LWXGL_KEY_UP 172
+#define LWXGL_KEY_DOWN 173
+#define LWXGL_KEY_FN 150
 
 #ifdef __cplusplus
 }
