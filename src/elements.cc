@@ -4,12 +4,16 @@ typedef struct {
 } TextElement;
 
 typedef struct {
-	int x, y, w, h, fgu, bgu, fgp, bgp, bgh, fgh;
-	const char* label; void (*onclick)(void);
+	int x, y, w, h;
+	int unpressed, hover, pressed;
+	const char* label;
+	void (*onclick)(void);
 } ButtonElement;
 
 typedef struct {
-	int x, y, w, h, fgu, bgu, bgh, fgh, max;
+	int x, y, w, h;
+	int inactive, hover;
+	int max;
 	char input[128];
 } InputElement;
 
@@ -67,7 +71,7 @@ void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, co
 	ButtonElement *btn_elem = (ButtonElement*)malloc(sizeof(ButtonElement));
 
 	*btn_elem = (ButtonElement){
-		.x = x, .y = y, .w = w, .h = h, .fgu = H(u), .bgu = L(u), .fgp = H(p), .bgp = L(p), .bgh = L(hvr), .fgh = H(hvr), .label = label, .onclick = onclick
+		.x = x, .y = y, .w = w, .h = h, .unpressed = u, .hover = hvr, .pressed = p, .label = label, .onclick = onclick
 	};
 
 	allocate_element(id, 1, btn_elem);
@@ -78,7 +82,7 @@ void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
 	InputElement *input = (InputElement*)malloc(sizeof(InputElement));
 
 	*input = (InputElement){
-		.x = x, .y = y, .w = w, .h = h, .fgu = H(u), .bgu = L(u), .bgh = L(hvr), .fgh = H(hvr), .max = max
+		.x = x, .y = y, .w = w, .h = h, .inactive = u, .hover = hvr, .max = max
 	};
 
 	memset(input->input, 0, 128);

@@ -18,12 +18,12 @@ namespace Renderers {
 		int inside = mouse_x >= btn->x && mouse_x <= btn->x + btn->w &&
 			mouse_y >= btn->y && mouse_y <= btn->y + btn->h && !GQueryModalOpen();
 		if (inside) {
-			XSetForeground(display, gc, mouse_down == 1 ? colors[btn->bgp] : colors[btn->bgh]);
-		} else XSetForeground(display, gc, colors[btn->bgu]);
+			XSetForeground(display, gc, colors[mouse_down == 1 ? L(btn->pressed) : L(btn->hover)]);
+		} else XSetForeground(display, gc, colors[L(btn->unpressed)]);
 		XFillRectangle(display, bb, gc, btn->x + 1, btn->y + 1, btn->w - 1, btn->h - 1);
 		if (inside) {
-			XSetForeground(display, gc, mouse_down == 1 ? colors[btn->fgp] : colors[btn->fgh]);
-		} else XSetForeground(display, gc, colors[btn->fgu]);
+			XSetForeground(display, gc, colors[mouse_down == 1 ? H(btn->pressed) : H(btn->hover)]);
+		} else XSetForeground(display, gc, colors[H(btn->unpressed)]);
 		XDrawRectangle(display, bb, gc, btn->x, btn->y, btn->w - 1, btn->h - 1);
 		XDrawString(display, bb, gc, btn->x + (btn->w / 2) - (strlen(btn->label) * 9) / 2, btn->y + btn->h / 2 + 4, btn->label, strlen(btn->label));
 	}
@@ -33,12 +33,12 @@ namespace Renderers {
 		int inside = mouse_x >= input->x && mouse_x <= input->x + input->w &&
 			mouse_y >= input->y && mouse_y <= input->y + input->h && !GQueryModalOpen();
 		if (inside) {
-			XSetForeground(display, gc, colors[input->bgh]);
-		} else XSetForeground(display, gc, colors[input->bgu]);
+			XSetForeground(display, gc, colors[L(input->hover)]);
+		} else XSetForeground(display, gc, colors[L(input->inactive)]);
 		XFillRectangle(display, bb, gc, input->x + 1, input->y + 1, input->w - 1, input->h - 1);
 		if (inside) {
-			XSetForeground(display, gc, colors[input->fgh]);
-		} else XSetForeground(display, gc, colors[input->fgu]);
+			XSetForeground(display, gc, colors[H(input->hover)]);
+		} else XSetForeground(display, gc, colors[H(input->inactive)]);
 		XDrawRectangle(display, bb, gc, input->x, input->y, input->w - 1, input->h - 1);
 		char buffer[128]; sprintf(buffer, "%s%c", input->input, inside ? '_' : ' ');
 		XDrawString(display, bb, gc, input->x + 5, input->y + input->h / 2 + 4, buffer, strlen(buffer));
