@@ -31,6 +31,8 @@ void GEventAttachDelete(int (*on_exit)());
 int GQueryModalOpen();
 unsigned char* GQueryKeyboard();
 int GQueryKeyDown(int ch);
+void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label);
+int GGetCheckbox(int id);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

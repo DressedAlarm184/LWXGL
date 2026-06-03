@@ -61,8 +61,21 @@ namespace Renderers {
 		XPutImage(display, bb, gc, img->ximage, 0, 0, img->x, img->y, img->w, img->h);
 	}
 
+	void Checkbox(Element *e) {
+		CheckboxElement *checkbox = (CheckboxElement *)e->elem;
+		XSetForeground(display, gc, colors[L(checkbox->cb_col)]);
+		XFillRectangle(display, bb, gc, checkbox->x + 1, checkbox->y + 1, checkbox->s - 1, checkbox->s - 1);
+		XSetForeground(display, gc, colors[H(checkbox->cb_col)]);
+		XDrawRectangle(display, bb, gc, checkbox->x, checkbox->y, checkbox->s - 1, checkbox->s - 1);
+		if (checkbox->checked) XFillRectangle(display, bb, gc, checkbox->x + 4, checkbox->y + 4, checkbox->s - 8, checkbox->s - 8);
+		if (checkbox->label != NULL) {
+			XSetForeground(display, gc, colors[checkbox->txt_col]);
+			XDrawString(display, bb, gc, checkbox->x + checkbox->s + 3, checkbox->y + checkbox->s / 2 + 5, checkbox->label, strlen(checkbox->label));
+		}
+	}
+
 	void (*Functions[])(Element*) = {
-		Text, Button, Input, Rect, Image
+		Text, Button, Input, Rect, Image, Checkbox
 	};
 
 	void DrawDebugOverlay() {

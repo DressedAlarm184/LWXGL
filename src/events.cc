@@ -64,6 +64,16 @@ namespace Events {
 					if (btn->onclick != NULL) btn->onclick();
 					return;
 				}
+			} else if (e->type == 5) {
+				CheckboxElement *checkbox = (CheckboxElement *)e->elem;
+				int right_extent = checkbox->x + checkbox->s;
+				if (checkbox->label != NULL) right_extent += 6 + strlen(checkbox->label) * 9;
+				int inside = mouse_x >= checkbox->x && mouse_x <= right_extent &&
+				mouse_y >= checkbox->y && mouse_y <= checkbox->y + checkbox->s;
+				if (inside) {
+					checkbox->checked = !checkbox->checked;
+					return;
+				}
 			}
 		}
 		if (UserProvided::Click != NULL) {

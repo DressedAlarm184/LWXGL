@@ -29,6 +29,13 @@ typedef struct {
 } ImageElement;
 
 typedef struct {
+	int x, y, s;
+	int cb_col, txt_col;
+	const char* label;
+	int checked;
+} CheckboxElement;
+
+typedef struct {
 	int type;
 	void *elem;
 } Element;
@@ -247,4 +254,21 @@ void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int
 	};
 
 	draw(sprite, strlen(sprite));
+}
+
+__attribute__((visibility("default")))
+void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label) {
+	CheckboxElement *checkbox = (CheckboxElement*)malloc(sizeof(CheckboxElement));
+
+	*checkbox = (CheckboxElement){
+		.x = x, .y = y, .s = size, .cb_col = cb_col, .txt_col = txt_col, .label = label, .checked = 0
+	};
+
+	allocate_element(id, 5, checkbox);
+}
+
+__attribute__((visibility("default")))
+int GGetCheckbox(int id) {
+	CheckboxElement *checkbox = (CheckboxElement *)elements[id]->elem;
+	return checkbox->checked;
 }
