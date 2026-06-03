@@ -15,8 +15,8 @@ namespace Renderers {
 
 	void Button(Element* e) {
 		ButtonElement *btn = (ButtonElement *)e->elem;
-		int inside = mouse_x >= btn->x && mouse_x <= btn->x + btn->w &&
-			mouse_y >= btn->y && mouse_y <= btn->y + btn->h && !GQueryModalOpen();
+		int inside = mouse_x >= btn->x && mouse_x < btn->x + btn->w &&
+		mouse_y >= btn->y && mouse_y < btn->y + btn->h && !GQueryModalOpen();
 		if (inside) {
 			XSetForeground(display, gc, colors[mouse_down == 1 ? L(btn->pressed) : L(btn->hover)]);
 		} else XSetForeground(display, gc, colors[L(btn->unpressed)]);
@@ -30,8 +30,8 @@ namespace Renderers {
 
 	void Input(Element* e) {
 		InputElement *input = (InputElement *)e->elem;
-		int inside = mouse_x >= input->x && mouse_x <= input->x + input->w &&
-			mouse_y >= input->y && mouse_y <= input->y + input->h && !GQueryModalOpen();
+		int inside = mouse_x >= input->x && mouse_x < input->x + input->w &&
+		mouse_y >= input->y && mouse_y < input->y + input->h && !GQueryModalOpen();
 		if (inside) {
 			XSetForeground(display, gc, colors[L(input->hover)]);
 		} else XSetForeground(display, gc, colors[L(input->inactive)]);
