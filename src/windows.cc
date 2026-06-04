@@ -147,3 +147,55 @@ EXPORT void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
 EXPORT int GQueryModalOpen() {
 	return active_modal_state.active;
 }
+
+EXPORT void GRedrawAllImages() {
+	for (int i = 0; i < elements.size(); i++) {
+		Element *e = elements[i];
+		if (e->type == 4) {
+			ImageElement* img = (ImageElement *)e->elem;
+			memset(img->prev, 255, img->w * img-> h);
+			GUpdateImage(i);
+		}
+	}
+}
+
+EXPORT void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b) {
+	XColor color;
+	color.pixel = colors[idx];
+	XQueryColor(display, DefaultColormap(display, screen), &color);
+	*r = color.red / 257;
+	*g = color.green / 257;
+	*b = color.blue / 257;
+}
+
+EXPORT int GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b) {
+	XColor color;
+	color.red   = r * 257;
+	color.green = g * 257;
+	color.blue  = b * 257;
+	color.flags = DoRed | DoGreen | DoBlue;
+	XFreeColors(display, DefaultColormap(display, screen), &colors[idx], 1, 0);
+	if (XAllocColor(display, DefaultColormap(display, screen), &color)) {
+		colors[idx] = color.pixel;
+		GRedrawAllImages();
+		return 1;
+	}
+	return 0;
+}
+
+EXPORT int GPaletteReset() {
+	XColor color;
+	for (int i = 0; i < 16; i++) {
+		color.red   = color_palette[i].r * 257;
+		color.green = color_palette[i].g * 257;
+		color.blue  = color_palette[i].b * 257;
+		color.flags = DoRed | DoGreen | DoBlue;
+		if (XAllocColor(display, DefaultColormap(display, screen), &color)) {
+			colors[i] = color.pixel;
+		} else {
+			return 1 + i;
+		}
+	}
+	GRedrawAllImages();
+	return 0;
+}

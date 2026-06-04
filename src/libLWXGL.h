@@ -33,6 +33,10 @@ unsigned char* GQueryKeyboard();
 int GQueryKeyDown(int ch);
 void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label);
 int GGetCheckbox(int id);
+void GRedrawAllImages();
+void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b);
+int GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b);
+int GPaletteReset();
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171
