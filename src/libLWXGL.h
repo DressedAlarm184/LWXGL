@@ -37,6 +37,7 @@ void GRedrawAllImages();
 void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b);
 int GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b);
 int GPaletteReset();
+void GClearImage(int id, int c);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

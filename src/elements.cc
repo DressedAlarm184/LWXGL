@@ -257,3 +257,8 @@ EXPORT int GGetCheckbox(int id) {
 	CheckboxElement *checkbox = (CheckboxElement *)elements[id]->elem;
 	return checkbox->checked;
 }
+
+EXPORT void GClearImage(int id, int c) {
+	ImageElement *img = (ImageElement *)elements[id]->elem;
+	memset(img->data, c, img->w * img->h);
+}
