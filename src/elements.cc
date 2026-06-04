@@ -42,8 +42,7 @@ typedef struct {
 
 std::vector<Element*> elements;
 
-__attribute__((visibility("default")))
-void GDeleteElement(int id) {
+EXPORT void GDeleteElement(int id) {
 	if (id >= elements.size() || elements[id] == NULL) return;
 	if (elements[id]->type == 4) {
 		ImageElement *img = (ImageElement *)elements[id]->elem;
@@ -66,15 +65,13 @@ Element *allocate_element(int id, int type, void *data) {
 	return e;
 }
 
-__attribute__((visibility("default")))
-void GCreateText(int id, int x, int y, int color, const char* text) {
+EXPORT void GCreateText(int id, int x, int y, int color, const char* text) {
 	TextElement *text_elem = (TextElement*)malloc(sizeof(TextElement));
 	text_elem->x = x; text_elem->y = y; text_elem->text = text; text_elem->color = color;
 	allocate_element(id, 0, text_elem);
 }
 
-__attribute__((visibility("default")))
-void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void)) {
+EXPORT void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void)) {
 	ButtonElement *btn_elem = (ButtonElement*)malloc(sizeof(ButtonElement));
 
 	*btn_elem = (ButtonElement){
@@ -84,8 +81,7 @@ void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, co
 	allocate_element(id, 1, btn_elem);
 }
 
-__attribute__((visibility("default")))
-void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
+EXPORT void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
 	InputElement *input = (InputElement*)malloc(sizeof(InputElement));
 
 	*input = (InputElement){
@@ -98,15 +94,13 @@ void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
 	if (input->w == -1) input->w = (input->max + 1) * 9 + 10;
 }
 
-__attribute__((visibility("default")))
-char* GGetInput(int id) {
+EXPORT char* GGetInput(int id) {
 	Element *e = elements[id];
 	InputElement *input = (InputElement *)e->elem;
 	return input->input;
 }
 
-__attribute__((visibility("default")))
-void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
+EXPORT void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	RectElement *rect = (RectElement*)malloc(sizeof(RectElement));
 
 	*rect = (RectElement){
@@ -116,8 +110,7 @@ void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	allocate_element(id, 3, rect);
 }
 
-__attribute__((visibility("default")))
-void GCreateImage(int id, int x, int y, int w, int h) {
+EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
 	ImageElement *img = (ImageElement *)malloc(sizeof(ImageElement));
 	img->x = x; img->y = y; img->w = w, img->h = h;
 	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
@@ -128,14 +121,12 @@ void GCreateImage(int id, int x, int y, int w, int h) {
 	allocate_element(id, 4, img);
 }
 
-__attribute__((visibility("default")))
-unsigned char* GGetImageData(int id) {
+EXPORT unsigned char* GGetImageData(int id) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	return img->data;
 }
 
-__attribute__((visibility("default")))
-void GUpdateImage(int id) {
+EXPORT void GUpdateImage(int id) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	int w = img->w, h = img->h;
 	unsigned char *src = (unsigned char*)img->data;
@@ -152,8 +143,7 @@ void GUpdateImage(int id) {
 	}
 }
 
-__attribute__((visibility("default")))
-void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
+EXPORT void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	if (fg == -1) fg = bg;
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	for (int cy = y; cy < y + h; cy++) {
@@ -165,8 +155,7 @@ void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	}
 }
 
-__attribute__((visibility("default")))
-void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
+EXPORT void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	for (int y = cy - r; y <= cy + r; y++) {
 		for (int x = cx - r; x <= cx + r; x++) {
@@ -182,8 +171,7 @@ void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 	}
 }
 
-__attribute__((visibility("default")))
-void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
+EXPORT void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	int dx = x2 - x1, dy = y2 - y1;
 	int steps = std::max(std::abs(dx), std::abs(dy));
@@ -197,8 +185,7 @@ void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 	}
 }
 
-__attribute__((visibility("default")))
-void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int scale) {
+EXPORT void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int scale) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	int x = sx, y = sy;
 
@@ -256,8 +243,7 @@ void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int
 	draw(sprite, strlen(sprite));
 }
 
-__attribute__((visibility("default")))
-void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label) {
+EXPORT void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label) {
 	CheckboxElement *checkbox = (CheckboxElement*)malloc(sizeof(CheckboxElement));
 
 	*checkbox = (CheckboxElement){
@@ -267,8 +253,7 @@ void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, co
 	allocate_element(id, 5, checkbox);
 }
 
-__attribute__((visibility("default")))
-int GGetCheckbox(int id) {
+EXPORT int GGetCheckbox(int id) {
 	CheckboxElement *checkbox = (CheckboxElement *)elements[id]->elem;
 	return checkbox->checked;
 }

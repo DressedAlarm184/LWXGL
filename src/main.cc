@@ -16,6 +16,8 @@
 #include <unordered_map>
 #include <functional>
 
+#define EXPORT __attribute__((visibility("default")))
+
 Display *display; Window window = None; GC gc; Pixmap bb;
 unsigned long colors[256] = {0}; int bgcol, win_w, win_h;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;

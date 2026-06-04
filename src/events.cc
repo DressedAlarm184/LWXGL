@@ -153,8 +153,7 @@ namespace Events {
 	};
 }
 
-__attribute__((visibility("default")))
-void GHandleWindowEvents() {
+EXPORT void GHandleWindowEvents() {
 	while (XPending(display) > 0) {
 		XNextEvent(display, &event);
 		auto it = Events::Handlers.find(event.type);
@@ -164,33 +163,27 @@ void GHandleWindowEvents() {
 	}
 }
 
-__attribute__((visibility("default")))
-void GEventAttachKey(void (*Key)(int key)) {
+EXPORT void GEventAttachKey(void (*Key)(int key)) {
 	Events::UserProvided::Key = Key;
 }
 
-__attribute__((visibility("default")))
-void GEventAttachClick(void (*Click)(int x, int y, int btn)) {
+EXPORT void GEventAttachClick(void (*Click)(int x, int y, int btn)) {
 	Events::UserProvided::Click = Click;
 }
 
-__attribute__((visibility("default")))
-void GQueryMouse(int* x, int* y, int* btn) {
+EXPORT void GQueryMouse(int* x, int* y, int* btn) {
 	*x = mouse_x, *y = mouse_y, *btn = mouse_down;
 }
 
-__attribute__((visibility("default")))
-void GEventAttachDelete(int (*on_exit)()) {
+EXPORT void GEventAttachDelete(int (*on_exit)()) {
 	Events::UserProvided::Delete = on_exit;
 }
 
-__attribute__((visibility("default")))
-unsigned char* GQueryKeyboard() {
+EXPORT unsigned char* GQueryKeyboard() {
 	return pressed_keys;
 }
 
-__attribute__((visibility("default")))
-int GQueryKeyDown(int ch) {
+EXPORT int GQueryKeyDown(int ch) {
 	for (int i = 0; i < 8; i++) {
 		if (pressed_keys[i] == ch) return 1;
 	}

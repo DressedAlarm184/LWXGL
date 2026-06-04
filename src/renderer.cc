@@ -113,8 +113,7 @@ namespace Renderers {
 	}
 }
 
-__attribute__((visibility("default")))
-void GRenderWindow() {
+EXPORT void GRenderWindow() {
 	XSetForeground(display, gc, colors[bgcol]);
 	XFillRectangle(display, bb, gc, 0, 0, win_w, win_h);
 

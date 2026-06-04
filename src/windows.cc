@@ -1,5 +1,4 @@
-__attribute__((visibility("default")))
-int GCreateWindow(int w, int h, const char* name, int bgcolor) {
+EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	win_w = w, win_h = h;
 
 	if (window != None) return 3;
@@ -72,8 +71,7 @@ int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	return 0;
 }
 
-__attribute__((visibility("default")))
-void GTerminateWindow() {
+EXPORT void GTerminateWindow() {
 	for (int i = 0; i < elements.size(); i++) {
 		if (elements[i] != NULL) {
 			GDeleteElement(i);
@@ -88,13 +86,11 @@ void GTerminateWindow() {
 	XCloseDisplay(display);
 }
 
-__attribute__((visibility("default")))
-int GWindowShouldClose() {
+EXPORT int GWindowShouldClose() {
 	return closing;
 }
 
-__attribute__((visibility("default")))
-void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
+EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
 	using namespace std::chrono;
 	
 	debug_metrics.active = 1;
@@ -135,22 +131,19 @@ void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
 	}
 }
 
-__attribute__((visibility("default")))
-void GDeleteWindow() {
+EXPORT void GDeleteWindow() {
 	if (Events::UserProvided::Delete != NULL) {
 		closing = Events::UserProvided::Delete();
 	} else closing = 1;
 }
 
-__attribute__((visibility("default")))
-void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
+EXPORT void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
 	active_modal_state.active = 1;
 	active_modal_state.msg = msg;
 	active_modal_state.on_confirm = on_confirm;
 	active_modal_state.type = type;
 }
 
-__attribute__((visibility("default")))
-int GQueryModalOpen() {
+EXPORT int GQueryModalOpen() {
 	return active_modal_state.active;
 }
