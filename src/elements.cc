@@ -257,3 +257,8 @@ EXPORT void GClearImage(int id, int c) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	memset(img->data, c, elements[id]->w * elements[id]->h);
 }
+
+EXPORT void GElemModifyBounds(int id, int x, int y, int w, int h) {
+	Element *e = elements[id];
+	e->x = x, e->y = y, e->w = w, e->h = h;
+}

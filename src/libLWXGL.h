@@ -38,6 +38,7 @@ void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b
 int GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b);
 int GPaletteReset();
 void GClearImage(int id, int c);
+void GElemModifyBounds(int id, int x, int y, int w, int h);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171
