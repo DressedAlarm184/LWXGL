@@ -1,41 +1,38 @@
 typedef struct {
-	int x, y, color;
+	int color;
 	const char *text;
 } TextElement;
 
 typedef struct {
-	int x, y, w, h;
 	int unpressed, hover, pressed;
 	const char* label;
 	void (*onclick)(void);
 } ButtonElement;
 
 typedef struct {
-	int x, y, w, h;
 	int inactive, hover;
 	int max;
 	char input[128];
 } InputElement;
 
 typedef struct {
-	int x, y, w, h, fg, bg;
+	int fg, bg;
 } RectElement;
 
 typedef struct {
-	int x, y, w, h;
 	XImage *ximage;
 	unsigned char *data, *prev;
 	char *imgdata;
 } ImageElement;
 
 typedef struct {
-	int x, y, s;
 	int cb_col, txt_col;
 	const char* label;
 	int checked;
 } CheckboxElement;
 
 typedef struct {
+	int x, y, w, h;
 	int type;
 	void *elem;
 } Element;
@@ -55,43 +52,42 @@ EXPORT void GDeleteElement(int id) {
 	elements[id] = NULL; 
 }
 
-Element *allocate_element(int id, int type, void *data) {
+Element *allocate_element(int id, int type, void *data, int x, int y, int w, int h) {
 	if (id >= elements.size()) elements.resize(id + 1, NULL);
 	if (elements[id] != NULL) GDeleteElement(id);
 	Element *e = (Element*)malloc(sizeof(Element));
-	e->type = type;
-	e->elem = data;
+	e->type = type, e->elem = data;
+	e->w = w, e->h = h, e->x = x, e->y = y;
 	elements[id] = e;
 	return e;
 }
 
 EXPORT void GCreateText(int id, int x, int y, int color, const char* text) {
 	TextElement *text_elem = (TextElement*)malloc(sizeof(TextElement));
-	text_elem->x = x; text_elem->y = y; text_elem->text = text; text_elem->color = color;
-	allocate_element(id, 0, text_elem);
+	text_elem->text = text; text_elem->color = color;
+	allocate_element(id, 0, text_elem, x, y, 0, 0);
 }
 
 EXPORT void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void)) {
 	ButtonElement *btn_elem = (ButtonElement*)malloc(sizeof(ButtonElement));
 
 	*btn_elem = (ButtonElement){
-		.x = x, .y = y, .w = w, .h = h, .unpressed = u, .hover = hvr, .pressed = p, .label = label, .onclick = onclick
+		.unpressed = u, .hover = hvr, .pressed = p, .label = label, .onclick = onclick
 	};
 
-	allocate_element(id, 1, btn_elem);
+	allocate_element(id, 1, btn_elem, x, y, w, h);
 }
 
 EXPORT void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
+	if (w == -1) w = (max + 1) * 9 + 10;
 	InputElement *input = (InputElement*)malloc(sizeof(InputElement));
 
 	*input = (InputElement){
-		.x = x, .y = y, .w = w, .h = h, .inactive = u, .hover = hvr, .max = max
+		.inactive = u, .hover = hvr, .max = max
 	};
 
 	memset(input->input, 0, 128);
-	allocate_element(id, 2, input);
-
-	if (input->w == -1) input->w = (input->max + 1) * 9 + 10;
+	allocate_element(id, 2, input, x, y, w, h);
 }
 
 EXPORT char* GGetInput(int id) {
@@ -102,23 +98,18 @@ EXPORT char* GGetInput(int id) {
 
 EXPORT void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	RectElement *rect = (RectElement*)malloc(sizeof(RectElement));
-
-	*rect = (RectElement){
-		.x = x, .y = y, .w = w, .h = h, .fg = fg, .bg = bg
-	};
-
-	allocate_element(id, 3, rect);
+	*rect = (RectElement){.fg = fg, .bg = bg};
+	allocate_element(id, 3, rect, x, y, w, h);
 }
 
 EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
 	ImageElement *img = (ImageElement *)malloc(sizeof(ImageElement));
-	img->x = x; img->y = y; img->w = w, img->h = h;
 	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
 	img->data = (unsigned char *)calloc(w * h, 1);
 	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
 	img->prev = (unsigned char *)calloc(w * h, 1);
 	img->ximage->data = img->imgdata;
-	allocate_element(id, 4, img);
+	allocate_element(id, 4, img, x, y, w, h);
 }
 
 EXPORT unsigned char* GGetImageData(int id) {
@@ -128,7 +119,7 @@ EXPORT unsigned char* GGetImageData(int id) {
 
 EXPORT void GUpdateImage(int id) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
-	int w = img->w, h = img->h;
+	int w = elements[id]->w, h = elements[id]->h;
 	unsigned char *src = (unsigned char*)img->data;
 	unsigned char *prev = (unsigned char*)img->prev; 
 	int (*put_pixel)(XImage *, int, int, unsigned long) = img->ximage->f.put_pixel;
@@ -146,26 +137,28 @@ EXPORT void GUpdateImage(int id) {
 EXPORT void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	if (fg == -1) fg = bg;
 	ImageElement *img = (ImageElement *)elements[id]->elem;
+	int img_w = elements[id]->w, img_h = elements[id]->h;
 	for (int cy = y; cy < y + h; cy++) {
 		for (int cx = x; cx < x + w; cx++) {
-			if (cx < 0 || cx >= img->w || cy < 0 || cy >= img->h) continue;
+			if (cx < 0 || cx >= img_w || cy < 0 || cy >= img_h) continue;
 			int color = (cx == x || cx == w + x - 1) ? fg : (cy == y || cy == y + h - 1) ? fg : bg;
-			if (color != -1) img->data[cx + cy * img->w] = color;
+			if (color != -1) img->data[cx + cy * img_w] = color;
 		}
 	}
 }
 
 EXPORT void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
+	int w = elements[id]->w, h = elements[id]->h;
 	for (int y = cy - r; y <= cy + r; y++) {
 		for (int x = cx - r; x <= cx + r; x++) {
-			if (x < 0 || x >= img->w || y < 0 || y >= img->h) continue;
+			if (x < 0 || x >= w || y < 0 || y >= h) continue;
 			int dx = x - cx, dy = y - cy, d2 = dx * dx + dy * dy;
 			int on_border = (d2 <= r * r && d2 >= (r - 1) * (r - 1));
 			if (fg != -1 && on_border) {
-				img->data[x + y * img->w] = (uint32_t)fg;
+				img->data[x + y * w] = (uint32_t)fg;
 			} else if (bg != -1 && d2 <= r * r) {
-				img->data[x + y * img->w] = (uint32_t)bg;
+				img->data[x + y * w] = (uint32_t)bg;
 			}
 		}
 	}
@@ -173,28 +166,30 @@ EXPORT void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 
 EXPORT void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
+	int w = elements[id]->w, h = elements[id]->h;
 	int dx = x2 - x1, dy = y2 - y1;
 	int steps = std::max(std::abs(dx), std::abs(dy));
 	float x_inc = dx / (float)steps, y_inc = dy / (float)steps;
 	float x = x1, y = y1;
 	for (int i = 0; i <= steps; i++) {
 		int pixel_x = (int)std::round(x), pixel_y = (int)std::round(y);
-		if (pixel_x < 0 || pixel_x >= img->w || pixel_y < 0 || pixel_y >= img->h) continue;
-		img->data[pixel_x + pixel_y * img->w] = color;
+		if (pixel_x < 0 || pixel_x >= w || pixel_y < 0 || pixel_y >= h) continue;
+		img->data[pixel_x + pixel_y * w] = color;
 		x += x_inc, y += y_inc;
 	}
 }
 
 EXPORT void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int scale) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
+	int img_w = elements[id]->w, img_h = elements[id]->h;
 	int x = sx, y = sy;
 
 	auto set_pixel = [&](int color) {
 		for (int yoff = 0; yoff < scale; yoff++) {
 			for (int xoff = 0; xoff < scale; xoff++) {
 				int px = x + xoff, py = y + yoff;
-				if (px >= 0 && px < img->w && py >= 0 && py < img->h) {
-					img->data[py * img->w + px] = color;
+				if (px >= 0 && px < img_w && py >= 0 && py < img_h) {
+					img->data[py * img_w + px] = color;
 				}
 			}
 		}
@@ -247,10 +242,10 @@ EXPORT void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_
 	CheckboxElement *checkbox = (CheckboxElement*)malloc(sizeof(CheckboxElement));
 
 	*checkbox = (CheckboxElement){
-		.x = x, .y = y, .s = size, .cb_col = cb_col, .txt_col = txt_col, .label = label, .checked = 0
+		.cb_col = cb_col, .txt_col = txt_col, .label = label, .checked = 0
 	};
 
-	allocate_element(id, 5, checkbox);
+	allocate_element(id, 5, checkbox, x, y, size, size);
 }
 
 EXPORT int GGetCheckbox(int id) {
@@ -260,5 +255,5 @@ EXPORT int GGetCheckbox(int id) {
 
 EXPORT void GClearImage(int id, int c) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
-	memset(img->data, c, img->w * img->h);
+	memset(img->data, c, elements[id]->w * elements[id]->h);
 }

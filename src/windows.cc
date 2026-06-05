@@ -153,7 +153,7 @@ EXPORT void GRedrawAllImages() {
 		Element *e = elements[i];
 		if (e->type == 4) {
 			ImageElement* img = (ImageElement *)e->elem;
-			memset(img->prev, 255, img->w * img-> h);
+			memset(img->prev, 255, e->w * e->h);
 			GUpdateImage(i);
 		}
 	}

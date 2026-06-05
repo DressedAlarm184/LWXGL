@@ -3,11 +3,11 @@ namespace Renderers {
 		TextElement *txt = (TextElement *)e->elem;
 		XSetForeground(display, gc, colors[txt->color]);
 		const char *str = txt->text;
-		int y = txt->y + 11;
+		int y = e->y + 11;
 		while (*str != '\0') {
 			int len = 0;
 			while (str[len] != '\0' && str[len] != '\n') len++;
-			XDrawString(display, bb, gc, txt->x, y, str, len);
+			XDrawString(display, bb, gc, e->x, y, str, len);
 			str += len, y += 16;;
 			if (*str == '\n') str++;
 		}
@@ -15,62 +15,62 @@ namespace Renderers {
 
 	void Button(Element* e) {
 		ButtonElement *btn = (ButtonElement *)e->elem;
-		int inside = mouse_x >= btn->x && mouse_x < btn->x + btn->w &&
-		mouse_y >= btn->y && mouse_y < btn->y + btn->h && !GQueryModalOpen();
+		int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
+		             mouse_y >= e->y && mouse_y < e->y + e->h && !GQueryModalOpen();
 		if (inside) {
 			XSetForeground(display, gc, colors[mouse_down == 1 ? L(btn->pressed) : L(btn->hover)]);
 		} else XSetForeground(display, gc, colors[L(btn->unpressed)]);
-		XFillRectangle(display, bb, gc, btn->x + 1, btn->y + 1, btn->w - 1, btn->h - 1);
+		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
 		if (inside) {
 			XSetForeground(display, gc, colors[mouse_down == 1 ? H(btn->pressed) : H(btn->hover)]);
 		} else XSetForeground(display, gc, colors[H(btn->unpressed)]);
-		XDrawRectangle(display, bb, gc, btn->x, btn->y, btn->w - 1, btn->h - 1);
-		XDrawString(display, bb, gc, btn->x + (btn->w / 2) - (strlen(btn->label) * 9) / 2, btn->y + btn->h / 2 + 4, btn->label, strlen(btn->label));
+		XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
+		XDrawString(display, bb, gc, e->x + (e->w / 2) - (strlen(btn->label) * 9) / 2, e->y + e->h / 2 + 4, btn->label, strlen(btn->label));
 	}
 
 	void Input(Element* e) {
 		InputElement *input = (InputElement *)e->elem;
-		int inside = mouse_x >= input->x && mouse_x < input->x + input->w &&
-		mouse_y >= input->y && mouse_y < input->y + input->h && !GQueryModalOpen();
+		int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
+		             mouse_y >= e->y && mouse_y < e->y + e->h && !GQueryModalOpen();
 		if (inside) {
 			XSetForeground(display, gc, colors[L(input->hover)]);
 		} else XSetForeground(display, gc, colors[L(input->inactive)]);
-		XFillRectangle(display, bb, gc, input->x + 1, input->y + 1, input->w - 1, input->h - 1);
+		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
 		if (inside) {
 			XSetForeground(display, gc, colors[H(input->hover)]);
 		} else XSetForeground(display, gc, colors[H(input->inactive)]);
-		XDrawRectangle(display, bb, gc, input->x, input->y, input->w - 1, input->h - 1);
+		XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
 		char buffer[128]; sprintf(buffer, "%s%c", input->input, inside ? '_' : ' ');
-		XDrawString(display, bb, gc, input->x + 5, input->y + input->h / 2 + 4, buffer, strlen(buffer));
+		XDrawString(display, bb, gc, e->x + 5, e->y + e->h / 2 + 4, buffer, strlen(buffer));
 	}
 
 	void Rect(Element* e) {
 		RectElement *rect = (RectElement *)e->elem;
 		if (rect->bg >= 0) {
 			XSetForeground(display, gc, colors[rect->bg]);
-			XFillRectangle(display, bb, gc, rect->x, rect->y, rect->w, rect->h);
+			XFillRectangle(display, bb, gc, e->x, e->y, e->w, e->h);
 		}
 		if (rect->fg >= 0) {
 			XSetForeground(display, gc, colors[rect->fg]);
-			XDrawRectangle(display, bb, gc, rect->x, rect->y, rect->w - 1, rect->h - 1);
+			XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
 		}
 	}
 
 	void Image(Element* e) {
 		ImageElement *img = (ImageElement *)e->elem;
-		XPutImage(display, bb, gc, img->ximage, 0, 0, img->x, img->y, img->w, img->h);
+		XPutImage(display, bb, gc, img->ximage, 0, 0, e->x, e->y, e->w, e->h);
 	}
 
 	void Checkbox(Element *e) {
 		CheckboxElement *checkbox = (CheckboxElement *)e->elem;
 		XSetForeground(display, gc, colors[L(checkbox->cb_col)]);
-		XFillRectangle(display, bb, gc, checkbox->x + 1, checkbox->y + 1, checkbox->s - 1, checkbox->s - 1);
+		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
 		XSetForeground(display, gc, colors[H(checkbox->cb_col)]);
-		XDrawRectangle(display, bb, gc, checkbox->x, checkbox->y, checkbox->s - 1, checkbox->s - 1);
-		if (checkbox->checked) XFillRectangle(display, bb, gc, checkbox->x + 4, checkbox->y + 4, checkbox->s - 8, checkbox->s - 8);
+		XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
+		if (checkbox->checked) XFillRectangle(display, bb, gc, e->x + 4, e->y + 4, e->w - 8, e->h - 8);
 		if (checkbox->label != NULL) {
 			XSetForeground(display, gc, colors[checkbox->txt_col]);
-			XDrawString(display, bb, gc, checkbox->x + checkbox->s + 3, checkbox->y + checkbox->s / 2 + 5, checkbox->label, strlen(checkbox->label));
+			XDrawString(display, bb, gc, e->x + e->w + 3, e->y + e->h / 2 + 5, checkbox->label, strlen(checkbox->label));
 		}
 	}
 

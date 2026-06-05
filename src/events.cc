@@ -57,8 +57,8 @@ namespace Events {
 			if (e == NULL) continue;
 			if (e->type == 1) {
 				ButtonElement *btn = (ButtonElement *)e->elem;
-				int inside = mouse_x >= btn->x && mouse_x < btn->x + btn->w &&
-				mouse_y >= btn->y && mouse_y < btn->y + btn->h;
+				int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
+				             mouse_y >= e->y && mouse_y < e->y + e->h;
 				if (inside) {
 					if (event.xbutton.button != 1) return;
 					if (btn->onclick != NULL) btn->onclick();
@@ -66,10 +66,10 @@ namespace Events {
 				}
 			} else if (e->type == 5) {
 				CheckboxElement *checkbox = (CheckboxElement *)e->elem;
-				int right_extent = checkbox->x + checkbox->s;
+				int right_extent = e->x + e->w;
 				if (checkbox->label != NULL) right_extent += 6 + strlen(checkbox->label) * 9;
-				int inside = mouse_x >= checkbox->x && mouse_x < checkbox->x + checkbox->s &&
-				mouse_y >= checkbox->y && mouse_y < checkbox->y + checkbox->s;
+				int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
+				             mouse_y >= e->y && mouse_y < e->y + e->h;
 				if (inside) {
 					checkbox->checked = !checkbox->checked;
 					return;
@@ -115,8 +115,8 @@ namespace Events {
 			if (e == NULL) continue;
 			if (e->type == 2) {
 				InputElement *input = (InputElement *)e->elem;
-				int inside = mouse_x >= input->x && mouse_x < input->x + input->w &&
-				mouse_y >= input->y && mouse_y < input->y + input->h;
+				int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
+				             mouse_y >= e->y && mouse_y < e->y + e->h;
 				if (!inside) continue;
 				int length = strlen(input->input);
 				if (ch == 8) {
