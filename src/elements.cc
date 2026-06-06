@@ -211,7 +211,7 @@ EXPORT void GPrimitiveSprite(int id, int sx, int sy, int color, const char* spri
 				int len = (int)((end - 1) - start);
 				int runs = (count > 0) ? count : 1;
 				while (runs--) draw(rle, len);
-				rle = end - 1, count = 0;
+				rle = end - 1, count = 0, i += len + 1;
 			} else {
 				int runs = (count == 0) ? 1 : count;
 				if (*rle == '#') {
