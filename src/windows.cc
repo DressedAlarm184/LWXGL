@@ -168,34 +168,28 @@ EXPORT void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned 
 	*b = color.blue / 257;
 }
 
-EXPORT int GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b) {
+EXPORT void GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b, int redraw) {
 	XColor color;
 	color.red   = r * 257;
 	color.green = g * 257;
 	color.blue  = b * 257;
 	color.flags = DoRed | DoGreen | DoBlue;
 	XFreeColors(display, DefaultColormap(display, screen), &colors[idx], 1, 0);
-	if (XAllocColor(display, DefaultColormap(display, screen), &color)) {
-		colors[idx] = color.pixel;
-		GRedrawAllImages();
-		return 1;
-	}
-	return 0;
+	XAllocColor(display, DefaultColormap(display, screen), &color);
+	colors[idx] = color.pixel;
+	if (redraw) GRedrawAllImages();
 }
 
-EXPORT int GPaletteReset() {
+EXPORT void GPaletteReset() {
+	XFreeColors(display, DefaultColormap(display, screen), colors, 16, 0);
 	XColor color;
 	for (int i = 0; i < 16; i++) {
 		color.red   = color_palette[i].r * 257;
 		color.green = color_palette[i].g * 257;
 		color.blue  = color_palette[i].b * 257;
 		color.flags = DoRed | DoGreen | DoBlue;
-		if (XAllocColor(display, DefaultColormap(display, screen), &color)) {
-			colors[i] = color.pixel;
-		} else {
-			return 1 + i;
-		}
+		XAllocColor(display, DefaultColormap(display, screen), &color);
+		colors[i] = color.pixel;
 	}
 	GRedrawAllImages();
-	return 0;
 }

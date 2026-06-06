@@ -35,8 +35,8 @@ void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, co
 int GGetCheckbox(int id);
 void GRedrawAllImages();
 void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b);
-int GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b);
-int GPaletteReset();
+void GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b, int redraw);
+void GPaletteReset();
 void GClearImage(int id, int c);
 void GElemModifyBounds(int id, int x, int y, int w, int h);
 
