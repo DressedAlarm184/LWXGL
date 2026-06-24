@@ -98,9 +98,9 @@ namespace Renderers {
 				line_len++;
 			}
 		}
-		int thumb_height = (console->total_lines <= 0)
+		int thumb_height = std::max((console->total_lines <= 0)
 			? (e->h - 6)
-			: std::min(e->h - 6, std::max(1, int((e->h - 6) * ((float)console->rows / console->total_lines))));
+			: std::min(e->h - 6, std::max(1, int((e->h - 6) * ((float)console->rows / console->total_lines)))), 9);
 		int thumb_y = std::max(e->y + 3, int(e->y + 3 + ((e->h - 6) - thumb_height) * ((float)console->scroll) / (console->total_lines - console->rows)));
 		XFillRectangle(display, bb, gc, e->x + e->w - 8, thumb_y, 5, thumb_height);
 	}
