@@ -78,17 +78,30 @@ namespace Renderers {
 		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
 		XSetForeground(display, gc, colors[H(console->color)]);
 		XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
+		std::string expanded_data;
+		expanded_data.reserve(console->data.length());
+		for (char c : console->data) {
+			if (c == '\t') {
+				expanded_data.append("    ");
+			} else {
+				int is_valid = c == '\n' || (c >= 27 && c <= 126);
+				expanded_data.push_back(is_valid ? c : '?');
+			}
+		}
 		int current_line_idx = 0, line_start = 0, line_len = 0;
-		for (int i = 0; i <= console->data.length(); ++i) {
-			bool is_end = (i == console->data.length());
-			bool is_newline = (!is_end && console->data[i] == '\n');
+		int data_len = expanded_data.length();
+		for (int i = 0; i <= data_len; ++i) {
+			bool is_end = (i == data_len);
+			bool is_newline = (!is_end && expanded_data[i] == '\n');
 			if (line_len == console->cols || is_newline || is_end) {
 				if (current_line_idx >= console->scroll && current_line_idx < console->scroll + console->rows) {
-					if (line_len <= 0) continue;
-					int display_row = current_line_idx - console->scroll;
-					XDrawString(display, bb, gc, e->x + 5, e->y + 16 + (display_row * 15), console->data.c_str() + line_start, line_len);
+					if (line_len > 0) {
+						int display_row = current_line_idx - console->scroll;
+						XDrawString(display, bb, gc, e->x + 5, e->y + 16 + (display_row * 15), 
+									expanded_data.c_str() + line_start, line_len);
+					}
 				}
-				current_line_idx++,	line_start = i, line_len = 0;
+				current_line_idx++, line_start = i, line_len = 0;
 				if (current_line_idx >= console->scroll + console->rows) break;
 				if (!is_newline && !is_end)
 					line_len = 1;
