@@ -75,18 +75,16 @@ namespace Events {
 					return;
 				}
 			} else if (e->type == 6) {
-				ConsoleElement *console = (ConsoleElement*)e->elem;
-				if (inside) {
-					if (event.xbutton.button == 5) {
-						console->scroll++;
-					} else if (event.xbutton.button == 4) {
-						console->scroll--;
-					}
-					if (console->scroll < 0) console->scroll = 0;
-					int max_scroll = std::max(0, console->total_lines - console->rows);
-					if (console->scroll > max_scroll) console->scroll = max_scroll;
-					return;
+				auto* console = static_cast<ConsoleElement*>(e->elem);
+				if (!inside) continue;
+				if (event.xbutton.button == 5) {
+					++console->scroll;
+				} else if (event.xbutton.button == 4) {
+					--console->scroll;
 				}
+				const int max_scroll = std::max(0, console->total_lines - console->rows);
+				console->scroll = std::clamp(console->scroll, 0, max_scroll);
+				return;
 			}
 		}
 		if (UserProvided::Click != NULL) {
@@ -139,7 +137,7 @@ namespace Events {
 				}
 				return;
 			} else if (e->type == 6) {
-				if (ch != 32) continue;
+				if (ch != 32 || !inside) continue;
 				ConsoleElement *console = (ConsoleElement *)e->elem;
 				console->scroll = std::max(0, console->total_lines - console->rows);
 				return;

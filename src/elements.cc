@@ -329,4 +329,6 @@ EXPORT void GConsolePrint(int id, const char* format, ...) {
 EXPORT void GConsoleClear(int id) {
 	ConsoleElement* console = (ConsoleElement*)(elements[id]->elem);
 	console->data.clear();
+	console->total_lines = 0;
+	console->scroll = 0;
 }
