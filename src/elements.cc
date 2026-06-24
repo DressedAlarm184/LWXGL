@@ -39,7 +39,7 @@ typedef struct {
 } ConsoleElement;
 
 typedef struct {
-	int x, y, w, h;
+	int x, y, w, h, v;
 	int type;
 	void *elem;
 } Element;
@@ -74,12 +74,12 @@ EXPORT void GDeleteElement(int id) {
 	elements[id] = NULL; 
 }
 
-Element *allocate_element(int id, int type, void *data, int x, int y, int w, int h) {
+Element *_allocate_element(int id, int type, void *data, int x, int y, int w, int h) {
 	if (id >= elements.size()) elements.resize(id + 1, NULL);
 	if (elements[id] != NULL) GDeleteElement(id);
 	Element *e = (Element*)malloc(sizeof(Element));
 	e->type = type, e->elem = data;
-	e->w = w, e->h = h, e->x = x, e->y = y;
+	e->w = w, e->h = h, e->x = x, e->y = y; e->v = 1;
 	elements[id] = e;
 	return e;
 }
@@ -87,7 +87,7 @@ Element *allocate_element(int id, int type, void *data, int x, int y, int w, int
 EXPORT void GCreateText(int id, int x, int y, int color, const char* text) {
 	TextElement *text_elem = new TextElement;
 	text_elem->text = text; text_elem->color = color;
-	allocate_element(id, 0, text_elem, x, y, 0, 0);
+	_allocate_element(id, 0, text_elem, x, y, 0, 0);
 }
 
 EXPORT void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void)) {
@@ -97,7 +97,7 @@ EXPORT void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, in
 		.unpressed = u, .hover = hvr, .pressed = p, .label = label, .onclick = onclick
 	};
 
-	allocate_element(id, 1, btn_elem, x, y, w, h);
+	_allocate_element(id, 1, btn_elem, x, y, w, h);
 }
 
 EXPORT void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
@@ -109,7 +109,7 @@ EXPORT void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int
 	};
 
 	memset(input->input, 0, 128);
-	allocate_element(id, 2, input, x, y, w, h);
+	_allocate_element(id, 2, input, x, y, w, h);
 }
 
 EXPORT char* GGetInput(int id) {
@@ -121,7 +121,7 @@ EXPORT char* GGetInput(int id) {
 EXPORT void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	RectElement *rect = new RectElement;
 	*rect = (RectElement){.fg = fg, .bg = bg};
-	allocate_element(id, 3, rect, x, y, w, h);
+	_allocate_element(id, 3, rect, x, y, w, h);
 }
 
 EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
@@ -131,7 +131,7 @@ EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
 	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
 	img->prev = (unsigned char *)calloc(w * h, 1);
 	img->ximage->data = img->imgdata;
-	allocate_element(id, 4, img, x, y, w, h);
+	_allocate_element(id, 4, img, x, y, w, h);
 }
 
 EXPORT unsigned char* GGetImageData(int id) {
@@ -267,7 +267,7 @@ EXPORT void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_
 		.cb_col = cb_col, .txt_col = txt_col, .label = label, .checked = 0
 	};
 
-	allocate_element(id, 5, checkbox, x, y, size, size);
+	_allocate_element(id, 5, checkbox, x, y, size, size);
 }
 
 EXPORT int GGetCheckbox(int id) {
@@ -290,7 +290,7 @@ EXPORT void GCreateConsole(int id, int x, int y, int cols, int rows, int clr) {
 		.data = std::string{}, .rows = rows, .cols = cols, .scroll = 0, .color = clr, .total_lines = 0
 	};
 
-	allocate_element(id, 6, console, x, y, cols * 9 + 17, rows * 15 + 10);
+	_allocate_element(id, 6, console, x, y, cols * 9 + 17, rows * 15 + 10);
 }
 
 void _console_calc_total_lines(ConsoleElement* console) {
@@ -331,4 +331,23 @@ EXPORT void GConsoleClear(int id) {
 	console->data.clear();
 	console->total_lines = 0;
 	console->scroll = 0;
+}
+
+int _inside_elem(Element* e) {
+	int right_extent = e->x + e->w;
+	if (e->type == 5) {
+		CheckboxElement* checkbox = (CheckboxElement*)e->elem;
+		if (checkbox->label != NULL) right_extent += 6 + (int)strlen(checkbox->label) * 9;
+	}
+	return mouse_x >= e->x && mouse_x < right_extent && mouse_y >= e->y && mouse_y < e->y + e->h && e->v;
+}
+
+EXPORT int GElemInside(int id) {
+	Element* e = elements[id];
+	return _inside_elem(e);
+}
+
+EXPORT void GElemSetVisible(int id, int visible) {
+	Element* e = elements[id];
+	e->v = visible;
 }

@@ -15,8 +15,7 @@ namespace Renderers {
 
 	void Button(Element* e) {
 		ButtonElement *btn = (ButtonElement *)e->elem;
-		int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
-		             mouse_y >= e->y && mouse_y < e->y + e->h && !GQueryModalOpen();
+		int inside = _inside_elem(e) && !GQueryModalOpen();
 		if (inside) {
 			XSetForeground(display, gc, colors[mouse_down == 1 ? L(btn->pressed) : L(btn->hover)]);
 		} else XSetForeground(display, gc, colors[L(btn->unpressed)]);
@@ -30,8 +29,7 @@ namespace Renderers {
 
 	void Input(Element* e) {
 		InputElement *input = (InputElement *)e->elem;
-		int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
-		             mouse_y >= e->y && mouse_y < e->y + e->h && !GQueryModalOpen();
+		int inside = _inside_elem(e) && !GQueryModalOpen();
 		if (inside) {
 			XSetForeground(display, gc, colors[L(input->hover)]);
 		} else XSetForeground(display, gc, colors[L(input->inactive)]);
@@ -153,7 +151,7 @@ EXPORT void GRenderWindow() {
 	for (int i = 0; i < elements.size(); i++) {
 		Element *e = elements[i];
 		if (e == NULL) continue;
-		Renderers::Functions[e->type](e);
+		if (e->v) Renderers::Functions[e->type](e);
 	}
 
 	if (GQueryModalOpen()) Renderers::DrawActiveModal();

@@ -42,6 +42,8 @@ void GElemModifyBounds(int id, int x, int y, int w, int h);
 void GCreateConsole(int id, int x, int y, int cols, int rows, int clr);
 void GConsolePrint(int id, const char* format, ...);
 void GConsoleClear(int id);
+int GElemInside(int id);
+void GElemSetVisible(int id, int visible);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

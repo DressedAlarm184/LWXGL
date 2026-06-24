@@ -55,8 +55,7 @@ namespace Events {
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
-			int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
-						 mouse_y >= e->y && mouse_y < e->y + e->h;
+			int inside = _inside_elem(e);
 			if (e->type == 1) {
 				ButtonElement *btn = (ButtonElement *)e->elem;
 				if (inside) {
@@ -66,10 +65,6 @@ namespace Events {
 				}
 			} else if (e->type == 5) {
 				CheckboxElement *checkbox = (CheckboxElement *)e->elem;
-				int right_extent = e->x + e->w;
-				if (checkbox->label != NULL) right_extent += 6 + (int)strlen(checkbox->label) * 9;
-				int inside = mouse_x >= e->x && mouse_x < right_extent &&
-							 mouse_y >= e->y && mouse_y < e->y + e->h;
 				if (inside) {
 					checkbox->checked = !checkbox->checked;
 					return;
@@ -124,8 +119,7 @@ namespace Events {
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
-			int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
-						 mouse_y >= e->y && mouse_y < e->y + e->h;
+			int inside = _inside_elem(e);
 			if (e->type == 2) {
 				InputElement *input = (InputElement *)e->elem;
 				if (!inside) continue;
