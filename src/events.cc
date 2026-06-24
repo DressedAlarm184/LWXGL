@@ -55,10 +55,10 @@ namespace Events {
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
+			int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
+						 mouse_y >= e->y && mouse_y < e->y + e->h;
 			if (e->type == 1) {
 				ButtonElement *btn = (ButtonElement *)e->elem;
-				int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
-				             mouse_y >= e->y && mouse_y < e->y + e->h;
 				if (inside) {
 					if (event.xbutton.button != 1) return;
 					if (btn->onclick != NULL) btn->onclick();
@@ -67,11 +67,24 @@ namespace Events {
 			} else if (e->type == 5) {
 				CheckboxElement *checkbox = (CheckboxElement *)e->elem;
 				int right_extent = e->x + e->w;
-				if (checkbox->label != NULL) right_extent += 6 + strlen(checkbox->label) * 9;
-				int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
-				             mouse_y >= e->y && mouse_y < e->y + e->h;
+				if (checkbox->label != NULL) right_extent += 6 + (int)strlen(checkbox->label) * 9;
+				int inside = mouse_x >= e->x && mouse_x < right_extent &&
+							 mouse_y >= e->y && mouse_y < e->y + e->h;
 				if (inside) {
 					checkbox->checked = !checkbox->checked;
+					return;
+				}
+			} else if (e->type == 6) {
+				ConsoleElement *console = (ConsoleElement*)e->elem;
+				if (inside) {
+					if (event.xbutton.button == 5) {
+						console->scroll++;
+					} else if (event.xbutton.button == 4) {
+						console->scroll--;
+					}
+					if (console->scroll < 0) console->scroll = 0;
+					int max_scroll = std::max(0, console->total_lines - console->rows);
+					if (console->scroll > max_scroll) console->scroll = max_scroll;
 					return;
 				}
 			}
@@ -113,10 +126,10 @@ namespace Events {
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
+			int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
+						 mouse_y >= e->y && mouse_y < e->y + e->h;
 			if (e->type == 2) {
 				InputElement *input = (InputElement *)e->elem;
-				int inside = mouse_x >= e->x && mouse_x < e->x + e->w &&
-				             mouse_y >= e->y && mouse_y < e->y + e->h;
 				if (!inside) continue;
 				int length = strlen(input->input);
 				if (ch == 8) {
@@ -124,6 +137,11 @@ namespace Events {
 				} else if (ch >= 32 && ch < 127) {
 					if (length < input->max) input->input[length] = ch;
 				}
+				return;
+			} else if (e->type == 6) {
+				if (ch != 32) continue;
+				ConsoleElement *console = (ConsoleElement *)e->elem;
+				console->scroll = std::max(0, console->total_lines - console->rows);
 				return;
 			}
 		}

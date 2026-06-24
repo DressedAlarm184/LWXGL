@@ -74,8 +74,39 @@ namespace Renderers {
 		}
 	}
 
+	void Console(Element* e) {
+		ConsoleElement *console = (ConsoleElement *)e->elem;
+		XSetForeground(display, gc, colors[L(console->color)]);
+		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
+		XSetForeground(display, gc, colors[H(console->color)]);
+		XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
+		int current_line_idx = 0, line_start = 0, line_len = 0;
+		for (int i = 0; i <= console->data.length(); ++i) {
+			bool is_end = (i == console->data.length());
+			bool is_newline = (!is_end && console->data[i] == '\n');
+			if (line_len == console->cols || is_newline || is_end) {
+				if (current_line_idx >= console->scroll && current_line_idx < console->scroll + console->rows) {
+					if (line_len <= 0) continue;
+					int display_row = current_line_idx - console->scroll;
+					XDrawString(display, bb, gc, e->x + 5, e->y + 16 + (display_row * 15), console->data.c_str() + line_start, line_len);
+				}
+				current_line_idx++,	line_start = i, line_len = 0;
+				if (current_line_idx >= console->scroll + console->rows) break;
+				if (!is_newline && !is_end)
+					line_len = 1;
+				else
+					line_start = i + 1;
+			} else {
+				line_len++;
+			}
+		}
+		int thumb_height = std::min((e->h - 6), int((e->h - 6) * ((float)console->rows / console->total_lines)));
+		int thumb_y = e->y + 3 + ((e->h - 6) - thumb_height) * ((float)console->scroll / (console->total_lines - console->rows));
+		XFillRectangle(display, bb, gc, e->x + e->w - 8, thumb_y, 5, thumb_height);
+	}
+
 	void (*Functions[])(Element*) = {
-		Text, Button, Input, Rect, Image, Checkbox
+		Text, Button, Input, Rect, Image, Checkbox, Console
 	};
 
 	void DrawDebugOverlay() {

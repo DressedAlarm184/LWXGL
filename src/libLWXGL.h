@@ -39,6 +39,9 @@ void GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b, 
 void GPaletteReset();
 void GClearImage(int id, int c);
 void GElemModifyBounds(int id, int x, int y, int w, int h);
+void GCreateConsole(int id, int x, int y, int cols, int rows, int clr);
+void GConsolePrint(int id, const char* format, ...);
+void GConsoleClear(int id);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

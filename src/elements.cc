@@ -32,6 +32,13 @@ typedef struct {
 } CheckboxElement;
 
 typedef struct {
+	std::string data;
+	int rows, cols;
+	int scroll, color;
+	int total_lines;
+} ConsoleElement;
+
+typedef struct {
 	int x, y, w, h;
 	int type;
 	void *elem;
@@ -41,13 +48,28 @@ std::vector<Element*> elements;
 
 EXPORT void GDeleteElement(int id) {
 	if (id >= elements.size() || elements[id] == NULL) return;
-	if (elements[id]->type == 4) {
-		ImageElement *img = (ImageElement *)elements[id]->elem;
+	int type = elements[id]->type;
+
+	if (type == 0) {
+		delete (TextElement*)elements[id]->elem;
+	} else if (type == 1) {
+		delete (ButtonElement*)elements[id]->elem;
+	} else if (type == 2) {
+		delete (InputElement*)elements[id]->elem;
+	} else if (type == 3) {
+		delete (RectElement*)elements[id]->elem;
+	} else if (type == 4) {
+		ImageElement *img = (ImageElement*)elements[id]->elem;
 		XDestroyImage(img->ximage);
 		free(img->data);
 		free(img->prev);
+		delete img;
+	} else if (type == 5) {
+		delete (CheckboxElement*)elements[id]->elem;
+	} else if (type == 6) {
+		delete (ConsoleElement*)elements[id]->elem;
 	}
-	free(elements[id]->elem);
+
 	free(elements[id]);
 	elements[id] = NULL; 
 }
@@ -63,13 +85,13 @@ Element *allocate_element(int id, int type, void *data, int x, int y, int w, int
 }
 
 EXPORT void GCreateText(int id, int x, int y, int color, const char* text) {
-	TextElement *text_elem = (TextElement*)malloc(sizeof(TextElement));
+	TextElement *text_elem = new TextElement;
 	text_elem->text = text; text_elem->color = color;
 	allocate_element(id, 0, text_elem, x, y, 0, 0);
 }
 
 EXPORT void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void)) {
-	ButtonElement *btn_elem = (ButtonElement*)malloc(sizeof(ButtonElement));
+	ButtonElement *btn_elem = new ButtonElement;
 
 	*btn_elem = (ButtonElement){
 		.unpressed = u, .hover = hvr, .pressed = p, .label = label, .onclick = onclick
@@ -80,7 +102,7 @@ EXPORT void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, in
 
 EXPORT void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
 	if (w == -1) w = (max + 1) * 9 + 10;
-	InputElement *input = (InputElement*)malloc(sizeof(InputElement));
+	InputElement *input = new InputElement;
 
 	*input = (InputElement){
 		.inactive = u, .hover = hvr, .max = max
@@ -97,13 +119,13 @@ EXPORT char* GGetInput(int id) {
 }
 
 EXPORT void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
-	RectElement *rect = (RectElement*)malloc(sizeof(RectElement));
+	RectElement *rect = new RectElement;
 	*rect = (RectElement){.fg = fg, .bg = bg};
 	allocate_element(id, 3, rect, x, y, w, h);
 }
 
 EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
-	ImageElement *img = (ImageElement *)malloc(sizeof(ImageElement));
+	ImageElement *img = new ImageElement;
 	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
 	img->data = (unsigned char *)calloc(w * h, 1);
 	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
@@ -239,7 +261,7 @@ EXPORT void GPrimitiveSprite(int id, int sx, int sy, int color, const char* spri
 }
 
 EXPORT void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label) {
-	CheckboxElement *checkbox = (CheckboxElement*)malloc(sizeof(CheckboxElement));
+	CheckboxElement *checkbox = new CheckboxElement;
 
 	*checkbox = (CheckboxElement){
 		.cb_col = cb_col, .txt_col = txt_col, .label = label, .checked = 0
@@ -261,4 +283,50 @@ EXPORT void GClearImage(int id, int c) {
 EXPORT void GElemModifyBounds(int id, int x, int y, int w, int h) {
 	Element *e = elements[id];
 	e->x = x, e->y = y, e->w = w, e->h = h;
+}
+
+EXPORT void GCreateConsole(int id, int x, int y, int cols, int rows, int clr) {
+	ConsoleElement* console = new ConsoleElement{
+		.data = std::string{}, .rows = rows, .cols = cols, .scroll = 0, .color = clr, .total_lines = 0
+	};
+
+	allocate_element(id, 6, console, x, y, cols * 9 + 17, rows * 15 + 10);
+}
+
+void _console_calc_total_lines(ConsoleElement* console) {
+	int total_lines = 1, current_len = 0;
+
+	for (char c : console->data) {
+		if (c == '\n') {
+			total_lines++;
+			current_len = 0;
+		} else {
+			current_len++;
+			if (current_len == console->cols) {
+				total_lines++;
+				current_len = 0;
+			}
+		}
+	}
+
+	console->total_lines = total_lines;
+}
+
+EXPORT void GConsolePrint(int id, const char* format, ...) {
+	ConsoleElement* console = (ConsoleElement*)(elements[id]->elem);
+	int old_total_lines = console->total_lines;
+	va_list args;
+	va_start(args, format);
+	char buffer[1024];
+	vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+	console->data += buffer;
+	_console_calc_total_lines(console);
+	if (console->scroll == old_total_lines - console->rows)
+		console->scroll = std::max(0, console->total_lines - console->rows);
+}
+
+EXPORT void GConsoleClear(int id) {
+	ConsoleElement* console = (ConsoleElement*)(elements[id]->elem);
+	console->data.clear();
 }

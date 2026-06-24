@@ -15,6 +15,8 @@
 #include <cmath>
 #include <unordered_map>
 #include <functional>
+#include <string>
+#include <cstdarg>
 
 #define EXPORT __attribute__((visibility("default")))
 
