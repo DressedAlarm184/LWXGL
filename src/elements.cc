@@ -34,7 +34,8 @@ typedef struct {
 typedef struct {
 	std::string data;
 	int rows, cols;
-	int scroll, color;
+	int scroll;
+	int con_clr, txt_clr;
 	int total_lines;
 } ConsoleElement;
 
@@ -285,9 +286,9 @@ EXPORT void GElemModifyBounds(int id, int x, int y, int w, int h) {
 	e->x = x, e->y = y, e->w = w, e->h = h;
 }
 
-EXPORT void GCreateConsole(int id, int x, int y, int cols, int rows, int clr) {
+EXPORT void GCreateConsole(int id, int x, int y, int cols, int rows, int con_clr, int txt_clr) {
 	ConsoleElement* console = new ConsoleElement{
-		.data = std::string{}, .rows = rows, .cols = cols, .scroll = 0, .color = clr, .total_lines = 0
+		.data = std::string{}, .rows = rows, .cols = cols, .scroll = 0, .con_clr = con_clr, .txt_clr = txt_clr, .total_lines = 0
 	};
 
 	_allocate_element(id, 6, console, x, y, cols * 9 + 17, rows * 15 + 10);

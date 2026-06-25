@@ -74,10 +74,16 @@ namespace Renderers {
 
 	void Console(Element* e) {
 		ConsoleElement *console = (ConsoleElement *)e->elem;
-		XSetForeground(display, gc, colors[L(console->color)]);
+		XSetForeground(display, gc, colors[L(console->con_clr)]);
 		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
-		XSetForeground(display, gc, colors[H(console->color)]);
+		XSetForeground(display, gc, colors[H(console->con_clr)]);
 		XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
+		int thumb_height = std::max((console->total_lines <= 0)
+			? (e->h - 6)
+			: std::min(e->h - 6, std::max(1, int((e->h - 6) * ((float)console->rows / console->total_lines)))), 16);
+		int thumb_y = std::max(e->y + 3, int(e->y + 3 + ((e->h - 6) - thumb_height) * ((float)console->scroll) / (console->total_lines - console->rows)));
+		XFillRectangle(display, bb, gc, e->x + e->w - 8, thumb_y, 5, thumb_height);
+		XSetForeground(display, gc, colors[H(console->txt_clr)]);
 		std::string expanded_data;
 		expanded_data.reserve(console->data.length());
 		for (char c : console->data) {
@@ -111,11 +117,17 @@ namespace Renderers {
 				line_len++;
 			}
 		}
-		int thumb_height = std::max((console->total_lines <= 0)
-			? (e->h - 6)
-			: std::min(e->h - 6, std::max(1, int((e->h - 6) * ((float)console->rows / console->total_lines)))), 9);
-		int thumb_y = std::max(e->y + 3, int(e->y + 3 + ((e->h - 6) - thumb_height) * ((float)console->scroll) / (console->total_lines - console->rows)));
-		XFillRectangle(display, bb, gc, e->x + e->w - 8, thumb_y, 5, thumb_height);
+		if (_inside_elem(e)) {
+			XSetForeground(display, gc, colors[L(console->txt_clr)]);
+			char buffer_1[64], buffer_2[64];
+			snprintf(buffer_1, sizeof buffer_1, "Viewing: %d - %d / %d",
+				console->scroll + 1, console->scroll + console->rows, console->total_lines);
+			snprintf(buffer_2, sizeof buffer_2, "Scroll: %d%%",
+				((console->scroll) * 100) / std::max(1, (console->total_lines - console->rows)));
+			int length_1 = strlen(buffer_1), length_2 = strlen(buffer_2);
+			XDrawString(display, bb, gc, e->x + e->w - length_1 * 9 - 12, e->y + 16, buffer_1, length_1);
+			XDrawString(display, bb, gc, e->x + e->w - length_2 * 9 - 12, e->y + 31, buffer_2, length_2);
+		}
 	}
 
 	void (*Functions[])(Element*) = {

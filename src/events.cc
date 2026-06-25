@@ -73,9 +73,9 @@ namespace Events {
 				auto* console = static_cast<ConsoleElement*>(e->elem);
 				if (!inside) continue;
 				if (event.xbutton.button == 5) {
-					++console->scroll;
+					console->scroll += 3;
 				} else if (event.xbutton.button == 4) {
-					--console->scroll;
+					console->scroll -= 3;
 				}
 				const int max_scroll = std::max(0, console->total_lines - console->rows);
 				console->scroll = std::clamp(console->scroll, 0, max_scroll);
