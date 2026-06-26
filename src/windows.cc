@@ -97,7 +97,7 @@ EXPORT int GWindowShouldClose() {
 	return closing;
 }
 
-EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
+EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
 	using namespace std::chrono;
 	
 	debug_metrics.active = 1;
@@ -110,12 +110,13 @@ EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int)) {
 		auto elapsed = duration_cast<microseconds>(now - last_time);
 		
 		if (elapsed >= FRAME_TIME) {
+			float delta_time = elapsed.count() / 1000000.0f;
 			auto work_start = steady_clock::now();
 			
 			GHandleWindowEvents();
 			GRenderWindow(); 
 
-			if (on_every != NULL) on_every(tick);
+			if (on_every != NULL) on_every(tick, delta_time);
 			
 			auto work_time = duration_cast<microseconds>(steady_clock::now() - work_start);
 			float current_fps = 1000000.0 / elapsed.count();
