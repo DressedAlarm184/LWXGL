@@ -352,3 +352,13 @@ EXPORT void GElemSetVisible(int id, int visible) {
 	Element* e = elements[id];
 	e->v = visible;
 }
+
+EXPORT void GRedrawAllImages() {
+	for (int i = 0; i < elements.size(); i++) {
+		Element *e = elements[i];
+		if (e->type != 4) continue;
+		ImageElement* img = (ImageElement *)e->elem;
+		memset(img->prev, 255, e->w * e->h);
+		GUpdateImage(i);
+	}
+}

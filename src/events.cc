@@ -1,4 +1,4 @@
-int translate_keypress(int ch, KeySym& keysym) {
+int _translate_keypress(int ch, KeySym& keysym) {
 	if (ch == 0) {
 		switch (keysym) {
 			case XK_Left: ch = LWXGL_KEY_LEFT; break;
@@ -47,31 +47,25 @@ namespace Events {
 				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
 				active_modal_state.active = 0;
 			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > (win_w / 2 + 50) && mouse_x < (win_w / 2 + 115)) {
-				if (active_modal_state.type == 1)
-					active_modal_state.active = 0;
+				if (active_modal_state.type == 1) active_modal_state.active = 0;
 			}
 			return;
 		}
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
-			int inside = _inside_elem(e);
+			if (!_inside_elem(e)) continue;
 			if (e->type == 1) {
 				ButtonElement *btn = (ButtonElement *)e->elem;
-				if (inside) {
-					if (event.xbutton.button != 1) return;
-					if (btn->onclick != NULL) btn->onclick();
-					return;
-				}
+				if (event.xbutton.button != 1) return;
+				if (btn->onclick != NULL) btn->onclick();
+				return;
 			} else if (e->type == 5) {
 				CheckboxElement *checkbox = (CheckboxElement *)e->elem;
-				if (inside) {
-					checkbox->checked = !checkbox->checked;
-					return;
-				}
+				checkbox->checked = !checkbox->checked;
+				return;
 			} else if (e->type == 6) {
 				auto* console = static_cast<ConsoleElement*>(e->elem);
-				if (!inside) continue;
 				if (event.xbutton.button == 5) {
 					console->scroll += 3;
 				} else if (event.xbutton.button == 4) {
@@ -90,7 +84,7 @@ namespace Events {
 	void EKeyPress(XEvent& event) {
 		XKeyEvent key = event.xkey; KeySym keysym;
 		unsigned char ch = 0; int len = XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
-		ch = translate_keypress(ch, keysym);
+		ch = _translate_keypress(ch, keysym);
 		if (ch == 0) return;
 		if (keysym == XK_Escape && (key.state & ControlMask)) {
 			GDeleteWindow();
@@ -119,10 +113,9 @@ namespace Events {
 		for (int i = 0; i < elements.size(); i++) {
 			Element *e = elements[i];
 			if (e == NULL) continue;
-			int inside = _inside_elem(e);
+			if (!_inside_elem(e)) continue;
 			if (e->type == 2) {
 				InputElement *input = (InputElement *)e->elem;
-				if (!inside) continue;
 				int length = strlen(input->input);
 				if (ch == 8) {
 					if (length > 0) input->input[length - 1] = 0;
@@ -131,9 +124,8 @@ namespace Events {
 				}
 				return;
 			} else if (e->type == 6) {
-				if (ch != 32 || !inside) continue;
 				ConsoleElement *console = (ConsoleElement *)e->elem;
-				console->scroll = std::max(0, console->total_lines - console->rows);
+				if (ch == 32) console->scroll = std::max(0, console->total_lines - console->rows);
 				return;
 			}
 		}
@@ -164,6 +156,8 @@ namespace Events {
 }
 
 EXPORT void GHandleWindowEvents() {
+	XEvent event;
+
 	while (XPending(display) > 0) {
 		XNextEvent(display, &event);
 		auto it = Events::Handlers.find(event.type);

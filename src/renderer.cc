@@ -8,7 +8,7 @@ namespace Renderers {
 			int len = 0;
 			while (str[len] != '\0' && str[len] != '\n') len++;
 			XDrawString(display, bb, gc, e->x, y, str, len);
-			str += len, y += 16;;
+			str += len, y += 15;
 			if (*str == '\n') str++;
 		}
 	}
@@ -101,18 +101,13 @@ namespace Renderers {
 			bool is_newline = (!is_end && expanded_data[i] == '\n');
 			if (line_len == console->cols || is_newline || is_end) {
 				if (current_line_idx >= console->scroll && current_line_idx < console->scroll + console->rows) {
-					if (line_len > 0) {
-						int display_row = current_line_idx - console->scroll;
-						XDrawString(display, bb, gc, e->x + 5, e->y + 16 + (display_row * 15), 
-									expanded_data.c_str() + line_start, line_len);
-					}
+					int display_row = current_line_idx - console->scroll;
+					XDrawString(display, bb, gc, e->x + 5, e->y + 16 + (display_row * 15), 
+								expanded_data.c_str() + line_start, line_len);
 				}
 				current_line_idx++, line_start = i, line_len = 0;
 				if (current_line_idx >= console->scroll + console->rows) break;
-				if (!is_newline && !is_end)
-					line_len = 1;
-				else
-					line_start = i + 1;
+				!is_newline && !is_end ? line_len = 1 : line_start = i + 1;
 			} else {
 				line_len++;
 			}
@@ -125,8 +120,9 @@ namespace Renderers {
 			snprintf(buffer_2, sizeof buffer_2, "Scroll: %d%%",
 				((console->scroll) * 100) / std::max(1, (console->total_lines - console->rows)));
 			int length_1 = strlen(buffer_1), length_2 = strlen(buffer_2);
-			XDrawString(display, bb, gc, e->x + e->w - length_1 * 9 - 12, e->y + 16, buffer_1, length_1);
-			XDrawString(display, bb, gc, e->x + e->w - length_2 * 9 - 12, e->y + 31, buffer_2, length_2);
+			XSetBackground(display, gc, colors[L(console->con_clr)]);
+			XDrawImageString(display, bb, gc, e->x + e->w - length_1 * 9 - 12, e->y + 16, buffer_1, length_1);
+			XDrawImageString(display, bb, gc, e->x + e->w - length_2 * 9 - 12, e->y + 31, buffer_2, length_2);
 		}
 	}
 
@@ -157,7 +153,7 @@ namespace Renderers {
 			int len = 0;
 			while (str[len] != '\0' && str[len] != '\n' && len < 31) len++;
 			XDrawString(display, bb, gc, win_w / 2 - 141, y, str, len);
-			str += len, y += 16;;
+			str += len, y += 15;
 			if (*str == '\n') str++;
 		}
 		XSetForeground(display, gc, colors[10]);

@@ -1,7 +1,7 @@
 EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
-	win_w = w, win_h = h;
-
 	if (window != None) return 3;
+
+	win_w = w, win_h = h;
 
 	display = XOpenDisplay(NULL);
 	if (display == NULL) return 1;
@@ -24,6 +24,9 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 		if (XAllocColor(display, colormap, &xcolor)) {
 			colors[i] = xcolor.pixel;
 		} else {
+			if (i > 0) {
+				XFreeColors(display, colormap, colors, i, 0);
+			}
 			XFreeFont(display, font);
 			XCloseDisplay(display);
 			return 127 + i;
@@ -47,7 +50,9 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	wm_delete = XInternAtom(display, "WM_DELETE_WINDOW", False);
 	XSetWMProtocols(display, window, &wm_delete, 1);
 	
-	XSelectInput(display, window, ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | LeaveWindowMask | KeyReleaseMask);
+	XSelectInput(display, window,
+		ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
+		KeyPressMask | LeaveWindowMask | KeyReleaseMask);
 	
 	XMapWindow(display, window);
 	
@@ -67,6 +72,8 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	XkbSetDetectableAutoRepeat(display, True, NULL);
 
 	bgcol = bgcolor;
+
+	XSync(display, False);
 
 	return 0;
 }
@@ -146,17 +153,6 @@ EXPORT void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
 
 EXPORT int GQueryModalOpen() {
 	return active_modal_state.active;
-}
-
-EXPORT void GRedrawAllImages() {
-	for (int i = 0; i < elements.size(); i++) {
-		Element *e = elements[i];
-		if (e->type == 4) {
-			ImageElement* img = (ImageElement *)e->elem;
-			memset(img->prev, 255, e->w * e->h);
-			GUpdateImage(i);
-		}
-	}
 }
 
 EXPORT void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b) {
