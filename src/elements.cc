@@ -40,7 +40,8 @@ typedef struct {
 } ConsoleElement;
 
 typedef struct {
-	int x, y, w, h, v;
+	int x, y, w, h;
+	int v, screen;
 	int type;
 	void *elem;
 } Element;
@@ -80,7 +81,7 @@ Element *_allocate_element(int id, int type, void *data, int x, int y, int w, in
 	if (elements[id] != NULL) GDeleteElement(id);
 	Element *e = (Element*)malloc(sizeof(Element));
 	e->type = type, e->elem = data;
-	e->w = w, e->h = h, e->x = x, e->y = y; e->v = 1;
+	e->w = w, e->h = h, e->x = x, e->y = y; e->v = 1; e->screen = 0;
 	elements[id] = e;
 	return e;
 }
@@ -340,7 +341,9 @@ int _inside_elem(Element* e) {
 		CheckboxElement* checkbox = (CheckboxElement*)e->elem;
 		if (checkbox->label != NULL) right_extent += 6 + (int)strlen(checkbox->label) * 9;
 	}
-	return mouse_x >= e->x && mouse_x < right_extent && mouse_y >= e->y && mouse_y < e->y + e->h && e->v;
+	int mouse_inside = mouse_x >= e->x && mouse_x < right_extent && mouse_y >= e->y && mouse_y < e->y + e->h;
+	int is_on_screen = e->screen == active_screen || e->screen == -1;
+	return mouse_inside && is_on_screen && e->v;
 }
 
 EXPORT int GElemInside(int id) {

@@ -64,10 +64,6 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	
 	XSetFont(display, gc, font->fid);
 	bb = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
-	
-	static unsigned char stipple_bits[] = {0x01, 0x02};
-	stipple = XCreateBitmapFromData(display, window, (char*)stipple_bits, 2, 2);
-	XSetStipple(display, gc, stipple);
 
 	XkbSetDetectableAutoRepeat(display, True, NULL);
 
@@ -87,7 +83,6 @@ EXPORT void GTerminateWindow() {
 	XFreeFont(display, font);
 	XFreeGC(display, gc);
 	XFreePixmap(display, bb);
-	XFreePixmap(display, stipple);
 	XFreeColors(display, DefaultColormap(display, screen), colors, 16, 0);
 	XDestroyWindow(display, window);
 	XCloseDisplay(display);
@@ -189,4 +184,14 @@ EXPORT void GPaletteReset() {
 		colors[i] = color.pixel;
 	}
 	GRedrawAllImages();
+}
+
+EXPORT int* GScreenActive() {
+	return &active_screen;
+}
+
+EXPORT void GScreenApply(int s, int ids[], int count) {
+	for (int i = 0; i < count; i++) {
+		elements[ids[i]]->screen = s;
+	}
 }

@@ -172,7 +172,8 @@ EXPORT void GRenderWindow() {
 	for (int i = 0; i < elements.size(); i++) {
 		Element *e = elements[i];
 		if (e == NULL) continue;
-		if (e->v) Renderers::Functions[e->type](e);
+		if (e->v && (e->screen == active_screen || e->screen == -1))
+			Renderers::Functions[e->type](e);
 	}
 
 	if (GQueryModalOpen()) Renderers::DrawActiveModal();

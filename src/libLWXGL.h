@@ -44,6 +44,8 @@ void GConsolePrint(int id, const char* format, ...);
 void GConsoleClear(int id);
 int GElemInside(int id);
 void GElemSetVisible(int id, int visible);
+int* GScreenActive();
+void GScreenApply(int s, int ids[], int count);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171
