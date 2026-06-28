@@ -195,3 +195,7 @@ EXPORT void GScreenApply(int s, int ids[], int count) {
 		elements[ids[i]]->screen = s;
 	}
 }
+
+EXPORT void GSetWindowTitle(const char* title) {
+	XStoreName(display, window, title);
+}
