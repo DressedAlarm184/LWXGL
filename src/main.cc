@@ -2,21 +2,21 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <unistd.h>
-#include <ctype.h>
-#include <vector>
-#include <cstdlib>
-#include <chrono>
-#include <thread>
+#include <cctype>
 #include <cmath>
-#include <unordered_map>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <algorithm>
+#include <chrono>
 #include <functional>
 #include <string>
-#include <cstdarg>
+#include <thread>
+#include <unordered_map>
+#include <vector>
 
 #define EXPORT __attribute__((visibility("default")))
 
