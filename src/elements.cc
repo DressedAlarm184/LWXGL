@@ -23,6 +23,10 @@ typedef struct {
 	XImage *ximage;
 	unsigned char *data, *prev;
 	char *imgdata;
+	struct {
+		int height;
+		unsigned char* buffer;
+	} fontdata;
 } ImageElement;
 
 typedef struct {
@@ -65,6 +69,7 @@ EXPORT void GDeleteElement(int id) {
 		XDestroyImage(img->ximage);
 		free(img->data);
 		free(img->prev);
+		if (img->fontdata.buffer != NULL) free(img->fontdata.buffer);
 		delete img;
 	} else if (type == 5) {
 		delete (CheckboxElement*)elements[id]->elem;
@@ -133,6 +138,8 @@ EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
 	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
 	img->prev = (unsigned char *)calloc(w * h, 1);
 	img->ximage->data = img->imgdata;
+	img->fontdata.buffer = NULL;
+	img->fontdata.height = 0;
 	_allocate_element(id, 4, img, x, y, w, h);
 }
 
@@ -363,5 +370,34 @@ EXPORT void GRedrawAllImages() {
 		ImageElement* img = (ImageElement *)e->elem;
 		memset(img->prev, 255, e->w * e->h);
 		GUpdateImage(i);
+	}
+}
+
+EXPORT void GImageSetFont(int id, unsigned char* font, int h) {
+	ImageElement *img = (ImageElement*)elements[id]->elem;
+	img->fontdata.height = h;
+	if (img->fontdata.buffer != NULL) free(img->fontdata.buffer);
+	img->fontdata.buffer = (unsigned char*)malloc(256 * h);
+	memcpy(img->fontdata.buffer, font, 256 * h);
+}
+
+EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
+	Element *e = elements[id];
+	ImageElement *img = (ImageElement*)e->elem;
+	int height = img->fontdata.height;
+	unsigned char* font = img->fontdata.buffer;
+
+	for (int cx = 0; *txt; cx++) {
+		if (*txt == 10) {
+			y += height, cx = -1;
+		} else for (int i = 0; i < height; i++) {
+			unsigned char row_bitmap = font[(unsigned int)*txt * height + i];
+			for (int rx = 0; rx < 8; rx++) {
+				if (!(row_bitmap & (0x80 >> rx))) continue;
+				img->data[(y + i) * e->w + (x + rx + cx * 9)] = color;
+			}
+		}
+
+		txt++;
 	}
 }
