@@ -394,7 +394,9 @@ EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
 			unsigned char row_bitmap = font[(unsigned int)*txt * height + i];
 			for (int rx = 0; rx < 8; rx++) {
 				if (!(row_bitmap & (0x80 >> rx))) continue;
-				img->data[(y + i) * e->w + (x + rx + cx * 9)] = color;
+				int px = x + rx + cx * 9, py = y + i;
+				if (px >= e->w || px < 0 || py >= e->h || py < 0) continue;
+				img->data[py * e->w + px] = color;
 			}
 		}
 
