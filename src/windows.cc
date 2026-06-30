@@ -199,3 +199,7 @@ EXPORT void GScreenApply(int s, int ids[], int count) {
 EXPORT void GSetWindowTitle(const char* title) {
 	XStoreName(display, window, title);
 }
+
+EXPORT void GSetWindowColor(int color) {
+	bgcol = color;
+}
