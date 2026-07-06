@@ -36,6 +36,7 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	srand(time(NULL));
 	gc = XCreateGC(display, RootWindow(display, screen), 0, NULL);
 	XSetLineAttributes(display, gc, 1, LineSolid, CapButt, JoinMiter);
+	XSetGraphicsExposures(display, gc, False);
 	
 	window = XCreateSimpleWindow(
 		display,
@@ -51,7 +52,7 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	XSetWMProtocols(display, window, &wm_delete, 1);
 	
 	XSelectInput(display, window,
-		ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
+		ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
 		KeyPressMask | LeaveWindowMask | KeyReleaseMask);
 	
 	XMapWindow(display, window);

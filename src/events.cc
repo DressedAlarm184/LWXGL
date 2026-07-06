@@ -20,10 +20,6 @@ namespace Events {
 		int (*Delete)() = NULL;
 	}
 
-	void EExpose(XEvent& event) {
-		GRenderWindow();
-	}
-
 	void EClientMessage(XEvent& event) {
 		if ((Atom)event.xclient.data.l[0] == wm_delete) GDeleteWindow();
 	}
@@ -144,7 +140,6 @@ namespace Events {
 	}
 
 	std::unordered_map<int, void(*)(XEvent&)>Handlers = {
-		{Expose, EExpose},
 		{ClientMessage, EClientMessage},
 		{MotionNotify, EMotionNotify},
 		{LeaveNotify, ELeaveNotify},
