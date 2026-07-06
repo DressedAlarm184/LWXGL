@@ -209,26 +209,45 @@ EXPORT unsigned char* GCaptureRegion(int x, int y, int w, int h, int* size) {
 	Colormap colormap = DefaultColormap(display, screen);
 	XColor color;
 
+	typedef struct {unsigned long pixel; unsigned char r, g, b;} PixelCacheEntry;
+	PixelCacheEntry cache[16]; int cache_size = 0;
+
 	char header[64] = {0};
 	int header_size = snprintf(header, sizeof header, "P6\n%d %d\n255\n", w, h);
 	int buffer_size = header_size + (w * h * 3);
+
 	unsigned char* buffer = (unsigned char*)malloc(buffer_size);
 	memcpy(buffer, header, header_size);
 
 	for (int py = 0; py < h; py++) {
 		for (int px = 0; px < w; px++) {
-			color.pixel = XGetPixel(image, px, py);
-			XQueryColor(display, colormap, &color);
+			unsigned long pixel = XGetPixel(image, px, py);
+			unsigned char r, g, b, found = 0;
 
-			int byte_offset = header_size + ((py * w + px) * 3);
+			for (int i = 0; i < cache_size; i++) {
+				if (cache[i].pixel == pixel) {
+					r = cache[i].r, g = cache[i].g, b = cache[i].b, found = 1;
+					break;
+				}
+			}
 
-			buffer[byte_offset + 0] = color.red >> 8;
-			buffer[byte_offset + 1] = color.green >> 8;
-			buffer[byte_offset + 2] = color.blue >> 8;
+			if (!found) {
+				color.pixel = pixel;
+				XQueryColor(display, colormap, &color);
+
+				cache[cache_size].pixel = pixel;
+				cache[cache_size].r = r = color.red >> 8;
+				cache[cache_size].g = g = color.green >> 8;
+				cache[cache_size].b = b = color.blue >> 8;
+
+				cache_size++;
+			}
+
+			int o = header_size + (py * w + px) * 3;
+			buffer[o] = r, buffer[o + 1] = g, buffer[o + 2] = b;
 		}
 	}
 
-	XDestroyImage(image);
-	*size = buffer_size;
+	XDestroyImage(image); *size = buffer_size;
 	return buffer;
 }
