@@ -18,6 +18,7 @@ namespace Events {
 		void (*Key)(int key) = NULL;
 		void (*Click)(int x, int y, int btn) = NULL;
 		int (*Delete)() = NULL;
+		void (*Resize)(int w, int h) = NULL;
 	}
 
 	void EClientMessage(XEvent& event) {
@@ -139,12 +140,34 @@ namespace Events {
 		}
 	}
 
+	void EConfigureNotify(XEvent& event) {
+		int new_width = event.xconfigure.width;
+		int new_height = event.xconfigure.height;
+
+		XEvent next_event;
+		while (XCheckTypedWindowEvent(display, window, ConfigureNotify, &next_event)) {
+			new_width = next_event.xconfigure.width, new_height = next_event.xconfigure.height;
+		}
+
+		if (new_width != win_w || new_height != win_h) {
+			win_w = new_width, win_h = new_height;
+
+			XFreePixmap(display, bb);
+			bb = XCreatePixmap(display, window, win_w, win_h, DefaultDepth(display, screen));
+
+			if (Events::UserProvided::Resize != NULL) {
+				Events::UserProvided::Resize(win_w, win_h);
+			}
+		}
+	}
+
 	std::unordered_map<int, void(*)(XEvent&)>Handlers = {
 		{ClientMessage, EClientMessage},
 		{MotionNotify, EMotionNotify},
 		{LeaveNotify, ELeaveNotify},
 		{ButtonPress, EButtonPress},
 		{ButtonRelease, EButtonRelease},
+		{ConfigureNotify, EConfigureNotify},
 		{KeyPress, EKeyPress},
 		{KeyRelease, EKeyRelease},
 	};

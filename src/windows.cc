@@ -53,7 +53,7 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	
 	XSelectInput(display, window,
 		ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
-		KeyPressMask | LeaveWindowMask | KeyReleaseMask);
+		KeyPressMask | LeaveWindowMask | KeyReleaseMask | StructureNotifyMask);
 	
 	XMapWindow(display, window);
 	
@@ -251,4 +251,11 @@ EXPORT unsigned char* GCaptureRegion(int x, int y, int w, int h, int* size) {
 
 	XDestroyImage(image); *size = buffer_size;
 	return buffer;
+}
+
+EXPORT void GEnableResizing(void (*Resize)(int x, int y)) {
+	XSizeHints hints;
+	hints.flags = 0;
+	XSetWMNormalHints(display, window, &hints);
+	Events::UserProvided::Resize = Resize;
 }
