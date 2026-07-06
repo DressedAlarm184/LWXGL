@@ -50,6 +50,7 @@ void GSetWindowTitle(const char* title);
 void GImageSetFont(int id, unsigned char* font, int h);
 void GDrawString(int id, int x, int y, const char* txt, int color);
 void GSetWindowColor(int color);
+unsigned char* GCaptureRegion(int x, int y, int w, int h, int* size);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

@@ -203,3 +203,32 @@ EXPORT void GSetWindowTitle(const char* title) {
 EXPORT void GSetWindowColor(int color) {
 	bgcol = color;
 }
+
+EXPORT unsigned char* GCaptureRegion(int x, int y, int w, int h, int* size) {
+	XImage *image = XGetImage(display, bb, x, y, w, h, AllPlanes, ZPixmap);
+	Colormap colormap = DefaultColormap(display, screen);
+	XColor color;
+
+	char header[64] = {0};
+	int header_size = snprintf(header, sizeof header, "P6\n%d %d\n255\n", w, h);
+	int buffer_size = header_size + (w * h * 3);
+	unsigned char* buffer = (unsigned char*)malloc(buffer_size);
+	memcpy(buffer, header, header_size);
+
+	for (int py = 0; py < h; py++) {
+		for (int px = 0; px < w; px++) {
+			color.pixel = XGetPixel(image, px, py);
+			XQueryColor(display, colormap, &color);
+
+			int byte_offset = header_size + ((py * w + px) * 3);
+
+			buffer[byte_offset + 0] = color.red >> 8;
+			buffer[byte_offset + 1] = color.green >> 8;
+			buffer[byte_offset + 2] = color.blue >> 8;
+		}
+	}
+
+	XDestroyImage(image);
+	*size = buffer_size;
+	return buffer;
+}
