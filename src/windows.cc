@@ -207,46 +207,33 @@ EXPORT void GSetWindowColor(int color) {
 
 EXPORT unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned short h) {
 	XImage *image = XGetImage(display, bb, x, y, w, h, AllPlanes, ZPixmap);
-	Colormap colormap = DefaultColormap(display, screen);
-	XColor color;
 
-	typedef struct {unsigned long pixel; unsigned char r, g, b;} PixelCacheEntry;
-	PixelCacheEntry cache[16]; int cache_size = 0;
-
-	unsigned char header[18] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	unsigned char header[18] = {0, 1, 1, 0, 0, 16, 0, 24, 0, 0, 0, 0,
 								(unsigned char)(w & 0xFF), (unsigned char)((w >> 8) & 0xFF),
 								(unsigned char)(h & 0xFF), (unsigned char)((h >> 8) & 0xFF),
-								24, 32};
+								8, 32};
 
-	unsigned char* buffer = (unsigned char*)malloc(18 + (w * h * 3));
+	unsigned char* buffer = (unsigned char*)calloc(1, 66 + w * h);
 	memcpy(buffer, header, 18);
+
+	unsigned char red, green, blue;
+
+	for (int i = 0; i < 16; i++) {
+		GPaletteQuery(i, &red, &green, &blue);
+		int o = 18 + i * 3;
+		buffer[o] = blue, buffer[o + 1] = green, buffer[o + 2] = red;
+	}
 
 	for (int py = 0; py < h; py++) {
 		for (int px = 0; px < w; px++) {
 			unsigned long pixel = XGetPixel(image, px, py);
-			unsigned char r, g, b, found = 0;
 
-			for (int i = 0; i < cache_size; i++) {
-				if (cache[i].pixel == pixel) {
-					r = cache[i].r, g = cache[i].g, b = cache[i].b, found = 1;
+			for (int i = 0; i < 16; i++) {
+				if (pixel == colors[i]) {
+					buffer[66 + py * w + px] = i;
 					break;
 				}
 			}
-
-			if (!found) {
-				color.pixel = pixel;
-				XQueryColor(display, colormap, &color);
-
-				cache[cache_size].pixel = pixel;
-				cache[cache_size].r = r = color.red >> 8;
-				cache[cache_size].g = g = color.green >> 8;
-				cache[cache_size].b = b = color.blue >> 8;
-
-				cache_size++;
-			}
-
-			int o = 18 + (py * w + px) * 3;
-			buffer[o + 2] = r, buffer[o + 1] = g, buffer[o] = b;
 		}
 	}
 
