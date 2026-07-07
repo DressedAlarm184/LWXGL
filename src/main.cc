@@ -17,6 +17,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <fstream>
 
 #define EXPORT __attribute__((visibility("default")))
 

@@ -52,6 +52,7 @@ void GDrawString(int id, int x, int y, const char* txt, int color);
 void GSetWindowColor(int color);
 unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned short h);
 void GEnableResizing(void (*Resize)(int w, int h));
+int GDrawIndexedTGA(int id, int x, int y, const char* path, int change_palette);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

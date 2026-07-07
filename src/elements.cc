@@ -366,6 +366,7 @@ EXPORT void GElemSetVisible(int id, int visible) {
 EXPORT void GRedrawAllImages() {
 	for (int i = 0; i < elements.size(); i++) {
 		Element *e = elements[i];
+		if (e == NULL) continue;
 		if (e->type != 4) continue;
 		ImageElement* img = (ImageElement *)e->elem;
 		memset(img->prev, 255, e->w * e->h);
@@ -402,4 +403,45 @@ EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
 
 		txt++;
 	}
+}
+
+EXPORT int GDrawIndexedTGA(int id, int x, int y, const char* path, int change_palette) {
+	std::ifstream file(path, std::ios::binary);
+	if (!file) return 1;
+
+	unsigned char expected_header[18] = {0, 1, 1, 0, 0, 16, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 8, 32};
+	unsigned char tga_header[18] = {0};
+
+	file.read((char*)tga_header, 18);
+	memcpy(expected_header + 8, tga_header + 8, 8);
+	if (memcmp(tga_header, expected_header, 18) != 0) return 2;
+
+	int width = tga_header[12] | (tga_header[13] << 8);
+	int height = tga_header[14] | (tga_header[15] << 8);
+
+	Element *e = elements[id];
+	ImageElement *img = (ImageElement*)e->elem;
+
+	unsigned char palette[48] = {0};
+	std::vector<unsigned char> scanline(width);
+
+	file.read((char*)palette, 48);
+
+	if (change_palette) {
+		for (int i = 0; i < 16; i++) {
+			int o = i * 3;
+			GPaletteModify(i, palette[o + 2], palette[o + 1], palette[o], i == 15 ? 1 : 0);
+		}
+	}
+
+	for (int iy = 0; iy < height; iy++) {
+		file.read((char*)scanline.data(), width);
+		for (int ix = 0; ix < width; ix++) {
+			int px = x + ix, py = y + iy;
+			if (px >= e->w || px < 0 || py >= e->h || py < 0) continue;
+			img->data[py * e->w + px] = scanline[ix];
+		}
+	}
+
+	return 0;
 }
