@@ -205,7 +205,7 @@ EXPORT void GSetWindowColor(int color) {
 	bgcol = color;
 }
 
-EXPORT unsigned char* GCaptureRegion(int x, int y, int w, int h, int* size) {
+EXPORT unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned short h) {
 	XImage *image = XGetImage(display, bb, x, y, w, h, AllPlanes, ZPixmap);
 	Colormap colormap = DefaultColormap(display, screen);
 	XColor color;
@@ -213,12 +213,13 @@ EXPORT unsigned char* GCaptureRegion(int x, int y, int w, int h, int* size) {
 	typedef struct {unsigned long pixel; unsigned char r, g, b;} PixelCacheEntry;
 	PixelCacheEntry cache[16]; int cache_size = 0;
 
-	char header[64] = {0};
-	int header_size = snprintf(header, sizeof header, "P6\n%d %d\n255\n", w, h);
-	int buffer_size = header_size + (w * h * 3);
+	unsigned char header[18] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+								(unsigned char)(w & 0xFF), (unsigned char)((w >> 8) & 0xFF),
+								(unsigned char)(h & 0xFF), (unsigned char)((h >> 8) & 0xFF),
+								24, 32};
 
-	unsigned char* buffer = (unsigned char*)malloc(buffer_size);
-	memcpy(buffer, header, header_size);
+	unsigned char* buffer = (unsigned char*)malloc(18 + (w * h * 3));
+	memcpy(buffer, header, 18);
 
 	for (int py = 0; py < h; py++) {
 		for (int px = 0; px < w; px++) {
@@ -244,12 +245,12 @@ EXPORT unsigned char* GCaptureRegion(int x, int y, int w, int h, int* size) {
 				cache_size++;
 			}
 
-			int o = header_size + (py * w + px) * 3;
-			buffer[o] = r, buffer[o + 1] = g, buffer[o + 2] = b;
+			int o = 18 + (py * w + px) * 3;
+			buffer[o + 2] = r, buffer[o + 1] = g, buffer[o] = b;
 		}
 	}
 
-	XDestroyImage(image); *size = buffer_size;
+	XDestroyImage(image);
 	return buffer;
 }
 
