@@ -331,8 +331,10 @@ EXPORT void GConsolePrint(int id, const char* format, ...) {
 	va_end(args);
 	console->data += buffer;
 	_console_calc_total_lines(console);
-	if (console->scroll == old_total_lines - console->rows)
+	int old_max_scroll = std::max(0, old_total_lines - console->rows);
+	if (console->scroll >= old_max_scroll) {
 		console->scroll = std::max(0, console->total_lines - console->rows);
+	}
 }
 
 EXPORT void GConsoleClear(int id) {
