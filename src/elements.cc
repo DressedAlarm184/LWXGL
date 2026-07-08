@@ -435,17 +435,19 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) 
 	std::ifstream file(path, std::ios::binary);
 	if (!file) return 1;
 
-	unsigned char expected_header[18] = {0, 1, 1, 0, 0, 16, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 8, 32};
-	unsigned char tga_header[18] = {0};
+	unsigned char header[18] = {0};
 
-	file.read((char*)tga_header, 18);
-	memcpy(expected_header + 8, tga_header + 8, 8);
-	if (memcmp(tga_header, expected_header, 18) != 0) return 2;
+	file.read((char*)header, 18);
+
+	if (auto h = header; !(h[1] == 1 && h[2] == 1 && h[3] == 0 && h[4] == 0 && h[5] == 16
+		&& h[6] == 0 && h[7] == 24 && h[16] == 8 && (h[17] == 32 || h[17] == 0))) return 2;
+
+	file.seekg(header[0], std::ios::cur);
 
 	GDeleteTGA(name);
 
-	int width = tga_header[12] | (tga_header[13] << 8);
-	int height = tga_header[14] | (tga_header[15] << 8);
+	int width = header[12] | (header[13] << 8);
+	int height = header[14] | (header[15] << 8);
 
 	unsigned char* palette = (unsigned char*)calloc(48, 1);
 	std::vector<unsigned char> scanline(width);
@@ -453,7 +455,11 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) 
 	file.read((char*)palette, 48);
 	unsigned char* pixels = (unsigned char*)calloc(width * height, 1);
 
-	for (int iy = 0; iy < height; iy++) {
+	int start_y = header[17] == 32 ? 0 : height - 1;
+	int run_until = header[17] == 32 ? height : -1;
+	int y_inc = header[17] == 32 ? 1 : -1;
+
+	for (int iy = start_y; iy != run_until; iy += y_inc) {
 		file.read((char*)scanline.data(), width);
 		for (int ix = 0; ix < width; ix++) {
 			pixels[iy * width + ix] = scanline[ix];
