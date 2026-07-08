@@ -348,7 +348,7 @@ int _inside_elem(Element* e) {
 	int right_extent = e->x + e->w;
 	if (e->type == 5) {
 		CheckboxElement* checkbox = (CheckboxElement*)e->elem;
-		if (checkbox->label != NULL) right_extent += 6 + (int)strlen(checkbox->label) * 9;
+		if (checkbox->label != NULL) right_extent += 10 + (int)strlen(checkbox->label) * 9;
 	}
 	int mouse_inside = mouse_x >= e->x && mouse_x < right_extent && mouse_y >= e->y && mouse_y < e->y + e->h;
 	int is_on_screen = e->screen == active_screen || e->screen == -1;

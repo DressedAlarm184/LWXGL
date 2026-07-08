@@ -68,7 +68,7 @@ namespace Renderers {
 		if (checkbox->checked) XFillRectangle(display, bb, gc, e->x + 4, e->y + 4, e->w - 8, e->h - 8);
 		if (checkbox->label != NULL) {
 			XSetForeground(display, gc, colors[checkbox->txt_col]);
-			XDrawString(display, bb, gc, e->x + e->w + 3, e->y + e->h / 2 + 5, checkbox->label, strlen(checkbox->label));
+			XDrawString(display, bb, gc, e->x + e->w + 5, e->y + e->h / 2 + 5, checkbox->label, strlen(checkbox->label));
 		}
 	}
 
