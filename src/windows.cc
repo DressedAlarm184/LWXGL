@@ -77,10 +77,14 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 
 EXPORT void GTerminateWindow() {
 	for (int i = 0; i < elements.size(); i++) {
-		if (elements[i] != NULL) {
-			GDeleteElement(i);
-		}
+		if (elements[i] != NULL) GDeleteElement(i);
 	}
+
+	for (const auto& pair : allocated_TGAs) {
+		free(pair.second.pixels);
+		free(pair.second.palette);
+	}
+
 	XFreeFont(display, font);
 	XFreeGC(display, gc);
 	XFreePixmap(display, bb);

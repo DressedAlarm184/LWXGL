@@ -29,6 +29,15 @@ Atom wm_delete; XFontStruct* font; int active_screen = 0;
 unsigned char pressed_keys[8] = {0};
 unsigned int active_keycodes[8] = {0};
 
+typedef struct {
+	int width, height;
+	unsigned char* palette;
+	unsigned char* pixels;
+	int change_palette;
+} AllocatedTGA;
+
+std::unordered_map<std::string, AllocatedTGA> allocated_TGAs;
+
 struct {
 	int avg_wt[60] = {0};
 	float fps;

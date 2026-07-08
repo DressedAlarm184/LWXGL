@@ -407,7 +407,31 @@ EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
 	}
 }
 
-EXPORT int GDrawIndexedTGA(int id, int x, int y, const char* path, int change_palette) {
+EXPORT void GDrawIndexedTGA(int id, int x, int y, const char* name) {
+	Element *e = elements[id];
+	ImageElement *img = (ImageElement*)e->elem;
+
+	const auto& TGA = allocated_TGAs[name];
+
+	if (TGA.change_palette) {
+		for (int i = 0; i < 16; i++) {
+			unsigned char* c = TGA.palette + i * 3;
+			GPaletteModify(i, *(c + 2), *(c + 1), *c, i == 15 ? 1 : 0);
+		}
+	}
+
+	int width = TGA.width, height = TGA.height;
+
+	for (int iy = 0; iy < height; iy++) {
+		for (int ix = 0; ix < width; ix++) {
+			int px = x + ix, py = y + iy;
+			if (px >= e->w || px < 0 || py >= e->h || py < 0) continue;
+			img->data[py * e->w + px] = TGA.pixels[iy * width + ix];
+		}
+	}
+}
+
+EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) {
 	std::ifstream file(path, std::ios::binary);
 	if (!file) return 1;
 
@@ -418,32 +442,29 @@ EXPORT int GDrawIndexedTGA(int id, int x, int y, const char* path, int change_pa
 	memcpy(expected_header + 8, tga_header + 8, 8);
 	if (memcmp(tga_header, expected_header, 18) != 0) return 2;
 
+	if (allocated_TGAs.find(name) != allocated_TGAs.end()) {
+		free(allocated_TGAs[name].pixels);
+		free(allocated_TGAs[name].palette);
+		allocated_TGAs.erase(name);
+	}
+
 	int width = tga_header[12] | (tga_header[13] << 8);
 	int height = tga_header[14] | (tga_header[15] << 8);
 
-	Element *e = elements[id];
-	ImageElement *img = (ImageElement*)e->elem;
-
-	unsigned char palette[48] = {0};
+	unsigned char* palette = (unsigned char*)calloc(48, 1);
 	std::vector<unsigned char> scanline(width);
 
 	file.read((char*)palette, 48);
-
-	if (change_palette) {
-		for (int i = 0; i < 16; i++) {
-			int o = i * 3;
-			GPaletteModify(i, palette[o + 2], palette[o + 1], palette[o], i == 15 ? 1 : 0);
-		}
-	}
+	unsigned char* pixels = (unsigned char*)calloc(width * height, 1);
 
 	for (int iy = 0; iy < height; iy++) {
 		file.read((char*)scanline.data(), width);
 		for (int ix = 0; ix < width; ix++) {
-			int px = x + ix, py = y + iy;
-			if (px >= e->w || px < 0 || py >= e->h || py < 0) continue;
-			img->data[py * e->w + px] = scanline[ix];
+			pixels[iy * width + ix] = scanline[ix];
 		}
 	}
+
+	allocated_TGAs[name] = {width, height, palette, pixels, change_palette};
 
 	return 0;
 }
