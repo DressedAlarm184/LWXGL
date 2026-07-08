@@ -478,3 +478,22 @@ EXPORT void GDeleteTGA(const char* name) {
 		allocated_TGAs.erase(name);
 	}
 }
+
+EXPORT int GCreateTGAImage(int id, int x, int y, const char* path, int change_palette) {
+	using namespace std::string_literals;
+
+	auto name = "TGAImage_"s + path;
+
+	if (allocated_TGAs.find(name) == allocated_TGAs.end()) {
+		int retval = GAllocateTGA(name.c_str(), path, change_palette);
+		if (retval != 0) return retval;
+	}
+
+	auto image = allocated_TGAs[name];
+
+	GCreateImage(id, x, y, image.width, image.height);
+	GDrawIndexedTGA(id, 0, 0, name.c_str());
+	GUpdateImage(id);
+
+	return 0;
+}
