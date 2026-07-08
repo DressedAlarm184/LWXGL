@@ -54,6 +54,7 @@ unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned short h);
 void GEnableResizing(void (*Resize)(int w, int h));
 void GDrawIndexedTGA(int id, int x, int y, const char* name);
 int GAllocateTGA(const char* name, const char* path, int change_palette);
+void GDeleteTGA(const char* name);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

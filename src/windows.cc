@@ -80,9 +80,8 @@ EXPORT void GTerminateWindow() {
 		if (elements[i] != NULL) GDeleteElement(i);
 	}
 
-	for (const auto& pair : allocated_TGAs) {
-		free(pair.second.pixels);
-		free(pair.second.palette);
+	while (!allocated_TGAs.empty()) {
+		GDeleteTGA(allocated_TGAs.begin()->first.c_str());
 	}
 
 	XFreeFont(display, font);

@@ -442,11 +442,7 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) 
 	memcpy(expected_header + 8, tga_header + 8, 8);
 	if (memcmp(tga_header, expected_header, 18) != 0) return 2;
 
-	if (allocated_TGAs.find(name) != allocated_TGAs.end()) {
-		free(allocated_TGAs[name].pixels);
-		free(allocated_TGAs[name].palette);
-		allocated_TGAs.erase(name);
-	}
+	GDeleteTGA(name);
 
 	int width = tga_header[12] | (tga_header[13] << 8);
 	int height = tga_header[14] | (tga_header[15] << 8);
@@ -467,4 +463,12 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) 
 	allocated_TGAs[name] = {width, height, palette, pixels, change_palette};
 
 	return 0;
+}
+
+EXPORT void GDeleteTGA(const char* name) {
+	if (allocated_TGAs.find(name) != allocated_TGAs.end()) {
+		free(allocated_TGAs[name].pixels);
+		free(allocated_TGAs[name].palette);
+		allocated_TGAs.erase(name);
+	}
 }
