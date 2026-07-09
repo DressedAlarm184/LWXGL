@@ -439,10 +439,8 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) 
 
 	file.read((char*)header, 18);
 
-	if (auto h = header; !(h[1] == 1 && h[2] == 1 && h[3] == 0 && h[4] == 0 && h[5] == 16
-		&& h[6] == 0 && h[7] == 24 && h[16] == 8 && (h[17] == 32 || h[17] == 0))) return 2;
-
-	file.seekg(header[0], std::ios::cur);
+	if (auto h = header; !(h[1] == 1 && (h[2] == 1 || h[2] == 9) && h[3] == 0 && h[4] == 0
+		&& h[5] == 16 && h[6] == 0 && h[7] == 24 && h[16] == 8 && (h[17] == 32 || h[17] == 0))) return 2;
 
 	GDeleteTGA(name);
 
@@ -450,23 +448,39 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) 
 	int height = header[14] | (header[15] << 8);
 
 	unsigned char* palette = (unsigned char*)calloc(48, 1);
-	std::vector<unsigned char> scanline(width);
-
-	file.read((char*)palette, 48);
 	unsigned char* pixels = (unsigned char*)calloc(width * height, 1);
+
+	allocated_TGAs[name] = {width, height, palette, pixels, change_palette};
+
+	file.seekg(header[0], std::ios::cur);
+	file.read((char*)palette, 48);
 
 	int start_y = header[17] == 32 ? 0 : height - 1;
 	int run_until = header[17] == 32 ? height : -1;
 	int y_inc = header[17] == 32 ? 1 : -1;
 
-	for (int iy = start_y; iy != run_until; iy += y_inc) {
-		file.read((char*)scanline.data(), width);
-		for (int ix = 0; ix < width; ix++) {
-			pixels[iy * width + ix] = scanline[ix];
+	if (header[2] == 1) {
+		std::vector<unsigned char> scanline(width);
+		for (int iy = start_y; iy != run_until; iy += y_inc) {
+			file.read((char*)scanline.data(), width);
+			for (int ix = 0; ix < width; ix++) {
+				pixels[iy * width + ix] = scanline[ix];
+			}
+		}
+	} else for (int iy = start_y; iy != run_until; iy += y_inc) {
+		for (int ix = 0; ix < width;) {
+			unsigned char packet, value;
+			file.read((char*)&packet, 1);
+			int count = (packet & 0x7F) + 1;
+			if (packet & 0x80) {
+				file.read((char*)&value, 1);
+				while (count-- && ix < width) pixels[iy * width + ix++] = value;
+			} else while (count-- && ix < width) {
+				file.read((char*)&value, 1);
+				pixels[iy * width + ix++] = value;
+			}
 		}
 	}
-
-	allocated_TGAs[name] = {width, height, palette, pixels, change_palette};
 
 	return 0;
 }
