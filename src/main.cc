@@ -76,7 +76,12 @@ struct {
 #define L(b)   ((b) & 0x0F)
 #define H(b)  (((b) >> 4) & 0x0F)
 
-#include "elements.cc"
+#include "elements/structs.cc"
+#include "elements/helpers.cc"
+#include "elements/raster.cc"
+#include "elements/tga.cc"
+#include "elements/general.cc"
+
 #include "events.cc"
 #include "windows.cc"
 #include "renderer.cc"
