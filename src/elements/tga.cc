@@ -58,17 +58,21 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) 
 				pixels[iy * width + ix] = scanline[ix];
 			}
 		}
-	} else for (int iy = start_y; iy != run_until; iy += y_inc) {
-		for (int ix = 0; ix < width;) {
-			unsigned char packet, value;
-			file.read((char*)&packet, 1);
-			int count = (packet & 0x7F) + 1;
-			if (packet & 0x80) {
-				file.read((char*)&value, 1);
-				while (count-- && ix < width) pixels[iy * width + ix++] = value;
-			} else while (count-- && ix < width) {
-				file.read((char*)&value, 1);
+	} else for (int ix = 0, iy = start_y; iy != run_until;) {
+		unsigned char packet, value, data[128];
+		file.read((char*)&packet, 1);
+		int count = (packet & 0x7F) + 1;
+		if (packet & 0x80) {
+			file.read((char*)&value, 1);
+			while (count--) {
 				pixels[iy * width + ix++] = value;
+				if (ix == width) ix = 0, iy += y_inc;
+			}
+		} else {
+			file.read((char*)data, count);
+			for (int i = 0; i < count; ++i) {
+				pixels[iy * width + ix++] = data[i];
+				if (ix == width) ix = 0, iy += y_inc;
 			}
 		}
 	}
