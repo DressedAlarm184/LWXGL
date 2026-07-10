@@ -144,24 +144,28 @@ namespace Renderers {
 	}
 
 	void DrawActiveModal() {
+		int max_chars = (std::clamp((int)(win_w / 1.5f), 300, 550) - 9) / 9;
+		int width = (max_chars * 9) + 9;
 		XSetForeground(display, gc, colors[0]);
-		XFillRectangle(display, bb, gc, win_w / 2 - 153, 47, 306, 156);
+		XFillRectangle(display, bb, gc, win_w / 2 - (width + 4) / 2, 47, width + 5, 156);
 		XSetForeground(display, gc, colors[15]);
-		XDrawRectangle(display, bb, gc, win_w / 2 - 151, 49, 301, 151);
+		XDrawRectangle(display, bb, gc, win_w / 2 - width / 2, 49, width, 151);
 		int y = 68; const char* str = active_modal_state.msg;
 		while (*str != '\0') {
 			int len = 0;
-			while (str[len] != '\0' && str[len] != '\n' && len < 31) len++;
-			XDrawString(display, bb, gc, win_w / 2 - 141, y, str, len);
+			while (str[len] != '\0' && str[len] != '\n' && len < max_chars) len++;
+			XDrawString(display, bb, gc, win_w / 2 - (width - 10) / 2, y, str, len);
 			str += len, y += 15;
 			if (*str == '\n') str++;
 		}
+		int edge = win_w / 2 + width / 2;
 		XSetForeground(display, gc, colors[10]);
-		XDrawString(display, bb, gc, win_w / 2 + 125, 193, "OK", 2);
+		XDrawString(display, bb, gc, edge - 25, 193, "OK", 2);
 		if (active_modal_state.type == 1) {
 			XSetForeground(display, gc, colors[12]);
-			XDrawString(display, bb, gc, win_w / 2 + 55, 193, "Cancel", 6);
+			XDrawString(display, bb, gc, edge - 95, 193, "Cancel", 6);
 		}
+		active_modal_state.right_edge_x = edge;
 	}
 }
 

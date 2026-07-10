@@ -40,10 +40,11 @@ namespace Events {
 	void EButtonRelease(XEvent& event) {
 		if (event.xbutton.button == mouse_down) mouse_down = 0;
 		if (GQueryModalOpen()) {
-			if (mouse_y < 200 && mouse_y > 180 && mouse_x > (win_w / 2 + 120) && mouse_x < (win_w / 2 + 150)) {
+			int edge = active_modal_state.right_edge_x;
+			if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 35 && mouse_x < edge) {
 				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
 				active_modal_state.active = 0;
-			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > (win_w / 2 + 50) && mouse_x < (win_w / 2 + 115)) {
+			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 105 && mouse_x < edge - 35) {
 				if (active_modal_state.type == 1) active_modal_state.active = 0;
 			}
 			return;
