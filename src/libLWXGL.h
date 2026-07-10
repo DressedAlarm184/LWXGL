@@ -56,6 +56,7 @@ void GDrawIndexedTGA(int id, int x, int y, const char* name);
 int GAllocateTGA(const char* name, const char* path, int change_palette);
 void GDeleteTGA(const char* name);
 int GCreateTGAImage(int id, int x, int y, const char* path, int change_palette);
+void GApplyPixelFunc(int id, int (*f)(int, int, int));
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

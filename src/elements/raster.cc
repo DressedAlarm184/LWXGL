@@ -54,7 +54,7 @@ EXPORT void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 		for (int x = cx - r; x <= cx + r; x++) {
 			if (x < 0 || x >= w || y < 0 || y >= h) continue;
 			int dx = x - cx, dy = y - cy, d2 = dx * dx + dy * dy;
-			int on_border = (d2 <= r * r && d2 >= (r - 1) * (r - 1));
+			int on_border = std::abs(d2 - r * r) < r;
 			if (fg != -1 && on_border) {
 				img->data[x + y * w] = (uint32_t)fg;
 			} else if (bg != -1 && d2 <= r * r) {
@@ -182,5 +182,17 @@ EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
 		}
 
 		txt++;
+	}
+}
+
+EXPORT void GApplyPixelFunc(int id, int (*f)(int, int, int)) {
+	Element *e = elements[id];
+	ImageElement *img = (ImageElement*)e->elem;
+
+	for (int py = 0; py < e->h; py++) {
+		for (int px = 0; px < e->w; px++) {
+			unsigned char* pixel = &img->data[py * e->w + px];
+			*pixel = f(px, py, *pixel) % 16;
+		}
 	}
 }
