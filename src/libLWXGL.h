@@ -53,7 +53,7 @@ void GSetWindowColor(int color);
 unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned short h);
 void GEnableResizing(void (*Resize)(int w, int h));
 void GDrawIndexedTGA(int id, int x, int y, const char* name);
-int GAllocateTGA(const char* name, const char* path, int change_palette);
+int GAllocateTGA(const char* name, const char* path, int change_palette, int transparent);
 void GDeleteTGA(const char* name);
 int GCreateTGAImage(int id, int x, int y, const char* path, int change_palette);
 void GApplyPixelFunc(int id, int (*f)(int, int, int));

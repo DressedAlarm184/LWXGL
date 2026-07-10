@@ -1,3 +1,13 @@
+typedef struct {
+	int width, height;
+	unsigned char* palette;
+	unsigned char* pixels;
+	int transparent;
+	int change_palette;
+} AllocatedTGA;
+
+std::unordered_map<std::string, AllocatedTGA> allocated_TGAs;
+
 EXPORT void GDrawIndexedTGA(int id, int x, int y, const char* name) {
 	Element *e = elements[id];
 	ImageElement *img = (ImageElement*)e->elem;
@@ -11,18 +21,20 @@ EXPORT void GDrawIndexedTGA(int id, int x, int y, const char* name) {
 		}
 	}
 
-	int width = TGA.width, height = TGA.height;
+	int width = TGA.width, height = TGA.height, t = TGA.transparent;
 
 	for (int iy = 0; iy < height; iy++) {
 		for (int ix = 0; ix < width; ix++) {
 			int px = x + ix, py = y + iy;
+			int pixel = TGA.pixels[iy * width + ix];
+			if (pixel == t) continue;
 			if (px >= e->w || px < 0 || py >= e->h || py < 0) continue;
-			img->data[py * e->w + px] = TGA.pixels[iy * width + ix];
+			img->data[py * e->w + px] = pixel;
 		}
 	}
 }
 
-EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) {
+EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette, int transparent) {
 	std::ifstream file(path, std::ios::binary);
 	if (!file) return 1;
 
@@ -41,7 +53,7 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette) 
 	unsigned char* palette = (unsigned char*)calloc(48, 1);
 	unsigned char* pixels = (unsigned char*)calloc(width * height, 1);
 
-	allocated_TGAs[name] = {width, height, palette, pixels, change_palette};
+	allocated_TGAs[name] = {width, height, palette, pixels, transparent, change_palette};
 
 	file.seekg(header[0], std::ios::cur);
 	file.read((char*)palette, 48);
@@ -94,7 +106,7 @@ EXPORT int GCreateTGAImage(int id, int x, int y, const char* path, int change_pa
 	auto name = "TGAImage_"s + path;
 
 	if (allocated_TGAs.find(name) == allocated_TGAs.end()) {
-		int retval = GAllocateTGA(name.c_str(), path, change_palette);
+		int retval = GAllocateTGA(name.c_str(), path, change_palette, -1);
 		if (retval != 0) return retval;
 	}
 
