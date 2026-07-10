@@ -84,7 +84,9 @@ EXPORT int GGetCheckbox(int id) {
 
 EXPORT void GElemModifyBounds(int id, int x, int y, int w, int h) {
 	Element *e = elements[id];
-	e->x = x, e->y = y, e->w = w, e->h = h;
+	e->x = x, e->y = y;
+	if (w != -1) e->w = w;
+	if (h != -1) e->h = h;
 }
 
 EXPORT void GCreateConsole(int id, int x, int y, int cols, int rows, int con_clr, int txt_clr) {
