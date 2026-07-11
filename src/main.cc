@@ -77,6 +77,7 @@ public:
 
 	void new_bb(int width, int height) {
 		w = width, h = height;
+		scroll = std::clamp(scroll, 0, std::max(0, h - win_h));
 		pixmap_ = XCreatePixmap(display, window, width, height, DefaultDepth(display, screen));
 	}
 

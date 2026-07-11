@@ -54,7 +54,7 @@ EXPORT void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int
 	InputElement *input = new InputElement;
 
 	*input = (InputElement){
-		.inactive = u, .hover = hvr, .max = max
+		.inactive = u, .hover = hvr, .max = std::min(max, 127)
 	};
 
 	memset(input->input, 0, 128);

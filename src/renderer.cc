@@ -81,7 +81,8 @@ namespace Renderers {
 		int thumb_height = std::max((console->total_lines <= 0)
 			? (e->h - 6)
 			: std::min(e->h - 6, std::max(1, int((e->h - 6) * ((float)console->rows / console->total_lines)))), 16);
-		int thumb_y = std::max(e->y + 3, int(e->y + 3 + ((e->h - 6) - thumb_height) * ((float)console->scroll) / (console->total_lines - console->rows)));
+		int denom = console->total_lines - console->rows, thumb_y = e->y + 3;
+		if (denom > 0) thumb_y += ((e->h - 6) - thumb_height) * console->scroll / denom;
 		XFillRectangle(display, bb, gc, e->x + e->w - 8, thumb_y, 5, thumb_height);
 		XSetForeground(display, gc, colors[H(console->txt_clr)]);
 		std::string expanded_data;
@@ -182,7 +183,7 @@ EXPORT void GRenderWindow() {
 				Renderers::Functions[e->type](e);
 	}
 
-	if (bb.scrollbar_color >= 0) {
+	if (bb.scrollbar_color >= 0 && bb.h > win_h) {
 		XSetForeground(display, gc, colors[L(bb.scrollbar_color)]);
 		XFillRectangle(display, bb, gc, win_w - 9, bb.scroll, 9, win_h);
 		XSetForeground(display, gc, colors[H(bb.scrollbar_color)]);

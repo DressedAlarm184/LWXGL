@@ -76,12 +76,10 @@ namespace Events {
 			}
 		}
 		if (bb.scroll_enabled && (button == 5 || button == 4)) {
-			if (button == 5) {
-				bb.scroll += 45;
-			} else if (button == 4) {
-				bb.scroll -= 45;
-			}
-			bb.scroll = std::clamp(bb.scroll, 0, bb.h - win_h);
+			int old_scroll = bb.scroll;
+			int delta = button == 5 ? 45 : -45;
+			bb.scroll = std::clamp(bb.scroll + delta, 0, std::max(0, bb.h - win_h));
+			mouse_y += bb.scroll - old_scroll;
 			return;
 		}
 		if (UserProvided::Click != NULL) {
