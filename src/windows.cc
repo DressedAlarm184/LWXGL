@@ -233,9 +233,14 @@ EXPORT void GChangeCursor(int cursor_font_glyph) {
 	XFreeCursor(display, cursor);
 }
 
-EXPORT void GReserveScroll(int height, int scrollbar_color) {
+EXPORT void GReserveScroll(int height, int scrollbar_color, void (*Scroll)(int offset)) {
 	bb.scroll_enabled = true;
 	bb.scrollbar_color = scrollbar_color;
 	XFreePixmap(display, bb);
 	bb.new_bb(win_w, height);
+	Events::UserProvided::Scroll = Scroll;
+}
+
+EXPORT int GQueryScroll() {
+	return bb.scroll;
 }

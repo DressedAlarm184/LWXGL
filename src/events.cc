@@ -19,6 +19,7 @@ namespace Events {
 		void (*Click)(int x, int y, int btn) = NULL;
 		int (*Delete)() = NULL;
 		void (*Resize)(int w, int h) = NULL;
+		void (*Scroll)(int offset) = NULL;
 	}
 
 	void EClientMessage(XEvent& event) {
@@ -54,22 +55,17 @@ namespace Events {
 			Element *e = elements[i];
 			if (e == NULL) continue;
 			if (!_inside_elem(e)) continue;
-			if (e->type == 1) {
+			if (e->type == 1 && button == 1) {
 				ButtonElement *btn = (ButtonElement *)e->elem;
-				if (button != 1) return;
 				if (btn->onclick != NULL) btn->onclick();
 				return;
-			} else if (e->type == 5) {
+			} else if (e->type == 5 && button == 1) {
 				CheckboxElement *checkbox = (CheckboxElement *)e->elem;
 				checkbox->checked = !checkbox->checked;
 				return;
 			} else if (e->type == 6) {
 				auto* console = static_cast<ConsoleElement*>(e->elem);
-				if (button == 5) {
-					console->scroll += 3;
-				} else if (button == 4) {
-					console->scroll -= 3;
-				}
+				console->scroll += (button == 5) ? 3 : -3;
 				const int max_scroll = std::max(0, console->total_lines - console->rows);
 				console->scroll = std::clamp(console->scroll, 0, max_scroll);
 				return;
@@ -80,6 +76,9 @@ namespace Events {
 			int delta = button == 5 ? 45 : -45;
 			bb.scroll = std::clamp(bb.scroll + delta, 0, std::max(0, bb.h - win_h));
 			mouse_y += bb.scroll - old_scroll;
+			if (bb.scroll != old_scroll && UserProvided::Scroll != NULL) {
+				UserProvided::Scroll(bb.scroll);
+			}
 			return;
 		}
 		if (UserProvided::Click != NULL) {
@@ -161,11 +160,16 @@ namespace Events {
 		if (new_width != win_w || new_height != win_h) {
 			win_w = new_width, win_h = new_height;
 
+			int old_scroll = bb.scroll;
 			XFreePixmap(display, bb);
 			bb.new_bb(new_width, bb.scroll_enabled ? bb.h : new_height);
 
 			if (Events::UserProvided::Resize != NULL) {
 				Events::UserProvided::Resize(win_w, win_h);
+			}
+
+			if (bb.scroll != old_scroll && Events::UserProvided::Scroll != NULL) {
+				Events::UserProvided::Scroll(bb.scroll);
 			}
 		}
 	}
