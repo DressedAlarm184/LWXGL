@@ -7,8 +7,7 @@ EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
 	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
 	img->prev = (unsigned char *)calloc(w * h, 1);
 	img->ximage->data = img->imgdata;
-	img->fontdata.buffer = NULL;
-	img->fontdata.height = 0;
+	img->fontdata.buffer = NULL, img->fontdata.height = 0;
 	_allocate_element(id, 4, img, x, y, w, h);
 }
 
@@ -22,7 +21,7 @@ EXPORT void GUpdateImage(int id) {
 	int w = elements[id]->w, h = elements[id]->h;
 	unsigned char *src = (unsigned char*)img->data;
 	unsigned char *prev = (unsigned char*)img->prev; 
-	int (*put_pixel)(XImage *, int, int, unsigned long) = img->ximage->f.put_pixel;
+	int (*put_pixel)(XImage*, int, int, unsigned long) = img->ximage->f.put_pixel;
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			if (*src != *prev) {
@@ -154,7 +153,7 @@ EXPORT void GRedrawAllImages() {
 	}
 }
 
-EXPORT void GImageSetFont(int id, unsigned char* font, int h) {
+EXPORT void GSetImageFont(int id, unsigned char* font, int h) {
 	ImageElement *img = (ImageElement*)elements[id]->elem;
 	img->fontdata.height = h;
 	if (img->fontdata.buffer != NULL) free(img->fontdata.buffer);

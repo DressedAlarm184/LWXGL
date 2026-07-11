@@ -47,7 +47,7 @@ void GElemSetVisible(int id, int visible);
 int* GScreenActive();
 void GScreenApply(int s, int ids[], int count);
 void GSetWindowTitle(const char* title);
-void GImageSetFont(int id, unsigned char* font, int h);
+void GSetImageFont(int id, unsigned char* font, int h);
 void GDrawString(int id, int x, int y, const char* txt, int color);
 void GSetWindowColor(int color);
 unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned short h);

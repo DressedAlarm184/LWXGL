@@ -12,7 +12,9 @@ EXPORT void GDrawIndexedTGA(int id, int x, int y, const char* name) {
 	Element *e = elements[id];
 	ImageElement *img = (ImageElement*)e->elem;
 
-	const auto& TGA = allocated_TGAs[name];
+	auto it = allocated_TGAs.find(name);
+	if (it == allocated_TGAs.end()) return;
+	const auto& TGA = it->second;
 
 	if (TGA.change_palette) {
 		for (int i = 0; i < 16; i++) {

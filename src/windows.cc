@@ -101,7 +101,7 @@ EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
 	using namespace std::chrono;
 	
 	debug_metrics.active = 1;
-	const microseconds FRAME_TIME(1000000/target_fps);
+	const microseconds FRAME_TIME(1000000 / target_fps);
 	unsigned long long tick = 0;
 	auto last_time = steady_clock::now();
 
