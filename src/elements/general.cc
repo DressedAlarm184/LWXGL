@@ -3,7 +3,9 @@ EXPORT void GDeleteElement(int id) {
 	int type = elements[id]->type;
 
 	if (type == 0) {
-		delete (TextElement*)elements[id]->elem;
+		auto text = (TextElement*)elements[id]->elem;
+		if (text->copied) free((void*)text->text);
+		delete text;
 	} else if (type == 1) {
 		delete (ButtonElement*)elements[id]->elem;
 	} else if (type == 2) {
@@ -11,7 +13,7 @@ EXPORT void GDeleteElement(int id) {
 	} else if (type == 3) {
 		delete (RectElement*)elements[id]->elem;
 	} else if (type == 4) {
-		ImageElement *img = (ImageElement*)elements[id]->elem;
+		auto img = (ImageElement*)elements[id]->elem;
 		XDestroyImage(img->ximage);
 		free(img->data);
 		free(img->prev);
@@ -27,9 +29,13 @@ EXPORT void GDeleteElement(int id) {
 	elements[id] = NULL; 
 }
 
-EXPORT void GCreateText(int id, int x, int y, int color, const char* text) {
-	TextElement *text_elem = new TextElement;
-	text_elem->text = text; text_elem->color = color;
+EXPORT void GCreateText(int id, int x, int y, const char* text, int color) {
+	TextElement *text_elem = new TextElement{color, text, false};
+	_allocate_element(id, 0, text_elem, x, y, 0, 0);
+}
+
+EXPORT void GCreateCopiedText(int id, int x, int y, const char* text, int color) {
+	TextElement *text_elem = new TextElement{color, strdup(text), true};
 	_allocate_element(id, 0, text_elem, x, y, 0, 0);
 }
 

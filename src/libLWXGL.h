@@ -8,7 +8,7 @@ void GTerminateWindow();
 int GWindowShouldClose();
 void GHandleWindowEvents();
 void GRenderWindow();
-void GCreateText(int id, int x, int y, int color, const char* text);
+void GCreateText(int id, int x, int y, const char* text, int color);
 void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void));
 void GSimpleWindowLoop(int target_fps, void (*on_every)(int, float));
 void GDeleteWindow();
@@ -58,6 +58,7 @@ void GDeleteTGA(const char* name);
 int GCreateTGAImage(int id, int x, int y, const char* path, int change_palette);
 void GApplyPixelFunc(int id, int (*f)(int, int, int));
 void GChangeCursor(int cursor_font_glyph);
+void GCreateCopiedText(int id, int x, int y, const char* text, int color);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

@@ -1,6 +1,7 @@
 typedef struct {
 	int color;
 	const char *text;
+	bool copied;
 } TextElement;
 
 typedef struct {
