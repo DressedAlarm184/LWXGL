@@ -70,6 +70,7 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 
 	bgcol = bgcolor;
 
+	GChangeCursor(68);
 	XSync(display, False);
 
 	return 0;
@@ -213,4 +214,21 @@ EXPORT void GEnableResizing(void (*Resize)(int x, int y)) {
 	hints.flags = 0;
 	XSetWMNormalHints(display, window, &hints);
 	Events::UserProvided::Resize = Resize;
+}
+
+EXPORT void GChangeCursor(int cursor_font_glyph) {
+	Cursor cursor;
+
+	if (cursor_font_glyph == 255) {
+		char data[1] = {0};
+		Pixmap blank = XCreateBitmapFromData(display, window, data, 1, 1);
+		XColor dummy = {0};
+		cursor = XCreatePixmapCursor(display, blank, blank, &dummy, &dummy, 0, 0);
+		XFreePixmap(display, blank);
+	} else {
+		cursor = XCreateFontCursor(display, cursor_font_glyph);
+	}
+
+	XDefineCursor(display, window, cursor);
+	XFreeCursor(display, cursor);
 }
