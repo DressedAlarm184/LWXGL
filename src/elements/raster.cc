@@ -8,6 +8,7 @@ EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
 	img->prev = (unsigned char *)calloc(w * h, 1);
 	img->ximage->data = img->imgdata;
 	img->fontdata.buffer = NULL, img->fontdata.height = 0;
+	img->pixmap = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
 	_allocate_element(id, 4, img, x, y, w, h);
 }
 
@@ -19,18 +20,24 @@ EXPORT unsigned char* GGetImageData(int id) {
 EXPORT void GUpdateImage(int id) {
 	ImageElement *img = (ImageElement *)elements[id]->elem;
 	int w = elements[id]->w, h = elements[id]->h;
+
 	unsigned char *src = (unsigned char*)img->data;
 	unsigned char *prev = (unsigned char*)img->prev; 
 	int (*put_pixel)(XImage*, int, int, unsigned long) = img->ximage->f.put_pixel;
+	bool has_changed = false;
+
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			if (*src != *prev) {
 				put_pixel(img->ximage, x, y, colors[*src]);
-				*prev = *src; 
+				*prev = *src, has_changed = true;
 			}
 			src++, prev++;
 		}
 	}
+
+	if (has_changed)
+		XPutImage(display, img->pixmap, gc, img->ximage, 0, 0, 0, 0, w, h);
 }
 
 EXPORT void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {

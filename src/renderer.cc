@@ -56,7 +56,7 @@ namespace Renderers {
 
 	void Image(Element* e) {
 		ImageElement *img = (ImageElement *)e->elem;
-		XPutImage(display, bb, gc, img->ximage, 0, 0, e->x, e->y, e->w, e->h);
+		XCopyArea(display, img->pixmap, bb, gc, 0, 0, e->w, e->h, e->x, e->y);
 	}
 
 	void Checkbox(Element *e) {

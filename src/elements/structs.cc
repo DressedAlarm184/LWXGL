@@ -28,6 +28,7 @@ typedef struct {
 		int height;
 		unsigned char* buffer;
 	} fontdata;
+	Pixmap pixmap;
 } ImageElement;
 
 typedef struct {

@@ -18,6 +18,7 @@ EXPORT void GDeleteElement(int id) {
 		free(img->data);
 		free(img->prev);
 		if (img->fontdata.buffer != NULL) free(img->fontdata.buffer);
+		XFreePixmap(display, img->pixmap);
 		delete img;
 	} else if (type == 5) {
 		delete (CheckboxElement*)elements[id]->elem;
