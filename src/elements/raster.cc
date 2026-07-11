@@ -1,6 +1,6 @@
 EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
-	if (w <= 0) w = win_w - x + w;
-	if (h <= 0) h = win_h - y + h;
+	if (w <= 0) w = bb.w - x + w;
+	if (h <= 0) h = bb.h - y + h;
 	ImageElement *img = new ImageElement;
 	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
 	img->data = (unsigned char *)calloc(w * h, 1);

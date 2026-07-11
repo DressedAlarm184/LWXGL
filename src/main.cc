@@ -21,7 +21,7 @@
 
 #define EXPORT __attribute__((visibility("default")))
 
-Display *display; Window window = None; GC gc; Pixmap bb;
+Display *display; Window window = None; GC gc;
 unsigned long colors[16] = {0}; int bgcol, win_w, win_h;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
 Atom wm_delete; XFontStruct* font; int active_screen = 0;
@@ -64,6 +64,29 @@ struct {
 	{244, 242, 54},    // 14: Yellow
 	{255, 255, 255}    // 15: White
 };
+
+class {
+public:
+	operator Pixmap() const {
+		return pixmap_;
+	}
+
+	int w, h, scroll = 0;
+	bool scroll_enabled = false;
+	int scrollbar_color = -1;
+
+	void new_bb(int width, int height) {
+		w = width, h = height;
+		pixmap_ = XCreatePixmap(display, window, width, height, DefaultDepth(display, screen));
+	}
+
+	Pixmap get() const {
+		return pixmap_;
+	}
+
+private:
+	Pixmap pixmap_;
+} bb;
 
 #define L(b)   ((b) & 0x0F)
 #define H(b)  (((b) >> 4) & 0x0F)

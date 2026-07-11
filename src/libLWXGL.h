@@ -59,6 +59,7 @@ int GCreateTGAImage(int id, int x, int y, const char* path, int change_palette);
 void GApplyPixelFunc(int id, int (*f)(int, int, int));
 void GChangeCursor(int cursor_font_glyph);
 void GCreateCopiedText(int id, int x, int y, const char* text, int color);
+void GReserveScroll(int height, int scrollbar_color);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

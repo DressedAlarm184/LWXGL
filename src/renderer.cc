@@ -133,24 +133,24 @@ namespace Renderers {
 	void DrawDebugOverlay() {
 		int wt = 0; for (int i = 0; i < 60; i++) wt += debug_metrics.avg_wt[i]; wt /= 60;
 		XSetForeground(display, gc, colors[0]);
-		XFillRectangle(display, bb, gc, 5, 5, 140, 40);
+		XFillRectangle(display, bb, gc, 5, bb.scroll + 5, 140, 40);
 		XSetForeground(display, gc, colors[15]);
-		XDrawRectangle(display, bb, gc, 7, 7, 135, 35);
+		XDrawRectangle(display, bb, gc, 7, bb.scroll + 7, 135, 35);
 		char wt_buffer[32] = {0}, fps_buffer[32] = {0};
 		int wt_len = sprintf(wt_buffer, "FT: %d (us)", wt);
 		int fps_len = sprintf(fps_buffer, "FPS: %.1f", debug_metrics.fps);
-		XDrawString(display, bb, gc, 11, 23, wt_buffer, wt_len);
-		XDrawString(display, bb, gc, 11, 37, fps_buffer, fps_len);
+		XDrawString(display, bb, gc, 11, bb.scroll + 23, wt_buffer, wt_len);
+		XDrawString(display, bb, gc, 11, bb.scroll + 37, fps_buffer, fps_len);
 	}
 
 	void DrawActiveModal() {
 		int max_chars = (std::clamp((int)(win_w / 1.5f), 300, 550) - 9) / 9;
 		int width = (max_chars * 9) + 9;
 		XSetForeground(display, gc, colors[0]);
-		XFillRectangle(display, bb, gc, win_w / 2 - (width + 4) / 2, 47, width + 5, 156);
+		XFillRectangle(display, bb, gc, win_w / 2 - (width + 4) / 2, bb.scroll + 47, width + 5, 156);
 		XSetForeground(display, gc, colors[15]);
-		XDrawRectangle(display, bb, gc, win_w / 2 - width / 2, 49, width, 151);
-		int y = 68; const char* str = active_modal_state.msg;
+		XDrawRectangle(display, bb, gc, win_w / 2 - width / 2, bb.scroll + 49, width, 151);
+		int y = bb.scroll + 68; const char* str = active_modal_state.msg;
 		while (*str != '\0') {
 			int len = 0;
 			while (str[len] != '\0' && str[len] != '\n' && len < max_chars) len++;
@@ -160,10 +160,10 @@ namespace Renderers {
 		}
 		int edge = win_w / 2 + width / 2;
 		XSetForeground(display, gc, colors[10]);
-		XDrawString(display, bb, gc, edge - 25, 193, "OK", 2);
+		XDrawString(display, bb, gc, edge - 25, bb.scroll + 193, "OK", 2);
 		if (active_modal_state.type == 1) {
 			XSetForeground(display, gc, colors[12]);
-			XDrawString(display, bb, gc, edge - 95, 193, "Cancel", 6);
+			XDrawString(display, bb, gc, edge - 95, bb.scroll + 193, "Cancel", 6);
 		}
 		active_modal_state.right_edge_x = edge;
 	}
@@ -171,13 +171,24 @@ namespace Renderers {
 
 EXPORT void GRenderWindow() {
 	XSetForeground(display, gc, colors[bgcol]);
-	XFillRectangle(display, bb, gc, 0, 0, win_w, win_h);
+	XFillRectangle(display, bb, gc, 0, bb.scroll, win_w, win_h);
 
 	for (int i = 0; i < elements.size(); i++) {
 		Element *e = elements[i];
 		if (e == NULL) continue;
+
 		if (e->v && (e->screen == active_screen || e->screen == -1))
-			Renderers::Functions[e->type](e);
+			if (e->type == 0 || (e->y + e->h >= bb.scroll && e->y < bb.scroll + win_h))
+				Renderers::Functions[e->type](e);
+	}
+
+	if (bb.scrollbar_color >= 0) {
+		XSetForeground(display, gc, colors[L(bb.scrollbar_color)]);
+		XFillRectangle(display, bb, gc, win_w - 9, bb.scroll, 9, win_h);
+		XSetForeground(display, gc, colors[H(bb.scrollbar_color)]);
+		int height = win_h * ((float)win_h / (float)bb.h);
+		int y = bb.scroll + 2 + (int)(((float)bb.scroll / (bb.h - win_h)) * (win_h - height - 4));
+		XFillRectangle(display, bb, gc, win_w - 7, y, 5, height);
 	}
 
 	if (GQueryModalOpen()) Renderers::DrawActiveModal();
@@ -185,6 +196,6 @@ EXPORT void GRenderWindow() {
 	if (debug_metrics.active == 1 && debug_metrics.enabled == 1)
 		Renderers::DrawDebugOverlay();
 
-	XCopyArea(display, bb, window, gc, 0, 0, win_w, win_h, 0, 0);
+	XCopyArea(display, bb, window, gc, 0, bb.scroll, win_w, win_h, 0, 0);
 	XSync(display, False);
 }

@@ -26,7 +26,7 @@ namespace Events {
 	}
 
 	void EMotionNotify(XEvent& event) {
-		mouse_x = event.xmotion.x, mouse_y = event.xmotion.y;
+		mouse_x = event.xmotion.x, mouse_y = event.xmotion.y + bb.scroll;
 	}
 
 	void ELeaveNotify(XEvent& event) {
@@ -38,13 +38,14 @@ namespace Events {
 	}
 
 	void EButtonRelease(XEvent& event) {
-		if (event.xbutton.button == mouse_down) mouse_down = 0;
+		int button = event.xbutton.button;
+		if (button == mouse_down) mouse_down = 0;
 		if (GQueryModalOpen()) {
 			int edge = active_modal_state.right_edge_x;
-			if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 35 && mouse_x < edge) {
+			if (mouse_y < bb.scroll + 200 && mouse_y > bb.scroll + 180 && mouse_x > edge - 35 && mouse_x < edge) {
 				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
 				active_modal_state.active = 0;
-			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 105 && mouse_x < edge - 35) {
+			} else if (mouse_y < bb.scroll + 200 && mouse_y > bb.scroll + 180 && mouse_x > edge - 105 && mouse_x < edge - 35) {
 				if (active_modal_state.type == 1) active_modal_state.active = 0;
 			}
 			return;
@@ -55,7 +56,7 @@ namespace Events {
 			if (!_inside_elem(e)) continue;
 			if (e->type == 1) {
 				ButtonElement *btn = (ButtonElement *)e->elem;
-				if (event.xbutton.button != 1) return;
+				if (button != 1) return;
 				if (btn->onclick != NULL) btn->onclick();
 				return;
 			} else if (e->type == 5) {
@@ -64,9 +65,9 @@ namespace Events {
 				return;
 			} else if (e->type == 6) {
 				auto* console = static_cast<ConsoleElement*>(e->elem);
-				if (event.xbutton.button == 5) {
+				if (button == 5) {
 					console->scroll += 3;
-				} else if (event.xbutton.button == 4) {
+				} else if (button == 4) {
 					console->scroll -= 3;
 				}
 				const int max_scroll = std::max(0, console->total_lines - console->rows);
@@ -74,8 +75,17 @@ namespace Events {
 				return;
 			}
 		}
+		if (bb.scroll_enabled && (button == 5 || button == 4)) {
+			if (button == 5) {
+				bb.scroll += 45;
+			} else if (button == 4) {
+				bb.scroll -= 45;
+			}
+			bb.scroll = std::clamp(bb.scroll, 0, bb.h - win_h);
+			return;
+		}
 		if (UserProvided::Click != NULL) {
-			UserProvided::Click(mouse_x, mouse_y, event.xbutton.button);
+			UserProvided::Click(mouse_x, mouse_y, button);
 		}
 	}
 
@@ -154,7 +164,7 @@ namespace Events {
 			win_w = new_width, win_h = new_height;
 
 			XFreePixmap(display, bb);
-			bb = XCreatePixmap(display, window, win_w, win_h, DefaultDepth(display, screen));
+			bb.new_bb(new_width, bb.scroll_enabled ? bb.h : new_height);
 
 			if (Events::UserProvided::Resize != NULL) {
 				Events::UserProvided::Resize(win_w, win_h);

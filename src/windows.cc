@@ -64,7 +64,7 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	XSetWMNormalHints(display, window, &hints);
 	
 	XSetFont(display, gc, font->fid);
-	bb = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
+	bb.new_bb(w, h);
 
 	XkbSetDetectableAutoRepeat(display, True, NULL);
 
@@ -231,4 +231,11 @@ EXPORT void GChangeCursor(int cursor_font_glyph) {
 
 	XDefineCursor(display, window, cursor);
 	XFreeCursor(display, cursor);
+}
+
+EXPORT void GReserveScroll(int height, int scrollbar_color) {
+	bb.scroll_enabled = true;
+	bb.scrollbar_color = scrollbar_color;
+	XFreePixmap(display, bb);
+	bb.new_bb(win_w, height);
 }
