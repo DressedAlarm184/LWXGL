@@ -156,3 +156,12 @@ EXPORT unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned sh
 	XDestroyImage(image);
 	return buffer;
 }
+
+EXPORT int GAllocateMemoryTGA(const char* name, const char* buffer, int size, int change_palette, int transparent) {
+	int fd = memfd_create("memory_tga", 0);
+	write(fd, buffer, size);
+	auto path = "/proc/self/fd/" + std::to_string(fd);
+	int retval = GAllocateTGA(name, path.c_str(), change_palette, transparent);
+	close(fd);
+	return retval;
+}
