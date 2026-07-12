@@ -3,7 +3,7 @@ Element *_allocate_element(int id, int type, void *data, int x, int y, int w, in
 	if (elements[id] != NULL) GDeleteElement(id);
 	Element *e = (Element*)malloc(sizeof(Element));
 	e->type = type, e->elem = data;
-	e->w = w, e->h = h, e->x = x, e->y = y; e->v = 1; e->screen = 0;
+	e->w = w, e->h = h, e->x = x, e->y = y; e->v = 1; e->screen = 0; e->anchor = INT_MIN;
 	elements[id] = e;
 	return e;
 }

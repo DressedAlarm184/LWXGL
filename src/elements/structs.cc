@@ -50,6 +50,7 @@ typedef struct {
 	int v, screen;
 	int type;
 	void *elem;
+	int anchor;
 } Element;
 
 std::vector<Element*> elements;

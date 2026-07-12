@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <vector>
 #include <fstream>
+#include <climits>
 
 #define EXPORT __attribute__((visibility("default")))
 

@@ -191,16 +191,6 @@ EXPORT void GPaletteReset() {
 	GRedrawAllImages();
 }
 
-EXPORT int* GScreenActive() {
-	return &active_screen;
-}
-
-EXPORT void GScreenApply(int s, int ids[], int count) {
-	for (int i = 0; i < count; i++) {
-		elements[ids[i]]->screen = s;
-	}
-}
-
 EXPORT void GSetWindowTitle(const char* title) {
 	XStoreName(display, window, title);
 }

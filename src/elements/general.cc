@@ -132,7 +132,32 @@ EXPORT int GElemInside(int id) {
 	return _inside_elem(e);
 }
 
+EXPORT int* GScreenActive() {
+	return &active_screen;
+}
+
+EXPORT void GScreenApply(int s, int ids[], int count) {
+	for (int i = 0; i < count; i++) {
+		elements[ids[i]]->screen = s;
+	}
+}
+
 EXPORT void GElemSetVisible(int id, int visible) {
 	Element* e = elements[id];
 	e->v = visible;
+}
+
+EXPORT void GElemAnchor(int anchor, int ids[], int count) {
+	for (int i = 0; i < count; i++) {
+		Element* e = elements[ids[i]];
+		if (anchor == 0) e->y = e->anchor;
+		e->anchor = anchor == 0 ? INT_MIN : e->y;
+	}
+}
+
+EXPORT void GResolveAnchors() {
+	for (Element* e : elements) {
+		if (e->anchor == INT_MIN) continue;
+		e->y = bb.scroll + e->anchor;
+	}
 }
