@@ -57,7 +57,7 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	
 	XMapWindow(display, window);
 	
-	XSizeHints hints;
+	XSizeHints hints = {0};
 	hints.flags = PMinSize | PMaxSize;
 	hints.min_width = w; hints.min_height = h;
 	hints.max_width = w; hints.max_height = h;
@@ -210,8 +210,12 @@ EXPORT void GSetWindowColor(int color) {
 }
 
 EXPORT void GEnableResizing(void (*Resize)(int x, int y)) {
-	XSizeHints hints;
-	hints.flags = 0;
+	XSizeHints hints = {0};
+	hints.flags = bb.scroll_enabled ? PMaxSize : 0;
+	if (bb.scroll_enabled) {
+		hints.max_width = 32767;
+		hints.max_height = bb.h;
+	}
 	XSetWMNormalHints(display, window, &hints);
 	Events::UserProvided::Resize = Resize;
 }

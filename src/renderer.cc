@@ -187,7 +187,7 @@ EXPORT void GRenderWindow() {
 		XSetForeground(display, gc, colors[L(bb.scrollbar_color)]);
 		XFillRectangle(display, bb, gc, win_w - 9, bb.scroll, 9, win_h);
 		XSetForeground(display, gc, colors[H(bb.scrollbar_color)]);
-		int height = win_h * ((float)win_h / (float)bb.h);
+		int height = (win_h * ((float)win_h / (float)bb.h)) - 4;
 		int y = bb.scroll + 2 + (int)(((float)bb.scroll / (bb.h - win_h)) * (win_h - height - 4));
 		XFillRectangle(display, bb, gc, win_w - 7, y, 5, height);
 	}
