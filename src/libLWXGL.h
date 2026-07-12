@@ -62,6 +62,7 @@ void GCreateCopiedText(int id, int x, int y, const char* text, int color);
 void GReserveScroll(int height, int scrollbar_color, void (*Scroll)(int offset));
 int GQueryScroll();
 int GAllocateMemoryTGA(const char* name, const char* buffer, int size, int change_palette, int transparent);
+void GPrimitiveTriangle(int id, int x1, int y1, int x2, int y2, int x3, int y3, int fg, int bg);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

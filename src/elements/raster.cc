@@ -202,3 +202,37 @@ EXPORT void GApplyPixelFunc(int id, int (*f)(int, int, int)) {
 		}
 	}
 }
+
+EXPORT void GPrimitiveTriangle(int id, int x1, int y1, int x2, int y2, int x3, int y3, int fg, int bg) {
+	Element *e = elements[id];
+	ImageElement *img = (ImageElement*)e->elem;
+
+	auto edge_function = [](int ax, int ay, int bx, int by, int px, int py) {
+		return (bx - ax) * (py - ay) - (by - ay) * (px - ax);
+	};
+
+	if (bg != -1) {
+		int min_x = std::max(0, std::min(x1, std::min(x2, x3)));
+		int min_y = std::max(0, std::min(y1, std::min(y2, y3)));
+		int max_x = std::min(e->w - 1, std::max(x1, std::max(x2, x3)));
+		int max_y = std::min(e->h - 1, std::max(y1, std::max(y2, y3)));
+
+		for (int py = min_y; py <= max_y; py++) {
+			for (int px = min_x; px <= max_x; px++) {
+				int w0 = edge_function(x2, y2, x3, y3, px, py);
+				int w1 = edge_function(x3, y3, x1, y1, px, py);
+				int w2 = edge_function(x1, y1, x2, y2, px, py);
+
+				if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
+					img->data[py * e->w + px] = bg;
+				}
+			}
+		}
+	}
+
+	if (fg != -1) {
+		GPrimitiveLine(id, x1, y1, x2, y2, fg);
+		GPrimitiveLine(id, x2, y2, x3, y3, fg);
+		GPrimitiveLine(id, x3, y3, x1, y1, fg);
+	}
+}
