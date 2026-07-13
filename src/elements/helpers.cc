@@ -29,11 +29,15 @@ void _console_calc_total_lines(ConsoleElement* console) {
 
 int _inside_elem(Element* e) {
 	int right_extent = e->x + e->w;
+
 	if (e->type == 5) {
 		CheckboxElement* checkbox = (CheckboxElement*)e->elem;
-		if (checkbox->label != NULL) right_extent += 10 + (int)strlen(checkbox->label) * 9;
+		if (checkbox->label != NULL) right_extent += 10 + strlen(checkbox->label) * 9;
 	}
-	int mouse_inside = mouse_x >= e->x && mouse_x < right_extent && mouse_y >= e->y && mouse_y < e->y + e->h;
-	int is_on_screen = e->screen == active_screen || e->screen == -1;
-	return mouse_inside && is_on_screen && e->v;
+
+	int x_inside = mouse_x >= e->x && mouse_x < right_extent;
+	int y_inside = mouse_y + bb.scroll >= e->y && mouse_y + bb.scroll < e->y + e->h;
+	int on_screen = e->screen == active_screen || e->screen == -1;
+
+	return x_inside && y_inside && on_screen && e->v;
 }

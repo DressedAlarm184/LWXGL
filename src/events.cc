@@ -27,7 +27,7 @@ namespace Events {
 	}
 
 	void EMotionNotify(XEvent& event) {
-		mouse_x = event.xmotion.x, mouse_y = event.xmotion.y + bb.scroll;
+		mouse_x = event.xmotion.x, mouse_y = event.xmotion.y;
 	}
 
 	void ELeaveNotify(XEvent& event) {
@@ -43,10 +43,10 @@ namespace Events {
 		if (button == mouse_down) mouse_down = 0;
 		if (GQueryModalOpen()) {
 			int edge = active_modal_state.right_edge_x;
-			if (mouse_y < bb.scroll + 200 && mouse_y > bb.scroll + 180 && mouse_x > edge - 35 && mouse_x < edge) {
+			if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 35 && mouse_x < edge) {
 				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
 				active_modal_state.active = 0;
-			} else if (mouse_y < bb.scroll + 200 && mouse_y > bb.scroll + 180 && mouse_x > edge - 105 && mouse_x < edge - 35) {
+			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 105 && mouse_x < edge - 35) {
 				if (active_modal_state.type == 1) active_modal_state.active = 0;
 			}
 			return;
@@ -75,7 +75,6 @@ namespace Events {
 			int old_scroll = bb.scroll;
 			int delta = button == 5 ? 45 : -45;
 			bb.scroll = std::clamp(bb.scroll + delta, 0, std::max(0, bb.h - win_h));
-			mouse_y += bb.scroll - old_scroll;
 			if (bb.scroll != old_scroll && UserProvided::Scroll != NULL) {
 				UserProvided::Scroll(bb.scroll);
 			}
