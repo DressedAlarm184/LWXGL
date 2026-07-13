@@ -34,6 +34,7 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	}
 
 	srand(time(NULL));
+
 	gc = XCreateGC(display, RootWindow(display, screen), 0, NULL);
 	XSetLineAttributes(display, gc, 1, LineSolid, CapButt, JoinMiter);
 	XSetGraphicsExposures(display, gc, False);
@@ -59,8 +60,8 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 	
 	XSizeHints hints = {0};
 	hints.flags = PMinSize | PMaxSize;
-	hints.min_width = w; hints.min_height = h;
-	hints.max_width = w; hints.max_height = h;
+	hints.min_width = w, hints.min_height = h;
+	hints.max_width = w, hints.max_height = h;
 	XSetWMNormalHints(display, window, &hints);
 	
 	XSetFont(display, gc, font->fid);
@@ -122,14 +123,11 @@ EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
 			float current_fps = 1000000.0 / elapsed.count();
 			
 			for (int i = 0; i < 59; i++) debug_metrics.avg_wt[i] = debug_metrics.avg_wt[i + 1];
-			debug_metrics.avg_wt[59] = work_time.count();
-			debug_metrics.fps = current_fps;
+			debug_metrics.avg_wt[59] = work_time.count(), debug_metrics.fps = current_fps;
 			
 			last_time += FRAME_TIME, tick++;
 			
-			if (now - last_time > FRAME_TIME * 2) {
-				last_time = now;
-			}
+			if (now - last_time > FRAME_TIME * 2) last_time = now;
 		} else {
 			auto time_to_sleep = FRAME_TIME - elapsed;
 			if (time_to_sleep > milliseconds(2)) {
@@ -230,7 +228,6 @@ EXPORT void GChangeCursor(int cursor_font_glyph) {
 EXPORT void GReserveScroll(int height, int scrollbar_color, void (*Scroll)(int offset)) {
 	bb.scroll_enabled = true;
 	bb.scrollbar_color = scrollbar_color;
-	XFreePixmap(display, bb);
 	bb.new_bb(win_w, height);
 	Events::UserProvided::Scroll = Scroll;
 }

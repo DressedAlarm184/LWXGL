@@ -1,6 +1,6 @@
 namespace Renderers {
 	void Text(Element* e) {
-		TextElement *txt = (TextElement *)e->elem;
+		auto txt = (TextElement *)e->elem;
 		XSetForeground(display, gc, colors[txt->color]);
 		const char *str = txt->text;
 		int y = e->y + 11;
@@ -14,7 +14,7 @@ namespace Renderers {
 	}
 
 	void Button(Element* e) {
-		ButtonElement *btn = (ButtonElement *)e->elem;
+		auto btn = (ButtonElement *)e->elem;
 		int inside = _inside_elem(e) && !GQueryModalOpen();
 		if (inside) {
 			XSetForeground(display, gc, colors[mouse_down == 1 ? L(btn->pressed) : L(btn->hover)]);
@@ -28,7 +28,7 @@ namespace Renderers {
 	}
 
 	void Input(Element* e) {
-		InputElement *input = (InputElement *)e->elem;
+		auto input = (InputElement *)e->elem;
 		int inside = _inside_elem(e) && !GQueryModalOpen();
 		if (inside) {
 			XSetForeground(display, gc, colors[L(input->hover)]);
@@ -43,7 +43,7 @@ namespace Renderers {
 	}
 
 	void Rect(Element* e) {
-		RectElement *rect = (RectElement *)e->elem;
+		auto rect = (RectElement *)e->elem;
 		if (rect->bg >= 0) {
 			XSetForeground(display, gc, colors[rect->bg]);
 			XFillRectangle(display, bb, gc, e->x, e->y, e->w, e->h);
@@ -55,12 +55,12 @@ namespace Renderers {
 	}
 
 	void Image(Element* e) {
-		ImageElement *img = (ImageElement *)e->elem;
+		auto img = (ImageElement *)e->elem;
 		XCopyArea(display, img->pixmap, bb, gc, 0, 0, e->w, e->h, e->x, e->y);
 	}
 
 	void Checkbox(Element *e) {
-		CheckboxElement *checkbox = (CheckboxElement *)e->elem;
+		auto checkbox = (CheckboxElement *)e->elem;
 		XSetForeground(display, gc, colors[L(checkbox->cb_col)]);
 		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
 		XSetForeground(display, gc, colors[H(checkbox->cb_col)]);
@@ -73,7 +73,7 @@ namespace Renderers {
 	}
 
 	void Console(Element* e) {
-		ConsoleElement *console = (ConsoleElement *)e->elem;
+		auto console = (ConsoleElement *)e->elem;
 		XSetForeground(display, gc, colors[L(console->con_clr)]);
 		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
 		XSetForeground(display, gc, colors[H(console->con_clr)]);
@@ -174,8 +174,7 @@ EXPORT void GRenderWindow() {
 	XSetForeground(display, gc, colors[bgcol]);
 	XFillRectangle(display, bb, gc, 0, bb.scroll, win_w, win_h);
 
-	for (int i = 0; i < elements.size(); i++) {
-		Element *e = elements[i];
+	for (Element* e : elements) {
 		if (e == NULL) continue;
 
 		if (e->v && (e->screen == active_screen || e->screen == -1))
@@ -188,7 +187,7 @@ EXPORT void GRenderWindow() {
 		XFillRectangle(display, bb, gc, win_w - 9, bb.scroll, 9, win_h);
 		XSetForeground(display, gc, colors[H(bb.scrollbar_color)]);
 		int height = (win_h * ((float)win_h / (float)bb.h)) - 4;
-		int y = bb.scroll + 2 + (int)(((float)bb.scroll / (bb.h - win_h)) * (win_h - height - 4));
+		int y = bb.scroll + 2 + ((float)bb.scroll / (bb.h - win_h)) * (win_h - height - 4);
 		XFillRectangle(display, bb, gc, win_w - 7, y, 5, height);
 	}
 

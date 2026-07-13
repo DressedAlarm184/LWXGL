@@ -51,20 +51,19 @@ namespace Events {
 			}
 			return;
 		}
-		for (int i = 0; i < elements.size(); i++) {
-			Element *e = elements[i];
+		for (Element* e : elements) {
 			if (e == NULL) continue;
 			if (!_inside_elem(e)) continue;
 			if (e->type == 1 && button == 1) {
-				ButtonElement *btn = (ButtonElement *)e->elem;
+				auto btn = (ButtonElement *)e->elem;
 				if (btn->onclick != NULL) btn->onclick();
 				return;
 			} else if (e->type == 5 && button == 1) {
-				CheckboxElement *checkbox = (CheckboxElement *)e->elem;
+				auto checkbox = (CheckboxElement *)e->elem;
 				checkbox->checked = !checkbox->checked;
 				return;
 			} else if (e->type == 6) {
-				auto* console = static_cast<ConsoleElement*>(e->elem);
+				auto console = (ConsoleElement*)e->elem;
 				console->scroll += (button == 5) ? 3 : -3;
 				const int max_scroll = std::max(0, console->total_lines - console->rows);
 				console->scroll = std::clamp(console->scroll, 0, max_scroll);
@@ -87,9 +86,8 @@ namespace Events {
 
 	void EKeyPress(XEvent& event) {
 		XKeyEvent key = event.xkey; KeySym keysym;
-		unsigned char ch = 0; int len = XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
-		ch = _translate_keypress(ch, keysym);
-		if (ch == 0) return;
+		unsigned char ch = 0; XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
+		if ((ch = _translate_keypress(ch, keysym)) == 0) return;
 		if (keysym == XK_Escape && (key.state & ControlMask)) {
 			GDeleteWindow();
 			return;
@@ -114,12 +112,11 @@ namespace Events {
 			}
 		}
 		if (GQueryModalOpen()) return;
-		for (int i = 0; i < elements.size(); i++) {
-			Element *e = elements[i];
+		for (Element* e : elements) {
 			if (e == NULL) continue;
 			if (!_inside_elem(e)) continue;
 			if (e->type == 2) {
-				InputElement *input = (InputElement *)e->elem;
+				auto input = (InputElement *)e->elem;
 				int length = strlen(input->input);
 				if (ch == 8) {
 					if (length > 0) input->input[length - 1] = 0;
@@ -128,7 +125,7 @@ namespace Events {
 				}
 				return;
 			} else if (e->type == 6) {
-				ConsoleElement *console = (ConsoleElement *)e->elem;
+				auto console = (ConsoleElement *)e->elem;
 				if (ch == 32) console->scroll = std::max(0, console->total_lines - console->rows);
 				return;
 			}
@@ -160,7 +157,6 @@ namespace Events {
 			win_w = new_width, win_h = new_height;
 
 			int old_scroll = bb.scroll;
-			XFreePixmap(display, bb);
 			bb.new_bb(new_width, bb.scroll_enabled ? bb.h : new_height);
 
 			if (Events::UserProvided::Resize != NULL) {

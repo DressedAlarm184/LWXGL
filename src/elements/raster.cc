@@ -1,24 +1,26 @@
 EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
 	if (w <= 0) w = bb.w - x + w;
 	if (h <= 0) h = bb.h - y + h;
-	ImageElement *img = new ImageElement;
+
+	auto img = new ImageElement;
 	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
 	img->data = (unsigned char *)calloc(w * h, 1);
-	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
 	img->prev = (unsigned char *)calloc(w * h, 1);
+	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
 	img->ximage->data = img->imgdata;
 	img->fontdata.buffer = NULL, img->fontdata.height = 0;
 	img->pixmap = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
+
 	_allocate_element(id, 4, img, x, y, w, h);
 }
 
 EXPORT unsigned char* GGetImageData(int id) {
-	ImageElement *img = (ImageElement *)elements[id]->elem;
+	auto img = (ImageElement*)elements[id]->elem;
 	return img->data;
 }
 
 EXPORT void GUpdateImage(int id) {
-	ImageElement *img = (ImageElement *)elements[id]->elem;
+	auto img = (ImageElement *)elements[id]->elem;
 	int w = elements[id]->w, h = elements[id]->h;
 
 	unsigned char *src = (unsigned char*)img->data;
@@ -42,8 +44,10 @@ EXPORT void GUpdateImage(int id) {
 
 EXPORT void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	if (fg == -1) fg = bg;
-	ImageElement *img = (ImageElement *)elements[id]->elem;
+
+	auto img = (ImageElement *)elements[id]->elem;
 	int img_w = elements[id]->w, img_h = elements[id]->h;
+
 	for (int cy = y; cy < y + h; cy++) {
 		for (int cx = x; cx < x + w; cx++) {
 			if (cx < 0 || cx >= img_w || cy < 0 || cy >= img_h) continue;
@@ -54,8 +58,9 @@ EXPORT void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
 }
 
 EXPORT void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
-	ImageElement *img = (ImageElement *)elements[id]->elem;
+	auto img = (ImageElement *)elements[id]->elem;
 	int w = elements[id]->w, h = elements[id]->h;
+
 	for (int y = cy - r; y <= cy + r; y++) {
 		for (int x = cx - r; x <= cx + r; x++) {
 			if (x < 0 || x >= w || y < 0 || y >= h) continue;
@@ -71,12 +76,14 @@ EXPORT void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 }
 
 EXPORT void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
-	ImageElement *img = (ImageElement *)elements[id]->elem;
+	auto img = (ImageElement *)elements[id]->elem;
 	int w = elements[id]->w, h = elements[id]->h;
+
 	int dx = x2 - x1, dy = y2 - y1;
 	int steps = std::max(std::abs(dx), std::abs(dy));
 	float x_inc = dx / (float)steps, y_inc = dy / (float)steps;
 	float x = x1, y = y1;
+
 	for (int i = 0; i <= steps; i++) {
 		int pixel_x = (int)std::round(x), pixel_y = (int)std::round(y);
 		if (pixel_x < 0 || pixel_x >= w || pixel_y < 0 || pixel_y >= h) continue;
@@ -86,7 +93,7 @@ EXPORT void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 }
 
 EXPORT void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int scale) {
-	ImageElement *img = (ImageElement *)elements[id]->elem;
+	auto img = (ImageElement *)elements[id]->elem;
 	int img_w = elements[id]->w, img_h = elements[id]->h;
 	int x = sx, y = sy;
 
@@ -145,7 +152,7 @@ EXPORT void GPrimitiveSprite(int id, int sx, int sy, int color, const char* spri
 }
 
 EXPORT void GClearImage(int id, int c) {
-	ImageElement *img = (ImageElement *)elements[id]->elem;
+	auto img = (ImageElement *)elements[id]->elem;
 	memset(img->data, c, elements[id]->w * elements[id]->h);
 }
 
@@ -161,7 +168,7 @@ EXPORT void GRedrawAllImages() {
 }
 
 EXPORT void GSetImageFont(int id, unsigned char* font, int h) {
-	ImageElement *img = (ImageElement*)elements[id]->elem;
+	auto img = (ImageElement*)elements[id]->elem;
 	img->fontdata.height = h;
 	if (img->fontdata.buffer != NULL) free(img->fontdata.buffer);
 	img->fontdata.buffer = (unsigned char*)malloc(256 * h);
@@ -170,7 +177,7 @@ EXPORT void GSetImageFont(int id, unsigned char* font, int h) {
 
 EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
 	Element *e = elements[id];
-	ImageElement *img = (ImageElement*)e->elem;
+	auto img = (ImageElement*)e->elem;
 	int height = img->fontdata.height;
 	unsigned char* font = img->fontdata.buffer;
 
@@ -193,7 +200,7 @@ EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
 
 EXPORT void GApplyPixelFunc(int id, int (*f)(int, int, int)) {
 	Element *e = elements[id];
-	ImageElement *img = (ImageElement*)e->elem;
+	auto img = (ImageElement*)e->elem;
 
 	for (int py = 0; py < e->h; py++) {
 		for (int px = 0; px < e->w; px++) {
@@ -205,17 +212,17 @@ EXPORT void GApplyPixelFunc(int id, int (*f)(int, int, int)) {
 
 EXPORT void GPrimitiveTriangle(int id, int x1, int y1, int x2, int y2, int x3, int y3, int fg, int bg) {
 	Element *e = elements[id];
-	ImageElement *img = (ImageElement*)e->elem;
+	auto img = (ImageElement*)e->elem;
 
 	auto edge_function = [](int ax, int ay, int bx, int by, int px, int py) {
 		return (bx - ax) * (py - ay) - (by - ay) * (px - ax);
 	};
 
 	if (bg != -1) {
-		int min_x = std::max(0, std::min(x1, std::min(x2, x3)));
-		int min_y = std::max(0, std::min(y1, std::min(y2, y3)));
-		int max_x = std::min(e->w - 1, std::max(x1, std::max(x2, x3)));
-		int max_y = std::min(e->h - 1, std::max(y1, std::max(y2, y3)));
+		int min_x = std::max(0, std::min({x1, x2, x3}));
+		int min_y = std::max(0, std::min({y1, y2, y3}));
+		int max_x = std::min(e->w - 1, std::max({x1, x2, x3}));
+		int max_y = std::min(e->h - 1, std::max({y1, y2, y3}));
 
 		for (int py = min_y; py <= max_y; py++) {
 			for (int px = min_x; px <= max_x; px++) {

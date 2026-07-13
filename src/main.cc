@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <climits>
 #include <algorithm>
 #include <chrono>
 #include <functional>
@@ -19,7 +20,6 @@
 #include <unordered_map>
 #include <vector>
 #include <fstream>
-#include <climits>
 
 #define EXPORT __attribute__((visibility("default")))
 
@@ -67,31 +67,25 @@ struct {
 	{255, 255, 255}    // 15: White
 };
 
-class {
-public:
-	operator Pixmap() const {
-		return pixmap_;
+struct {
+	operator Drawable() const {
+		return pixmap;
 	}
 
-	int w, h, scroll = 0;
+	Pixmap pixmap = None;
 	bool scroll_enabled = false;
+	int w, h, scroll = 0;
 	int scrollbar_color = -1;
 
 	void new_bb(int width, int height) {
+		if (pixmap != None) XFreePixmap(display, pixmap);
 		w = width, h = height;
+		pixmap = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
 		scroll = std::clamp(scroll, 0, std::max(0, h - win_h));
-		pixmap_ = XCreatePixmap(display, window, width, height, DefaultDepth(display, screen));
 	}
-
-	Pixmap get() const {
-		return pixmap_;
-	}
-
-private:
-	Pixmap pixmap_;
 } bb;
 
-#define L(b)   ((b) & 0x0F)
+#define L(b)  ((b) & 0x0F)
 #define H(b)  (((b) >> 4) & 0x0F)
 
 #include "elements/structs.cc"

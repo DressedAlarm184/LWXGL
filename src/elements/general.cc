@@ -26,24 +26,22 @@ EXPORT void GDeleteElement(int id) {
 		delete (ConsoleElement*)elements[id]->elem;
 	}
 
-	free(elements[id]);
+	delete elements[id];
 	elements[id] = NULL; 
 }
 
 EXPORT void GCreateText(int id, int x, int y, const char* text, int color) {
-	TextElement *text_elem = new TextElement{color, text, false};
+	auto text_elem = new TextElement{color, text, false};
 	_allocate_element(id, 0, text_elem, x, y, 0, 0);
 }
 
 EXPORT void GCreateCopiedText(int id, int x, int y, const char* text, int color) {
-	TextElement *text_elem = new TextElement{color, strdup(text), true};
+	auto text_elem = new TextElement{color, strdup(text), true};
 	_allocate_element(id, 0, text_elem, x, y, 0, 0);
 }
 
 EXPORT void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void)) {
-	ButtonElement *btn_elem = new ButtonElement;
-
-	*btn_elem = (ButtonElement){
+	auto btn_elem = new ButtonElement{
 		.unpressed = u, .hover = hvr, .pressed = p, .label = label, .onclick = onclick
 	};
 
@@ -52,9 +50,8 @@ EXPORT void GCreateButton(int id, int x, int y, int w, int h, int u, int hvr, in
 
 EXPORT void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
 	if (w == -1) w = (max + 1) * 9 + 10;
-	InputElement *input = new InputElement;
 
-	*input = (InputElement){
+	auto input = new InputElement{
 		.inactive = u, .hover = hvr, .max = std::min(max, 127)
 	};
 
@@ -64,20 +61,17 @@ EXPORT void GCreateInput(int id, int x, int y, int w, int h, int u, int hvr, int
 
 EXPORT char* GGetInput(int id) {
 	Element *e = elements[id];
-	InputElement *input = (InputElement *)e->elem;
+	auto input = (InputElement *)e->elem;
 	return input->input;
 }
 
 EXPORT void GCreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
-	RectElement *rect = new RectElement;
-	*rect = (RectElement){.fg = fg, .bg = bg};
+	auto rect = new RectElement{.fg = fg, .bg = bg};
 	_allocate_element(id, 3, rect, x, y, w, h);
 }
 
 EXPORT void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label) {
-	CheckboxElement *checkbox = new CheckboxElement;
-
-	*checkbox = (CheckboxElement){
+	auto checkbox = new CheckboxElement{
 		.cb_col = cb_col, .txt_col = txt_col, .label = label, .checked = 0
 	};
 
@@ -85,7 +79,7 @@ EXPORT void GCreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_
 }
 
 EXPORT int GGetCheckbox(int id) {
-	CheckboxElement *checkbox = (CheckboxElement *)elements[id]->elem;
+	auto checkbox = (CheckboxElement *)elements[id]->elem;
 	return checkbox->checked;
 }
 
@@ -97,7 +91,7 @@ EXPORT void GElemModifyBounds(int id, int x, int y, int w, int h) {
 }
 
 EXPORT void GCreateConsole(int id, int x, int y, int cols, int rows, int con_clr, int txt_clr) {
-	ConsoleElement* console = new ConsoleElement{
+	auto console = new ConsoleElement{
 		.data = std::string{}, .rows = rows, .cols = cols, .scroll = 0, .con_clr = con_clr, .txt_clr = txt_clr, .total_lines = 0
 	};
 
@@ -105,15 +99,21 @@ EXPORT void GCreateConsole(int id, int x, int y, int cols, int rows, int con_clr
 }
 
 EXPORT void GConsolePrint(int id, const char* format, ...) {
-	ConsoleElement* console = (ConsoleElement*)(elements[id]->elem);
+	auto console = (ConsoleElement*)(elements[id]->elem);
 	int old_total_lines = console->total_lines;
+
 	va_list args;
 	va_start(args, format);
-	char buffer[1024];
-	vsnprintf(buffer, sizeof(buffer), format, args);
+
+	char* buffer;
+	vasprintf(&buffer, format, args);
 	va_end(args);
+
 	console->data += buffer;
+	free(buffer);
+
 	_console_calc_total_lines(console);
+
 	int old_max_scroll = std::max(0, old_total_lines - console->rows);
 	if (console->scroll >= old_max_scroll) {
 		console->scroll = std::max(0, console->total_lines - console->rows);
@@ -121,7 +121,7 @@ EXPORT void GConsolePrint(int id, const char* format, ...) {
 }
 
 EXPORT void GConsoleClear(int id) {
-	ConsoleElement* console = (ConsoleElement*)(elements[id]->elem);
+	auto console = (ConsoleElement*)(elements[id]->elem);
 	console->data.clear();
 	console->total_lines = 0;
 	console->scroll = 0;
