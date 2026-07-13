@@ -47,10 +47,9 @@ typedef struct {
 
 typedef struct {
 	int x, y, w, h;
-	int v, screen;
+	int v, anchor;
 	int type;
 	void *elem;
-	int anchor;
 } Element;
 
 std::vector<Element*> elements;

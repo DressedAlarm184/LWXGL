@@ -177,9 +177,8 @@ EXPORT void GRenderWindow() {
 	for (Element* e : elements) {
 		if (e == NULL) continue;
 
-		if (e->v && (e->screen == active_screen || e->screen == -1))
-			if (e->type == 0 || (e->y + e->h >= bb.scroll && e->y < bb.scroll + win_h))
-				Renderers::Functions[e->type](e);
+		if ((e->type == 0 || (e->y + e->h >= bb.scroll && e->y < bb.scroll + win_h)) && e->v)
+			Renderers::Functions[e->type](e);
 	}
 
 	if (bb.scrollbar_color >= 0 && bb.h > win_h) {

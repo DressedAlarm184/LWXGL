@@ -44,8 +44,6 @@ void GConsolePrint(int id, const char* format, ...);
 void GConsoleClear(int id);
 int GElemInside(int id);
 void GElemSetVisible(int id, int visible);
-int* GScreenActive();
-void GScreenApply(int s, int ids[], int count);
 void GSetWindowTitle(const char* title);
 void GSetImageFont(int id, unsigned char* font, int h);
 void GDrawString(int id, int x, int y, const char* txt, int color);

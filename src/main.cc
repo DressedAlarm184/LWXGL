@@ -23,10 +23,9 @@
 
 #define EXPORT __attribute__((visibility("default")))
 
-Display *display; Window window = None; GC gc;
-unsigned long colors[16] = {0}; int bgcol, win_w, win_h;
+Display *display; Window window = None; GC gc; Atom wm_delete;
+unsigned long colors[16] = {0}; int bgcol, win_w, win_h; XFontStruct* font;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
-Atom wm_delete; XFontStruct* font; int active_screen = 0;
 
 unsigned char pressed_keys[8] = {0};
 unsigned int active_keycodes[8] = {0};
