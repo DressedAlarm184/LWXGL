@@ -86,6 +86,10 @@ EXPORT void GTerminateWindow() {
 		GDeleteTGA(allocated_TGAs.begin()->first.c_str());
 	}
 
+	if (active_modal_state.msg != NULL) {
+		free(active_modal_state.msg);
+	}
+
 	XFreeFont(display, font);
 	XFreeGC(display, gc);
 	XFreePixmap(display, bb);
@@ -144,8 +148,12 @@ EXPORT void GDeleteWindow() {
 }
 
 EXPORT void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
+	if (active_modal_state.msg != NULL) {
+		free(active_modal_state.msg);
+	}
+
 	active_modal_state.active = 1;
-	active_modal_state.msg = msg;
+	active_modal_state.msg = strdup(msg);
 	active_modal_state.on_confirm = on_confirm;
 	active_modal_state.type = type;
 }

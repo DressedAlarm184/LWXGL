@@ -38,7 +38,7 @@ struct {
 
 struct {
 	int active = 0, type = 0;
-	const char* msg;
+	char* msg = NULL;
 	void (*on_confirm)();
 	int right_edge_x = 0;
 } active_modal_state;

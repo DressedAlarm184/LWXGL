@@ -34,5 +34,5 @@ int _inside_elem(Element* e) {
 	int x_inside = mouse_x >= e->x && mouse_x < right_extent;
 	int y_inside = mouse_y + bb.scroll >= e->y && mouse_y + bb.scroll < e->y + e->h;
 
-	return x_inside && y_inside && e->v;
+	return x_inside && y_inside && e->v && !GQueryModalOpen();
 }
