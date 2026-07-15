@@ -243,3 +243,12 @@ EXPORT void GReserveScroll(int height, int scrollbar_color, void (*Scroll)(int o
 EXPORT int GQueryScroll() {
 	return bb.scroll;
 }
+
+EXPORT int GSetGlobalBold(int bold) {
+	const char* xlfd = bold ? "9x15bold" : "9x15";
+	XFontStruct* new_font = XLoadQueryFont(display, xlfd);
+	if (!new_font) return 0;
+	XFreeFont(display, font), font = new_font;
+	XSetFont(display, gc, font->fid);
+	return 1;
+}
