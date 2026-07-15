@@ -64,6 +64,7 @@ void GPrimitiveTriangle(int id, int x1, int y1, int x2, int y2, int x3, int y3, 
 void GElemAnchor(int anchor, int ids[], int count);
 void GResolveAnchors();
 int GSetGlobalBold(int bold);
+int GAllocateXBM(const char* name, const char* path, int colors, int transparent);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171

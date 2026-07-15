@@ -161,7 +161,34 @@ EXPORT int GAllocateMemoryTGA(const char* name, const char* buffer, int size, in
 	int fd = memfd_create("memory_tga", 0);
 	write(fd, buffer, size);
 	auto path = "/proc/self/fd/" + std::to_string(fd);
-	int retval = GAllocateTGA(name, path.c_str(), change_palette, transparent);
+	int retval = GAllocateTGA(name, path.c_str(), transparent, change_palette);
 	close(fd);
 	return retval;
+}
+
+EXPORT int GAllocateXBM(const char* name, const char* path, int colors, int transparent) {
+	unsigned char bit1 = H(colors), bit0 = L(colors), *raw_data = NULL;
+	int t_value = transparent == 1 ? bit1 : transparent == 0 ? bit0 : -1, hot_x, hot_y;
+
+	unsigned int width, height;
+
+	if (int status = XReadBitmapFileData(path, &width, &height, &raw_data, &hot_x, &hot_y);
+		status != BitmapSuccess) return 0;
+
+	auto pixels = (unsigned char*)calloc(width * height, 1);
+	int bytes_per_row = (width + 7) / 8;
+
+	for (unsigned int y = 0; y < height; y++) {
+		for (unsigned int x = 0; x < width; x++) {
+			int byte_index = (y * bytes_per_row) + (x / 8);
+			int pixel = (raw_data[byte_index] >> x % 8) & 1;
+			pixels[y * width + x] = pixel ? bit1 : bit0;
+		}
+	}
+
+	GDeleteTGA(name);
+	allocated_TGAs[name] = {(int)width, (int)height, NULL, pixels, t_value, 0};
+
+	XFree(raw_data);
+	return 1;
 }
