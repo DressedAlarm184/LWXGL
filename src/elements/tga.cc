@@ -192,3 +192,22 @@ EXPORT int GAllocateXBM(const char* name, const char* path, int colors, int tran
 	XFree(raw_data);
 	return 1;
 }
+
+EXPORT int GCreateXBMImage(int id, int x, int y, const char* path, int colors) {
+	using namespace std::string_literals;
+
+	auto name = "XBMImage_"s + path;
+
+	if (allocated_TGAs.find(name) == allocated_TGAs.end()) {
+		int retval = GAllocateXBM(name.c_str(), path, colors, -1);
+		if (retval != 1) return retval;
+	}
+
+	auto image = allocated_TGAs[name];
+
+	GCreateImage(id, x, y, image.width, image.height);
+	GDrawIndexedTGA(id, 0, 0, name.c_str());
+	GUpdateImage(id);
+
+	return 1;
+}

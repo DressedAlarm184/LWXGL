@@ -65,6 +65,7 @@ void GElemAnchor(int anchor, int ids[], int count);
 void GResolveAnchors();
 int GSetGlobalBold(int bold);
 int GAllocateXBM(const char* name, const char* path, int colors, int transparent);
+int GCreateXBMImage(int id, int x, int y, const char* path, int colors);
 
 #define LWXGL_KEY_LEFT 170
 #define LWXGL_KEY_RIGHT 171
