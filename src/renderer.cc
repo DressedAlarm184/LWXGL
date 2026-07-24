@@ -127,8 +127,20 @@ namespace Renderers {
 		}
 	}
 
+	void Ellipse(Element* e) {
+		auto ellipse = (EllipseElement *)e->elem;
+		if (ellipse->bg >= 0) {
+			XSetForeground(display, gc, colors[ellipse->bg]);
+			XFillArc(display, bb, gc, e->x, e->y, e->w, e->h, 0, 23040);
+		}
+		if (ellipse->fg >= 0) {
+			XSetForeground(display, gc, colors[ellipse->fg]);
+			XDrawArc(display, bb, gc, e->x, e->y, e->w, e->h, 0, 23040);
+		}
+	}
+
 	void (*Functions[])(Element*) = {
-		Text, Button, Input, Rect, Image, Checkbox, Console
+		Text, Button, Input, Rect, Image, Checkbox, Console, Ellipse
 	};
 
 	void DrawDebugOverlay() {

@@ -46,6 +46,10 @@ typedef struct {
 } ConsoleElement;
 
 typedef struct {
+	int fg, bg;
+} EllipseElement;
+
+typedef struct {
 	int x, y, w, h;
 	int v, anchor;
 	int type;

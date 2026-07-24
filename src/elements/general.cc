@@ -151,3 +151,8 @@ EXPORT void GResolveAnchors() {
 		e->y = bb.scroll + e->anchor;
 	}
 }
+
+EXPORT void GCreateEllipse(int id, int x, int y, int w, int h, int fg, int bg) {
+	auto rect = new EllipseElement{.fg = fg, .bg = bg};
+	_allocate_element(id, 7, rect, x, y, w, h);
+}
