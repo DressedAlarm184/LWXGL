@@ -8,7 +8,7 @@ typedef struct {
 
 std::unordered_map<std::string, AllocatedTGA> allocated_TGAs;
 
-EXPORT void GDrawIndexedTGA(int id, int x, int y, const char* name) {
+EXPORT void DrawIndexedTGA(int id, int x, int y, const char* name) {
 	Element *e = elements[id];
 	ImageElement *img = (ImageElement*)e->elem;
 
@@ -19,7 +19,7 @@ EXPORT void GDrawIndexedTGA(int id, int x, int y, const char* name) {
 	if (TGA.change_palette) {
 		for (int i = 0; i < 16; i++) {
 			unsigned char* c = TGA.palette + i * 3;
-			GPaletteModify(i, *(c + 2), *(c + 1), *c, i == 15 ? 1 : 0);
+			PaletteModify(i, *(c + 2), *(c + 1), *c, i == 15 ? 1 : 0);
 		}
 	}
 
@@ -36,7 +36,7 @@ EXPORT void GDrawIndexedTGA(int id, int x, int y, const char* name) {
 	}
 }
 
-EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette, int transparent) {
+EXPORT int AllocateTGA(const char* name, const char* path, int change_palette, int transparent) {
 	std::ifstream file(path, std::ios::binary);
 	if (!file) return 1;
 
@@ -47,7 +47,7 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette, 
 	if (auto h = header; !(h[1] == 1 && (h[2] == 1 || h[2] == 9) && h[3] == 0 && h[4] == 0
 		&& h[5] == 16 && h[6] == 0 && h[7] == 24 && h[16] == 8 && (h[17] == 32 || h[17] == 0))) return 2;
 
-	GDeleteTGA(name);
+	DeleteTGA(name);
 
 	int width = header[12] | (header[13] << 8);
 	int height = header[14] | (header[15] << 8);
@@ -94,7 +94,7 @@ EXPORT int GAllocateTGA(const char* name, const char* path, int change_palette, 
 	return 0;
 }
 
-EXPORT void GDeleteTGA(const char* name) {
+EXPORT void DeleteTGA(const char* name) {
 	if (allocated_TGAs.find(name) != allocated_TGAs.end()) {
 		free(allocated_TGAs[name].pixels);
 		free(allocated_TGAs[name].palette);
@@ -102,26 +102,26 @@ EXPORT void GDeleteTGA(const char* name) {
 	}
 }
 
-EXPORT int GCreateTGAImage(int id, int x, int y, const char* path, int change_palette) {
+EXPORT int CreateTGAImage(int id, int x, int y, const char* path, int change_palette) {
 	using namespace std::string_literals;
 
 	auto name = "TGAImage_"s + path;
 
 	if (allocated_TGAs.find(name) == allocated_TGAs.end()) {
-		int retval = GAllocateTGA(name.c_str(), path, change_palette, -1);
+		int retval = AllocateTGA(name.c_str(), path, change_palette, -1);
 		if (retval != 0) return retval;
 	}
 
 	auto image = allocated_TGAs[name];
 
-	GCreateImage(id, x, y, image.width, image.height);
-	GDrawIndexedTGA(id, 0, 0, name.c_str());
-	GUpdateImage(id);
+	CreateImage(id, x, y, image.width, image.height);
+	DrawIndexedTGA(id, 0, 0, name.c_str());
+	UpdateImage(id);
 
 	return 0;
 }
 
-EXPORT unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned short h) {
+EXPORT unsigned char* CaptureRegion(int x, int y, unsigned short w, unsigned short h) {
 	XImage *image = XGetImage(display, bb, x, y, w, h, AllPlanes, ZPixmap);
 
 	unsigned char header[18] = {0, 1, 1, 0, 0, 16, 0, 24, 0, 0, 0, 0,
@@ -135,7 +135,7 @@ EXPORT unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned sh
 	unsigned char red, green, blue;
 
 	for (int i = 0; i < 16; i++) {
-		GPaletteQuery(i, &red, &green, &blue);
+		PaletteQuery(i, &red, &green, &blue);
 		int o = 18 + i * 3;
 		buffer[o] = blue, buffer[o + 1] = green, buffer[o + 2] = red;
 	}
@@ -157,16 +157,16 @@ EXPORT unsigned char* GCaptureRegion(int x, int y, unsigned short w, unsigned sh
 	return buffer;
 }
 
-EXPORT int GAllocateMemoryTGA(const char* name, const char* buffer, int size, int change_palette, int transparent) {
+EXPORT int AllocateMemoryTGA(const char* name, const char* buffer, int size, int change_palette, int transparent) {
 	int fd = memfd_create("memory_tga", 0);
 	write(fd, buffer, size);
 	auto path = "/proc/self/fd/" + std::to_string(fd);
-	int retval = GAllocateTGA(name, path.c_str(), transparent, change_palette);
+	int retval = AllocateTGA(name, path.c_str(), transparent, change_palette);
 	close(fd);
 	return retval;
 }
 
-EXPORT int GAllocateXBM(const char* name, const char* path, int colors, int transparent) {
+EXPORT int AllocateXBM(const char* name, const char* path, int colors, int transparent) {
 	unsigned char bit1 = H(colors), bit0 = L(colors), *raw_data = NULL;
 	int t_value = transparent == 1 ? bit1 : transparent == 0 ? bit0 : -1, hot_x, hot_y;
 
@@ -186,28 +186,28 @@ EXPORT int GAllocateXBM(const char* name, const char* path, int colors, int tran
 		}
 	}
 
-	GDeleteTGA(name);
+	DeleteTGA(name);
 	allocated_TGAs[name] = {(int)width, (int)height, NULL, pixels, t_value, 0};
 
 	XFree(raw_data);
 	return 1;
 }
 
-EXPORT int GCreateXBMImage(int id, int x, int y, const char* path, int colors) {
+EXPORT int CreateXBMImage(int id, int x, int y, const char* path, int colors) {
 	using namespace std::string_literals;
 
 	auto name = "XBMImage_"s + path;
 
 	if (allocated_TGAs.find(name) == allocated_TGAs.end()) {
-		int retval = GAllocateXBM(name.c_str(), path, colors, -1);
+		int retval = AllocateXBM(name.c_str(), path, colors, -1);
 		if (retval != 1) return retval;
 	}
 
 	auto image = allocated_TGAs[name];
 
-	GCreateImage(id, x, y, image.width, image.height);
-	GDrawIndexedTGA(id, 0, 0, name.c_str());
-	GUpdateImage(id);
+	CreateImage(id, x, y, image.width, image.height);
+	DrawIndexedTGA(id, 0, 0, name.c_str());
+	UpdateImage(id);
 
 	return 1;
 }

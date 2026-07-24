@@ -23,7 +23,7 @@ namespace Events {
 	}
 
 	void EClientMessage(XEvent& event) {
-		if ((Atom)event.xclient.data.l[0] == wm_delete) GDeleteWindow();
+		if ((Atom)event.xclient.data.l[0] == wm_delete) DeleteWindow();
 	}
 
 	void EMotionNotify(XEvent& event) {
@@ -41,7 +41,7 @@ namespace Events {
 	void EButtonRelease(XEvent& event) {
 		int button = event.xbutton.button;
 		if (button == mouse_down) mouse_down = 0;
-		if (GQueryModalOpen()) {
+		if (QueryModalOpen()) {
 			int edge = active_modal_state.right_edge_x;
 			if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 35 && mouse_x < edge) {
 				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
@@ -89,7 +89,7 @@ namespace Events {
 		unsigned char ch = 0; XLookupString(&key, (char*)&ch, 1, &keysym, NULL);
 		if ((ch = _translate_keypress(ch, keysym)) == 0) return;
 		if (keysym == XK_Escape && (key.state & ControlMask)) {
-			GDeleteWindow();
+			DeleteWindow();
 			return;
 		}
 		if (keysym == XK_F12) {
@@ -111,7 +111,7 @@ namespace Events {
 				break;
 			}
 		}
-		if (GQueryModalOpen()) return;
+		if (QueryModalOpen()) return;
 		for (Element* e : elements) {
 			if (e == NULL) continue;
 			if (!_inside_elem(e)) continue;
@@ -181,7 +181,7 @@ namespace Events {
 	};
 }
 
-EXPORT void GHandleWindowEvents() {
+EXPORT void HandleWindowEvents() {
 	XEvent event;
 
 	while (XPending(display) > 0) {
@@ -193,27 +193,27 @@ EXPORT void GHandleWindowEvents() {
 	}
 }
 
-EXPORT void GEventAttachKey(void (*Key)(int key)) {
+EXPORT void EventAttachKey(void (*Key)(int key)) {
 	Events::UserProvided::Key = Key;
 }
 
-EXPORT void GEventAttachClick(void (*Click)(int x, int y, int btn)) {
+EXPORT void EventAttachClick(void (*Click)(int x, int y, int btn)) {
 	Events::UserProvided::Click = Click;
 }
 
-EXPORT void GQueryMouse(int* x, int* y, int* btn) {
+EXPORT void QueryMouse(int* x, int* y, int* btn) {
 	*x = mouse_x, *y = mouse_y, *btn = mouse_down;
 }
 
-EXPORT void GEventAttachDelete(int (*on_exit)()) {
+EXPORT void EventAttachDelete(int (*on_exit)()) {
 	Events::UserProvided::Delete = on_exit;
 }
 
-EXPORT unsigned char* GQueryKeyboard() {
+EXPORT unsigned char* QueryKeyboard() {
 	return pressed_keys;
 }
 
-EXPORT int GQueryKeyDown(int ch) {
+EXPORT int QueryKeyDown(int ch) {
 	for (int i = 0; i < 8; i++) {
 		if (pressed_keys[i] == ch) return 1;
 	}

@@ -1,4 +1,4 @@
-EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
+EXPORT void CreateImage(int id, int x, int y, int w, int h) {
 	if (w <= 0) w = bb.w - x + w;
 	if (h <= 0) h = bb.h - y + h;
 
@@ -14,12 +14,12 @@ EXPORT void GCreateImage(int id, int x, int y, int w, int h) {
 	_allocate_element(id, 4, img, x, y, w, h);
 }
 
-EXPORT unsigned char* GGetImageData(int id) {
+EXPORT unsigned char* GetImageData(int id) {
 	auto img = (ImageElement*)elements[id]->elem;
 	return img->data;
 }
 
-EXPORT void GUpdateImage(int id) {
+EXPORT void UpdateImage(int id) {
 	auto img = (ImageElement *)elements[id]->elem;
 	int w = elements[id]->w, h = elements[id]->h;
 
@@ -42,7 +42,7 @@ EXPORT void GUpdateImage(int id) {
 		XPutImage(display, img->pixmap, gc, img->ximage, 0, 0, 0, 0, w, h);
 }
 
-EXPORT void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
+EXPORT void PrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	if (fg == -1) fg = bg;
 
 	auto img = (ImageElement *)elements[id]->elem;
@@ -57,7 +57,7 @@ EXPORT void GPrimitiveRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	}
 }
 
-EXPORT void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
+EXPORT void PrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 	auto img = (ImageElement *)elements[id]->elem;
 	int w = elements[id]->w, h = elements[id]->h;
 
@@ -75,7 +75,7 @@ EXPORT void GPrimitiveCircle(int id, int cx, int cy, int r, int fg, int bg) {
 	}
 }
 
-EXPORT void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
+EXPORT void PrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 	auto img = (ImageElement *)elements[id]->elem;
 	int w = elements[id]->w, h = elements[id]->h;
 
@@ -92,7 +92,7 @@ EXPORT void GPrimitiveLine(int id, int x1, int y1, int x2, int y2, int color) {
 	}
 }
 
-EXPORT void GPrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int scale) {
+EXPORT void PrimitiveSprite(int id, int sx, int sy, int color, const char* sprite, int scale) {
 	auto img = (ImageElement *)elements[id]->elem;
 	int img_w = elements[id]->w, img_h = elements[id]->h;
 	int x = sx, y = sy;
@@ -151,23 +151,23 @@ EXPORT void GPrimitiveSprite(int id, int sx, int sy, int color, const char* spri
 	draw(sprite, strlen(sprite));
 }
 
-EXPORT void GClearImage(int id, int c) {
+EXPORT void ClearImage(int id, int c) {
 	auto img = (ImageElement *)elements[id]->elem;
 	memset(img->data, c, elements[id]->w * elements[id]->h);
 }
 
-EXPORT void GRedrawAllImages() {
+EXPORT void RedrawAllImages() {
 	for (int i = 0; i < elements.size(); i++) {
 		Element *e = elements[i];
 		if (e == NULL) continue;
 		if (e->type != 4) continue;
 		ImageElement* img = (ImageElement *)e->elem;
 		memset(img->prev, 255, e->w * e->h);
-		GUpdateImage(i);
+		UpdateImage(i);
 	}
 }
 
-EXPORT void GSetImageFont(int id, unsigned char* font, int h) {
+EXPORT void SetImageFont(int id, unsigned char* font, int h) {
 	auto img = (ImageElement*)elements[id]->elem;
 	img->fontdata.height = h;
 	if (img->fontdata.buffer != NULL) free(img->fontdata.buffer);
@@ -175,7 +175,7 @@ EXPORT void GSetImageFont(int id, unsigned char* font, int h) {
 	memcpy(img->fontdata.buffer, font, 256 * h);
 }
 
-EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
+EXPORT void DrawString(int id, int x, int y, const char* txt, int color) {
 	Element *e = elements[id];
 	auto img = (ImageElement*)e->elem;
 	int height = img->fontdata.height;
@@ -198,7 +198,7 @@ EXPORT void GDrawString(int id, int x, int y, const char* txt, int color) {
 	}
 }
 
-EXPORT void GApplyPixelFunc(int id, int (*f)(int, int, int)) {
+EXPORT void ApplyPixelFunc(int id, int (*f)(int, int, int)) {
 	Element *e = elements[id];
 	auto img = (ImageElement*)e->elem;
 
@@ -210,7 +210,7 @@ EXPORT void GApplyPixelFunc(int id, int (*f)(int, int, int)) {
 	}
 }
 
-EXPORT void GPrimitiveTriangle(int id, int x1, int y1, int x2, int y2, int x3, int y3, int fg, int bg) {
+EXPORT void PrimitiveTriangle(int id, int x1, int y1, int x2, int y2, int x3, int y3, int fg, int bg) {
 	Element *e = elements[id];
 	auto img = (ImageElement*)e->elem;
 
@@ -238,8 +238,8 @@ EXPORT void GPrimitiveTriangle(int id, int x1, int y1, int x2, int y2, int x3, i
 	}
 
 	if (fg != -1) {
-		GPrimitiveLine(id, x1, y1, x2, y2, fg);
-		GPrimitiveLine(id, x2, y2, x3, y3, fg);
-		GPrimitiveLine(id, x3, y3, x1, y1, fg);
+		PrimitiveLine(id, x1, y1, x2, y2, fg);
+		PrimitiveLine(id, x2, y2, x3, y3, fg);
+		PrimitiveLine(id, x3, y3, x1, y1, fg);
 	}
 }

@@ -1,4 +1,4 @@
-EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
+EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor) {
 	if (window != None) return 3;
 
 	win_w = w, win_h = h;
@@ -71,19 +71,19 @@ EXPORT int GCreateWindow(int w, int h, const char* name, int bgcolor) {
 
 	bgcol = bgcolor;
 
-	GChangeCursor(68);
+	ChangeCursor(68);
 	XSync(display, False);
 
 	return 0;
 }
 
-EXPORT void GTerminateWindow() {
+EXPORT void TerminateWindow() {
 	for (int i = 0; i < elements.size(); i++) {
-		if (elements[i] != NULL) GDeleteElement(i);
+		if (elements[i] != NULL) DeleteElement(i);
 	}
 
 	while (!allocated_TGAs.empty()) {
-		GDeleteTGA(allocated_TGAs.begin()->first.c_str());
+		DeleteTGA(allocated_TGAs.begin()->first.c_str());
 	}
 
 	if (active_modal_state.msg != NULL) {
@@ -98,11 +98,11 @@ EXPORT void GTerminateWindow() {
 	XCloseDisplay(display);
 }
 
-EXPORT int GWindowShouldClose() {
+EXPORT int WindowShouldClose() {
 	return closing;
 }
 
-EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
+EXPORT void SimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
 	using namespace std::chrono;
 	
 	debug_metrics.active = 1;
@@ -110,7 +110,7 @@ EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
 	unsigned long long tick = 0;
 	auto last_time = steady_clock::now();
 
-	while (!GWindowShouldClose()) {
+	while (!WindowShouldClose()) {
 		auto now = steady_clock::now();
 		auto elapsed = duration_cast<microseconds>(now - last_time);
 		
@@ -118,8 +118,8 @@ EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
 			float delta_time = elapsed.count() / 1000000.0f;
 			auto work_start = steady_clock::now();
 			
-			GHandleWindowEvents();
-			GRenderWindow(); 
+			HandleWindowEvents();
+			RenderWindow();
 
 			if (on_every != NULL) on_every(tick, delta_time);
 			
@@ -141,13 +141,13 @@ EXPORT void GSimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
 	}
 }
 
-EXPORT void GDeleteWindow() {
+EXPORT void DeleteWindow() {
 	if (Events::UserProvided::Delete != NULL) {
 		closing = Events::UserProvided::Delete();
 	} else closing = 1;
 }
 
-EXPORT void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
+EXPORT void SpawnModal(int type, const char* msg, void (*on_confirm)()) {
 	if (active_modal_state.msg != NULL) {
 		free(active_modal_state.msg);
 	}
@@ -158,11 +158,11 @@ EXPORT void GSpawnModal(int type, const char* msg, void (*on_confirm)()) {
 	active_modal_state.type = type;
 }
 
-EXPORT int GQueryModalOpen() {
+EXPORT int QueryModalOpen() {
 	return active_modal_state.active;
 }
 
-EXPORT void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b) {
+EXPORT void PaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b) {
 	XColor color;
 	color.pixel = colors[idx];
 	XQueryColor(display, DefaultColormap(display, screen), &color);
@@ -171,7 +171,7 @@ EXPORT void GPaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned 
 	*b = color.blue / 257;
 }
 
-EXPORT void GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b, int redraw) {
+EXPORT void PaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b, int redraw) {
 	XColor color;
 	color.red   = r * 257;
 	color.green = g * 257;
@@ -180,10 +180,10 @@ EXPORT void GPaletteModify(int idx, unsigned char r, unsigned char g, unsigned c
 	XFreeColors(display, DefaultColormap(display, screen), &colors[idx], 1, 0);
 	XAllocColor(display, DefaultColormap(display, screen), &color);
 	colors[idx] = color.pixel;
-	if (redraw) GRedrawAllImages();
+	if (redraw) RedrawAllImages();
 }
 
-EXPORT void GPaletteReset() {
+EXPORT void PaletteReset() {
 	XFreeColors(display, DefaultColormap(display, screen), colors, 16, 0);
 	XColor color;
 	for (int i = 0; i < 16; i++) {
@@ -194,18 +194,18 @@ EXPORT void GPaletteReset() {
 		XAllocColor(display, DefaultColormap(display, screen), &color);
 		colors[i] = color.pixel;
 	}
-	GRedrawAllImages();
+	RedrawAllImages();
 }
 
-EXPORT void GSetWindowTitle(const char* title) {
+EXPORT void SetWindowTitle(const char* title) {
 	XStoreName(display, window, title);
 }
 
-EXPORT void GSetWindowColor(int color) {
+EXPORT void SetWindowColor(int color) {
 	bgcol = color;
 }
 
-EXPORT void GEnableResizing(void (*Resize)(int x, int y)) {
+EXPORT void EnableResizing(void (*Resize)(int x, int y)) {
 	XSizeHints hints = {0};
 	hints.flags = bb.scroll_enabled ? PMaxSize : 0;
 	if (bb.scroll_enabled) {
@@ -216,7 +216,7 @@ EXPORT void GEnableResizing(void (*Resize)(int x, int y)) {
 	Events::UserProvided::Resize = Resize;
 }
 
-EXPORT void GChangeCursor(int cursor_font_glyph) {
+EXPORT void ChangeCursor(int cursor_font_glyph) {
 	Cursor cursor;
 
 	if (cursor_font_glyph == 255) {
@@ -233,18 +233,18 @@ EXPORT void GChangeCursor(int cursor_font_glyph) {
 	XFreeCursor(display, cursor);
 }
 
-EXPORT void GReserveScroll(int height, int scrollbar_color, void (*Scroll)(int offset)) {
+EXPORT void ReserveScroll(int height, int scrollbar_color, void (*Scroll)(int offset)) {
 	bb.scroll_enabled = true;
 	bb.scrollbar_color = scrollbar_color;
 	bb.new_bb(win_w, height);
 	Events::UserProvided::Scroll = Scroll;
 }
 
-EXPORT int GQueryScroll() {
+EXPORT int QueryScroll() {
 	return bb.scroll;
 }
 
-EXPORT int GSetGlobalBold(int bold) {
+EXPORT int SetGlobalBold(int bold) {
 	const char* xlfd = bold ? "9x15bold" : "9x15";
 	XFontStruct* new_font = XLoadQueryFont(display, xlfd);
 	if (!new_font) return 0;

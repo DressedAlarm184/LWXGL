@@ -182,7 +182,7 @@ namespace Renderers {
 	}
 }
 
-EXPORT void GRenderWindow() {
+EXPORT void RenderWindow() {
 	XSetForeground(display, gc, colors[bgcol]);
 	XFillRectangle(display, bb, gc, 0, bb.scroll, win_w, win_h);
 
@@ -202,7 +202,7 @@ EXPORT void GRenderWindow() {
 		XFillRectangle(display, bb, gc, win_w - 7, y, 5, height);
 	}
 
-	if (GQueryModalOpen()) Renderers::DrawActiveModal();
+	if (QueryModalOpen()) Renderers::DrawActiveModal();
 
 	if (debug_metrics.active == 1 && debug_metrics.enabled == 1)
 		Renderers::DrawDebugOverlay();

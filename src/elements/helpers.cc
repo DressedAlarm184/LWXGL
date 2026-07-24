@@ -1,6 +1,6 @@
 void _allocate_element(int id, int type, void *data, int x, int y, int w, int h) {
 	if (id >= elements.size()) elements.resize(id + 1, NULL);
-	if (elements[id] != NULL) GDeleteElement(id);
+	if (elements[id] != NULL) DeleteElement(id);
 	elements[id] = new Element{x, y, w, h, 1, INT_MIN, type, data};
 }
 
@@ -34,5 +34,5 @@ int _inside_elem(Element* e) {
 	int x_inside = mouse_x >= e->x && mouse_x < right_extent;
 	int y_inside = mouse_y + bb.scroll >= e->y && mouse_y + bb.scroll < e->y + e->h;
 
-	return x_inside && y_inside && e->v && !GQueryModalOpen();
+	return x_inside && y_inside && e->v && !QueryModalOpen();
 }
