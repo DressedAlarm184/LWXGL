@@ -33,7 +33,7 @@ unsigned int active_keycodes[8] = {0};
 struct {
 	int avg_wt[60] = {0};
 	float fps;
-	int active = 0, enabled = 0;
+	int enabled = 0;
 } debug_metrics;
 
 struct {
@@ -74,6 +74,7 @@ struct {
 	Pixmap pixmap = None;
 	bool scroll_enabled = false;
 	int w, h, scroll = 0;
+	bool frame_cb_after_elem = false;
 	int scrollbar_color = -1;
 
 	void new_bb(int width, int height) {
@@ -94,5 +95,5 @@ struct {
 #include "elements/general.cc"
 
 #include "events.cc"
-#include "windows.cc"
 #include "renderer.cc"
+#include "windows.cc"

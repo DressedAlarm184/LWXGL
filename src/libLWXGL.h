@@ -5,12 +5,9 @@ extern "C" {
 
 int CreateWindow(int w, int h, const char* name, int bgcol);
 void TerminateWindow();
-int WindowShouldClose();
-void HandleWindowEvents();
-void RenderWindow();
 void CreateText(int id, int x, int y, const char* text, int color);
 void CreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void));
-void SimpleWindowLoop(int target_fps, void (*on_every)(int, float));
+void MainWindowLoop(int target_fps, void (*on_every)(int, float));
 void DeleteWindow();
 void DeleteElement(int index);
 void CreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max);

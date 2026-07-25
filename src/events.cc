@@ -181,7 +181,7 @@ namespace Events {
 	};
 }
 
-EXPORT void HandleWindowEvents() {
+EXPORT void _handle_window_events() {
 	XEvent event;
 
 	while (XPending(display) > 0) {

@@ -98,19 +98,18 @@ EXPORT void TerminateWindow() {
 	XCloseDisplay(display);
 }
 
-EXPORT int WindowShouldClose() {
+EXPORT int _window_should_close() {
 	return closing;
 }
 
-EXPORT void SimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
+EXPORT void MainWindowLoop(int target_fps, void (*on_every)(int, float)) {
 	using namespace std::chrono;
 	
-	debug_metrics.active = 1;
 	const microseconds FRAME_TIME(1000000 / target_fps);
 	unsigned long long tick = 0;
 	auto last_time = steady_clock::now();
 
-	while (!WindowShouldClose()) {
+	while (!_window_should_close()) {
 		auto now = steady_clock::now();
 		auto elapsed = duration_cast<microseconds>(now - last_time);
 		
@@ -118,10 +117,8 @@ EXPORT void SimpleWindowLoop(int target_fps, void (*on_every)(int, float)) {
 			float delta_time = elapsed.count() / 1000000.0f;
 			auto work_start = steady_clock::now();
 			
-			HandleWindowEvents();
-			RenderWindow();
-
-			if (on_every != NULL) on_every(tick, delta_time);
+			_handle_window_events();
+			_render_window(on_every, tick, delta_time);
 			
 			auto work_time = duration_cast<microseconds>(steady_clock::now() - work_start);
 			float current_fps = 1000000.0 / elapsed.count();
