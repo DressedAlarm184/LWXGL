@@ -23,7 +23,7 @@ void GetXConnection(XConnectionData* data);
 
 #endif
 
-int CreateWindow(int w, int h, const char* name, int bgcol);
+int CreateWindow(int w, int h, const char* name, int bgcolor, int f);
 void TerminateWindow();
 void CreateText(int id, int x, int y, const char* text, int color);
 void CreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void));
@@ -66,7 +66,7 @@ void SetImageFont(int id, unsigned char* font, int h);
 void DrawString(int id, int x, int y, const char* txt, int color);
 void SetWindowColor(int color);
 unsigned char* CaptureRegion(int x, int y, unsigned short w, unsigned short h);
-void EnableResizing(void (*Resize)(int w, int h));
+void EventAttachResize(void (*Resize)(int w, int h));
 void DrawIndexedTGA(int id, int x, int y, const char* name);
 int AllocateTGA(const char* name, const char* path, int change_palette, int transparent);
 void DeleteTGA(const char* name);
@@ -116,6 +116,11 @@ void ImmediateLine(int x1, int y1, int x2, int y2, int color);
 
 #define ORDER_ELEM_FIRST 1
 #define ORDER_ELEM_SECOND 0
+
+#define FLAG_NONE   (0)
+#define FLAG_BYPASS (1 << 0)
+#define FLAG_CANVAS (1 << 1)
+#define FLAG_RESIZE (1 << 2)
 
 #ifdef __cplusplus
 }

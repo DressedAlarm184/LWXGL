@@ -1,7 +1,7 @@
-EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor) {
+EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor, int f) {
 	if (window != None) return 3;
 
-	win_w = w, win_h = h;
+	win_w = w, win_h = h, flags = f;
 
 	display = XOpenDisplay(NULL);
 	if (display == NULL) return 1;
@@ -62,17 +62,26 @@ EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor) {
 	XMapWindow(display, window);
 	
 	XSizeHints hints = {0};
-	hints.flags = PMinSize | PMaxSize;
-	hints.min_width = w, hints.min_height = h;
-	hints.max_width = w, hints.max_height = h;
+	if (flags & FLAG_RESIZE) {
+		hints.flags = bb.scroll_enabled ? PMaxSize : 0;
+		if (bb.scroll_enabled) {
+			hints.max_width = 32767;
+			hints.max_height = bb.h;
+		}
+	} else {
+		hints.flags = PMinSize | PMaxSize;
+		hints.min_width = w, hints.min_height = h;
+		hints.max_width = w, hints.max_height = h;
+	}
 	XSetWMNormalHints(display, window, &hints);
 	
 	XSetFont(display, gc, font->fid);
-	bb.new_bb(w, h);
+	bb.new_bb(w, bb.scroll_enabled ? bb.h : h);
 
 	XkbSetDetectableAutoRepeat(display, True, NULL);
 
 	bgcol = bgcolor;
+	if (flags & FLAG_CANVAS) CreateImage(0, 0, 0, 0, 0);
 
 	ChangeCursor(68);
 	XSync(display, False);
@@ -205,17 +214,6 @@ EXPORT void SetWindowColor(int color) {
 	bgcol = color;
 }
 
-EXPORT void EnableResizing(void (*Resize)(int x, int y)) {
-	XSizeHints hints = {0};
-	hints.flags = bb.scroll_enabled ? PMaxSize : 0;
-	if (bb.scroll_enabled) {
-		hints.max_width = 32767;
-		hints.max_height = bb.h;
-	}
-	XSetWMNormalHints(display, window, &hints);
-	Events::UserProvided::Resize = Resize;
-}
-
 EXPORT void ChangeCursor(int cursor_font_glyph) {
 	Cursor cursor;
 
@@ -234,9 +232,10 @@ EXPORT void ChangeCursor(int cursor_font_glyph) {
 }
 
 EXPORT void ReserveScroll(int height, int scrollbar_color, void (*Scroll)(int offset)) {
+	if (window != None) return;
 	bb.scroll_enabled = true;
 	bb.scrollbar_color = scrollbar_color;
-	bb.new_bb(win_w, height);
+	bb.h = height;
 	Events::UserProvided::Scroll = Scroll;
 }
 

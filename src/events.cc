@@ -219,3 +219,7 @@ EXPORT int QueryKeyDown(int ch) {
 	}
 	return 0;
 }
+
+EXPORT void EventAttachResize(void (*Resize)(int w, int h)) {
+	Events::UserProvided::Resize = Resize;
+}

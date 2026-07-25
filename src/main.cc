@@ -27,7 +27,7 @@
 Display *display; Window window = None; GC gc; Atom wm_delete;
 unsigned long colors[16] = {0}; int bgcol, win_w, win_h; XFontStruct* font;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
-Visual* visual; Colormap colormap; int depth;
+Visual* visual; Colormap colormap; int depth, flags;
 
 unsigned char pressed_keys[8] = {0};
 unsigned int active_keycodes[8] = {0};
