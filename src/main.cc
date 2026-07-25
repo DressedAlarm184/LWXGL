@@ -1,7 +1,8 @@
-#include "libLWXGL.h"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>
+#define XLIB_INCLUDED
+#include "libLWXGL.h"
 #include <sys/mman.h>
 #include <unistd.h>
 #include <cctype>
@@ -26,6 +27,7 @@
 Display *display; Window window = None; GC gc; Atom wm_delete;
 unsigned long colors[16] = {0}; int bgcol, win_w, win_h; XFontStruct* font;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
+Visual* visual; Colormap colormap; int depth;
 
 unsigned char pressed_keys[8] = {0};
 unsigned int active_keycodes[8] = {0};
@@ -80,7 +82,7 @@ struct {
 	void new_bb(int width, int height) {
 		if (pixmap != None) XFreePixmap(display, pixmap);
 		w = width, h = height;
-		pixmap = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
+		pixmap = XCreatePixmap(display, window, w, h, depth);
 		scroll = std::clamp(scroll, 0, std::max(0, h - win_h));
 	}
 } bb;

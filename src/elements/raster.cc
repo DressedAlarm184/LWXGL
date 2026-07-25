@@ -3,13 +3,13 @@ EXPORT void CreateImage(int id, int x, int y, int w, int h) {
 	if (h <= 0) h = bb.h - y + h;
 
 	auto img = new ImageElement;
-	img->ximage = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen), ZPixmap, 0, NULL, w, h, 32, 0);
+	img->ximage = XCreateImage(display, visual, depth, ZPixmap, 0, NULL, w, h, 32, 0);
 	img->data = (unsigned char *)calloc(w * h, 1);
 	img->prev = (unsigned char *)calloc(w * h, 1);
 	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
 	img->ximage->data = img->imgdata;
 	img->fontdata.buffer = NULL, img->fontdata.height = 0;
-	img->pixmap = XCreatePixmap(display, window, w, h, DefaultDepth(display, screen));
+	img->pixmap = XCreatePixmap(display, window, w, h, depth);
 
 	_allocate_element(id, 4, img, x, y, w, h);
 }

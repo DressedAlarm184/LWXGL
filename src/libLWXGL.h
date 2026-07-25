@@ -1,6 +1,26 @@
 #pragma once
+
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef XLIB_INCLUDED
+
+typedef struct {
+	Pixmap bb;
+	XFontStruct* font;
+	Display* dpy;
+	Window win;
+	GC gc;
+	unsigned long clrs[16];
+	int scrn;
+	Visual* vis;
+	int depth;
+	Colormap cmap;
+} XConnectionData;
+
+void GetXConnection(XConnectionData* data);
+
 #endif
 
 int CreateWindow(int w, int h, const char* name, int bgcol);

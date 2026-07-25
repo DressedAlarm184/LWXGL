@@ -13,7 +13,10 @@ EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor) {
 	}
 
 	screen = DefaultScreen(display);
-	Colormap colormap = DefaultColormap(display, screen);
+	colormap = DefaultColormap(display, screen);
+	depth = DefaultDepth(display, screen);
+	visual = DefaultVisual(display, screen);
+
 	XColor dummy_exact, xcolor;
 
 	for (int i = 0; i < 16; i++) {
@@ -93,7 +96,7 @@ EXPORT void TerminateWindow() {
 	XFreeFont(display, font);
 	XFreeGC(display, gc);
 	XFreePixmap(display, bb);
-	XFreeColors(display, DefaultColormap(display, screen), colors, 16, 0);
+	XFreeColors(display, colormap, colors, 16, 0);
 	XDestroyWindow(display, window);
 	XCloseDisplay(display);
 }
@@ -162,7 +165,7 @@ EXPORT int QueryModalOpen() {
 EXPORT void PaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b) {
 	XColor color;
 	color.pixel = colors[idx];
-	XQueryColor(display, DefaultColormap(display, screen), &color);
+	XQueryColor(display, colormap, &color);
 	*r = color.red / 257;
 	*g = color.green / 257;
 	*b = color.blue / 257;
@@ -174,21 +177,21 @@ EXPORT void PaletteModify(int idx, unsigned char r, unsigned char g, unsigned ch
 	color.green = g * 257;
 	color.blue  = b * 257;
 	color.flags = DoRed | DoGreen | DoBlue;
-	XFreeColors(display, DefaultColormap(display, screen), &colors[idx], 1, 0);
-	XAllocColor(display, DefaultColormap(display, screen), &color);
+	XFreeColors(display, colormap, &colors[idx], 1, 0);
+	XAllocColor(display, colormap, &color);
 	colors[idx] = color.pixel;
 	if (redraw) RedrawAllImages();
 }
 
 EXPORT void PaletteReset() {
-	XFreeColors(display, DefaultColormap(display, screen), colors, 16, 0);
+	XFreeColors(display, colormap, colors, 16, 0);
 	XColor color;
 	for (int i = 0; i < 16; i++) {
 		color.red   = color_palette[i].r * 257;
 		color.green = color_palette[i].g * 257;
 		color.blue  = color_palette[i].b * 257;
 		color.flags = DoRed | DoGreen | DoBlue;
-		XAllocColor(display, DefaultColormap(display, screen), &color);
+		XAllocColor(display, colormap, &color);
 		colors[i] = color.pixel;
 	}
 	RedrawAllImages();
@@ -248,4 +251,20 @@ EXPORT int SetGlobalBold(int bold) {
 	XFreeFont(display, font), font = new_font;
 	XSetFont(display, gc, font->fid);
 	return 1;
+}
+
+EXPORT void GetXConnection(XConnectionData* data) {
+	data->win = window;
+	data->dpy = display;
+	data->bb = bb;
+	data->font = font;
+	data->gc = gc;
+	data->scrn = screen;
+	data->vis = visual;
+	data->depth = depth;
+	data->cmap = colormap;
+
+	for (int i = 0; i < 16; ++i) {
+		data->clrs[i] = colors[i];
+	}
 }
