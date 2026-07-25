@@ -1,16 +1,7 @@
 namespace Renderers {
 	void Text(Element* e) {
 		auto txt = (TextElement *)e->elem;
-		XSetForeground(display, gc, colors[txt->color]);
-		const char *str = txt->text;
-		int y = e->y + 11;
-		while (*str != '\0') {
-			int len = 0;
-			while (str[len] != '\0' && str[len] != '\n') len++;
-			XDrawString(display, bb, gc, e->x, y, str, len);
-			str += len, y += 15;
-			if (*str == '\n') str++;
-		}
+		ImmediateText(e->x, e->y, txt->text, txt->color);
 	}
 
 	void Button(Element* e) {
@@ -44,14 +35,7 @@ namespace Renderers {
 
 	void Rect(Element* e) {
 		auto rect = (RectElement *)e->elem;
-		if (rect->bg >= 0) {
-			XSetForeground(display, gc, colors[rect->bg]);
-			XFillRectangle(display, bb, gc, e->x, e->y, e->w, e->h);
-		}
-		if (rect->fg >= 0) {
-			XSetForeground(display, gc, colors[rect->fg]);
-			XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
-		}
+		ImmediateRect(e->x, e->y, e->w, e->y, rect->fg, rect->bg);
 	}
 
 	void Image(Element* e) {
@@ -129,14 +113,7 @@ namespace Renderers {
 
 	void Ellipse(Element* e) {
 		auto ellipse = (EllipseElement *)e->elem;
-		if (ellipse->bg >= 0) {
-			XSetForeground(display, gc, colors[ellipse->bg]);
-			XFillArc(display, bb, gc, e->x, e->y, e->w, e->h, 0, 23040);
-		}
-		if (ellipse->fg >= 0) {
-			XSetForeground(display, gc, colors[ellipse->fg]);
-			XDrawArc(display, bb, gc, e->x, e->y, e->w, e->h, 0, 23040);
-		}
+		ImmediateEllipse(e->x, e->y, e->w, e->h, ellipse->fg, ellipse->bg);
 	}
 
 	void (*Functions[])(Element*) = {
@@ -211,4 +188,43 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 
 	XCopyArea(display, bb, window, gc, 0, bb.scroll, win_w, win_h, 0, 0);
 	XSync(display, False);
+}
+
+EXPORT void ImmediateText(int x, int y, const char* str, int color) {
+	XSetForeground(display, gc, colors[color]);
+	y += 11;
+	while (*str != '\0') {
+		int len = 0;
+		while (str[len] != '\0' && str[len] != '\n') len++;
+		XDrawString(display, bb, gc, x, y, str, len);
+		str += len, y += 15;
+		if (*str == '\n') str++;
+	}
+}
+
+EXPORT void ImmediateEllipse(int x, int y, int w, int h, int fg, int bg) {
+	if (bg >= 0) {
+		XSetForeground(display, gc, colors[bg]);
+		XFillArc(display, bb, gc, x, y, w, h, 0, 23040);
+	}
+	if (fg >= 0) {
+		XSetForeground(display, gc, colors[fg]);
+		XDrawArc(display, bb, gc, x, y, w, h, 0, 23040);
+	}
+}
+
+EXPORT void ImmediateRect(int x, int y, int w, int h, int fg, int bg) {
+	if (bg >= 0) {
+		XSetForeground(display, gc, colors[bg]);
+		XFillRectangle(display, bb, gc, x, y, w, h);
+	}
+	if (fg >= 0) {
+		XSetForeground(display, gc, colors[fg]);
+		XDrawRectangle(display, bb, gc, x, y, w - 1, h - 1);
+	}
+}
+
+EXPORT void ImmediateLine(int x1, int y1, int x2, int y2, int color) {
+	XSetForeground(display, gc, colors[color]);
+	XDrawLine(display, bb, gc, x1, y1, x2, y2);
 }

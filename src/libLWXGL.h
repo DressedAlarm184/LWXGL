@@ -64,12 +64,38 @@ int SetGlobalBold(int bold);
 int AllocateXBM(const char* name, const char* path, int colors, int transparent);
 int CreateXBMImage(int id, int x, int y, const char* path, int colors);
 void CreateEllipse(int id, int x, int y, int w, int h, int fg, int bg);
+void SetRenderingOrder(int order);
+void ImmediateText(int x, int y, const char* str, int color);
+void ImmediateEllipse(int x, int y, int w, int h, int fg, int bg);
+void ImmediateRect(int x, int y, int w, int h, int fg, int bg);
+void ImmediateLine(int x1, int y1, int x2, int y2, int color);
 
-#define LWXGL_KEY_LEFT 170
-#define LWXGL_KEY_RIGHT 171
-#define LWXGL_KEY_UP 172
-#define LWXGL_KEY_DOWN 173
-#define LWXGL_KEY_FN 150
+#define KEY_LEFT 170
+#define KEY_RIGHT 171
+#define KEY_UP 172
+#define KEY_DOWN 173
+#define KEY_FN 150
+
+#define CLR_NONE      -1
+#define CLR_BLACK     0x0
+#define CLR_BLUE      0x1
+#define CLR_GREEN     0x2
+#define CLR_CYAN      0x3
+#define CLR_RED       0x4
+#define CLR_MAGENTA   0x5
+#define CLR_ORANGE    0x6
+#define CLR_LGRAY     0x7
+#define CLR_GRAY      0x8
+#define CLR_LBLUE     0x9
+#define CLR_LGREEN    0xA
+#define CLR_LCYAN     0xB
+#define CLR_LRED      0xC
+#define CLR_LMAGENTA  0xD
+#define CLR_YELLOW    0xE
+#define CLR_WHITE     0xF
+
+#define ORDER_ELEM_FIRST 1
+#define ORDER_ELEM_SECOND 0
 
 #ifdef __cplusplus
 }
