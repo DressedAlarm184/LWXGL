@@ -1,7 +1,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>
-#define XLIB_INCLUDED
 #include "libLWXGL.h"
 #include <sys/mman.h>
 #include <unistd.h>

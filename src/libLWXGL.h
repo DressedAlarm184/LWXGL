@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#ifdef XLIB_INCLUDED
+#ifdef XlibSpecificationRelease
 
 typedef struct {
 	Pixmap bb;
