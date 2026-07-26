@@ -145,10 +145,8 @@ EXPORT void MainWindowLoop(int target_fps, void (*on_every)(int, float)) {
 			
 			for (int i = 0; i < 59; i++) debug_metrics.avg_wt[i] = debug_metrics.avg_wt[i + 1];
 			debug_metrics.avg_wt[59] = work_time.count(), debug_metrics.fps = current_fps;
-			
-			last_time += FRAME_TIME, tick++;
-			
-			if (now - last_time > FRAME_TIME * 2) last_time = now;
+
+			last_time = now, tick++;
 		} else {
 			auto time_to_sleep = FRAME_TIME - elapsed;
 			if (time_to_sleep > milliseconds(2)) {
