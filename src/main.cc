@@ -27,7 +27,7 @@
 Display *display; Window window = None; GC gc; Atom wm_delete;
 unsigned long colors[16] = {0}; int bgcol, win_w, win_h; XFontStruct* font;
 int screen, mouse_x = 0, mouse_y = 0, mouse_down = 0, closing = 0;
-Visual* visual; Colormap colormap; int depth, flags;
+Visual* visual; Colormap colormap; int depth, flags; float elapsed_time = 0;
 
 unsigned char pressed_keys[8] = {0};
 unsigned int active_keycodes[8] = {0};
@@ -87,6 +87,13 @@ struct {
 		scroll = std::clamp(scroll, 0, std::max(0, h - win_h));
 	}
 } bb;
+
+typedef struct {
+	float target_time;
+	void (*task)();
+} QueuedTask;
+
+std::vector<QueuedTask> task_queue;
 
 #define L(b)  ((b) & 0x0F)
 #define H(b)  (((b) >> 4) & 0x0F)

@@ -127,11 +127,19 @@ EXPORT void MainWindowLoop(int target_fps, void (*on_every)(int, float)) {
 		
 		if (elapsed >= FRAME_TIME) {
 			float delta_time = elapsed.count() / 1000000.0f;
+			elapsed_time += delta_time;
 			auto work_start = steady_clock::now();
 			
 			_handle_window_events();
 			_render_window(on_every, tick, delta_time);
 			
+			for (auto it = task_queue.begin(); it != task_queue.end();) {
+				if (it->target_time <= elapsed_time) {
+					it->task();
+					it = task_queue.erase(it);
+				} else ++it;
+			}
+
 			auto work_time = duration_cast<microseconds>(steady_clock::now() - work_start);
 			float current_fps = 1000000.0 / elapsed.count();
 			
@@ -272,4 +280,12 @@ EXPORT void GetXConnection(XConnectionData* data) {
 
 EXPORT const char* GetModalInput() {
 	return active_modal_state.input;
+}
+
+EXPORT float GetElapsedTime() {
+	return elapsed_time;
+}
+
+EXPORT void NewQueuedTask(float run_after, void (*task)()) {
+	task_queue.push_back({elapsed_time + run_after, task});
 }

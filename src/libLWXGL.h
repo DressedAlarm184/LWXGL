@@ -90,6 +90,8 @@ void ImmediateEllipse(int x, int y, int w, int h, int fg, int bg);
 void ImmediateRect(int x, int y, int w, int h, int fg, int bg);
 void ImmediateLine(int x1, int y1, int x2, int y2, int color);
 const char* GetModalInput();
+float GetElapsedTime();
+void NewQueuedTask(float run_after, void (*task)());
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171
