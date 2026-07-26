@@ -10,6 +10,7 @@ int _translate_keypress(int ch, KeySym& keysym) {
 			ch = keysym - XK_F1 + KEY_FN + 1;
 		}
 	}
+	if (ch == 13) ch = 10;
 	return ch;
 }
 
@@ -44,10 +45,10 @@ namespace Events {
 		if (QueryModalOpen()) {
 			int edge = active_modal_state.right_edge_x;
 			if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 35 && mouse_x < edge) {
-				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
 				active_modal_state.active = 0;
+				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
 			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 105 && mouse_x < edge - 35) {
-				if (active_modal_state.type == 1) active_modal_state.active = 0;
+				if (active_modal_state.type != MODAL_ALERT) active_modal_state.active = 0;
 			}
 			return;
 		}
@@ -111,7 +112,17 @@ namespace Events {
 				break;
 			}
 		}
-		if (QueryModalOpen()) return;
+		if (QueryModalOpen()) {
+			if (active_modal_state.type != MODAL_INPUT) return;
+			char* input = active_modal_state.input;
+			int length = strlen(input);
+			if (ch == 8) {
+				if (length > 0) input[length - 1] = 0;
+			} else if ((ch >= 32 && ch < 127) || ch == 10) {
+				if (length < 150) input[length] = ch;
+			}
+			return;
+		}
 		for (Element* e : elements) {
 			if (e == NULL) continue;
 			if (!_inside_elem(e)) continue;

@@ -89,6 +89,7 @@ void ImmediateText(int x, int y, const char* str, int color);
 void ImmediateEllipse(int x, int y, int w, int h, int fg, int bg);
 void ImmediateRect(int x, int y, int w, int h, int fg, int bg);
 void ImmediateLine(int x1, int y1, int x2, int y2, int color);
+const char* GetModalInput();
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171
@@ -116,6 +117,10 @@ void ImmediateLine(int x1, int y1, int x2, int y2, int color);
 
 #define ORDER_ELEM_FIRST 1
 #define ORDER_ELEM_SECOND 0
+
+#define MODAL_ALERT 0
+#define MODAL_CONFIRM 1
+#define MODAL_INPUT 2
 
 #define FLAG_NONE   (0)
 #define FLAG_BYPASS (1 << 0)

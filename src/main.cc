@@ -43,6 +43,7 @@ struct {
 	char* msg = NULL;
 	void (*on_confirm)();
 	int right_edge_x = 0;
+	char input[151];
 } active_modal_state;
 
 struct {

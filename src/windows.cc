@@ -165,6 +165,8 @@ EXPORT void SpawnModal(int type, const char* msg, void (*on_confirm)()) {
 	active_modal_state.msg = strdup(msg);
 	active_modal_state.on_confirm = on_confirm;
 	active_modal_state.type = type;
+
+	memset(active_modal_state.input, 0, 151);
 }
 
 EXPORT int QueryModalOpen() {
@@ -266,4 +268,8 @@ EXPORT void GetXConnection(XConnectionData* data) {
 	for (int i = 0; i < 16; ++i) {
 		data->clrs[i] = colors[i];
 	}
+}
+
+EXPORT const char* GetModalInput() {
+	return active_modal_state.input;
 }
