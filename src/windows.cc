@@ -127,8 +127,10 @@ EXPORT void MainWindowLoop(int target_fps, void (*on_every)(int, float)) {
 		auto elapsed = duration_cast<microseconds>(now - last_time);
 		
 		if (elapsed >= FRAME_TIME) {
-			float delta_time = elapsed.count() / 1000000.0f;
-			elapsed_time += delta_time;
+			double delta_time_d = elapsed.count() / 1000000.0;
+			elapsed_time += delta_time_d;
+			float delta_time = static_cast<float>(delta_time_d);
+
 			auto work_start = steady_clock::now();
 			
 			_handle_window_events();
@@ -139,6 +141,10 @@ EXPORT void MainWindowLoop(int target_fps, void (*on_every)(int, float)) {
 			for (auto& task_item : active_tasks) {
 				if (task_item.target_time <= elapsed_time) {
 					task_item.task();
+					if (task_item.repeat_every >= 0) {
+						task_item.target_time += task_item.repeat_every;
+						task_queue.push_back(std::move(task_item));
+					}
 				} else {
 					task_queue.push_back(std::move(task_item));
 				}
@@ -286,10 +292,15 @@ EXPORT const char* GetModalInput() {
 	return active_modal_state.input;
 }
 
-EXPORT float GetElapsedTime() {
+EXPORT double GetElapsedTime() {
 	return elapsed_time;
 }
 
-EXPORT void NewQueuedTask(float run_after, void (*task)()) {
-	task_queue.push_back({elapsed_time + run_after, task});
+EXPORT void NewQueuedTask(int type, double run_after, void (*task)()) {
+	if (type == TASK_RUN_AFTER) {
+		task_queue.push_back({elapsed_time + run_after, task, -1});
+	} else if (type == TASK_RUN_EVERY) {
+		double start_target = std::ceil(elapsed_time / run_after) * run_after;
+		task_queue.push_back({start_target, task, run_after});
+	}
 }
