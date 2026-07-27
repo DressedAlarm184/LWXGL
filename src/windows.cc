@@ -120,6 +120,7 @@ EXPORT void MainWindowLoop(int target_fps, void (*on_every)(int, float)) {
 	const microseconds FRAME_TIME(1000000 / target_fps);
 	unsigned long long tick = 0;
 	auto last_time = steady_clock::now();
+	std::vector<QueuedTask> active_tasks;
 
 	while (!_window_should_close()) {
 		auto now = steady_clock::now();
@@ -133,12 +134,17 @@ EXPORT void MainWindowLoop(int target_fps, void (*on_every)(int, float)) {
 			_handle_window_events();
 			_render_window(on_every, tick, delta_time);
 			
-			for (auto it = task_queue.begin(); it != task_queue.end();) {
-				if (it->target_time <= elapsed_time) {
-					it->task();
-					it = task_queue.erase(it);
-				} else ++it;
+			std::swap(task_queue, active_tasks);
+
+			for (auto& task_item : active_tasks) {
+				if (task_item.target_time <= elapsed_time) {
+					task_item.task();
+				} else {
+					task_queue.push_back(std::move(task_item));
+				}
 			}
+
+			active_tasks.clear();
 
 			auto work_time = duration_cast<microseconds>(steady_clock::now() - work_start);
 			float current_fps = 1000000.0 / elapsed.count();
