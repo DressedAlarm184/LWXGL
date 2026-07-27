@@ -23,7 +23,7 @@ void GetXConnection(XConnectionData* data);
 
 #endif
 
-int CreateWindow(int w, int h, const char* name, int bgcolor, int f);
+int CreateWindow(int w, int h, const char* name, int bgcolor);
 void TerminateWindow();
 void CreateText(int id, int x, int y, const char* text, int color);
 void CreateButton(int id, int x, int y, int w, int h, int u, int hvr, int p, const char* label, void (*onclick)(void));
@@ -66,7 +66,7 @@ void SetImageFont(int id, unsigned char* font, int h);
 void DrawString(int id, int x, int y, const char* txt, int color);
 void SetWindowColor(int color);
 unsigned char* CaptureRegion(int x, int y, unsigned short w, unsigned short h);
-void EventAttachResize(void (*Resize)(int w, int h));
+void EnableResizing(void (*Resize)(int x, int y));
 void DrawIndexedTGA(int id, int x, int y, const char* name);
 int AllocateTGA(const char* name, const char* path, int change_palette, int transparent);
 void DeleteTGA(const char* name);
@@ -126,11 +126,6 @@ void NewQueuedTask(int type, double run_after, void (*task)());
 
 #define TASK_RUN_AFTER 0
 #define TASK_RUN_EVERY 1
-
-#define FLAG_NONE   (0)
-#define FLAG_BYPASS (1 << 0)
-#define FLAG_CANVAS (1 << 1)
-#define FLAG_RESIZE (1 << 2)
 
 #ifdef __cplusplus
 }

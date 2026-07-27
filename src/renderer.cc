@@ -186,12 +186,6 @@ namespace Renderers {
 }
 
 EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
-	if (flags & FLAG_BYPASS) {
-		if (on_every != NULL) on_every(tick, dt);
-		XSync(display, False);
-		return;
-	}
-
 	XSetForeground(display, gc, colors[bgcol]);
 	XFillRectangle(display, bb, gc, 0, bb.scroll, win_w, win_h);
 

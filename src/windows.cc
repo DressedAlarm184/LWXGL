@@ -1,7 +1,7 @@
-EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor, int f) {
+EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor) {
 	if (window != None) return 3;
 
-	win_w = w, win_h = h, flags = f;
+	win_w = w, win_h = h;
 
 	display = XOpenDisplay(NULL);
 	if (display == NULL) return 1;
@@ -62,17 +62,9 @@ EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor, int f) {
 	XMapWindow(display, window);
 	
 	XSizeHints hints = {0};
-	if (flags & FLAG_RESIZE) {
-		hints.flags = bb.scroll_enabled ? PMaxSize : 0;
-		if (bb.scroll_enabled) {
-			hints.max_width = 32767;
-			hints.max_height = bb.h;
-		}
-	} else {
-		hints.flags = PMinSize | PMaxSize;
-		hints.min_width = w, hints.min_height = h;
-		hints.max_width = w, hints.max_height = h;
-	}
+	hints.flags = PMinSize | PMaxSize;
+	hints.min_width = w, hints.min_height = h;
+	hints.max_width = w, hints.max_height = h;
 	XSetWMNormalHints(display, window, &hints);
 	
 	XSetFont(display, gc, font->fid);
@@ -81,7 +73,6 @@ EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor, int f) {
 	XkbSetDetectableAutoRepeat(display, True, NULL);
 
 	bgcol = bgcolor;
-	if (flags & FLAG_CANVAS) CreateImage(0, 0, 0, 0, 0);
 
 	ChangeCursor(68);
 	XSync(display, False);

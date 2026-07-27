@@ -231,6 +231,13 @@ EXPORT int QueryKeyDown(int ch) {
 	return 0;
 }
 
-EXPORT void EventAttachResize(void (*Resize)(int w, int h)) {
+EXPORT void EnableResizing(void (*Resize)(int x, int y)) {
+	XSizeHints hints = {0};
+	hints.flags = bb.scroll_enabled ? PMaxSize : 0;
+	if (bb.scroll_enabled) {
+		hints.max_width = 32767;
+		hints.max_height = bb.h;
+	}
+	XSetWMNormalHints(display, window, &hints);
 	Events::UserProvided::Resize = Resize;
 }
