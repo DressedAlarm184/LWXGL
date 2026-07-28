@@ -116,7 +116,18 @@ namespace Renderers {
 		ImmediateEllipse(e->x, e->y, e->w, e->h, ellipse->fg, ellipse->bg);
 	}
 
+	void OpenGL(Element* e) {
+		auto opengl = (OpenGLElement *)e->elem;
+		int x = opengl->border_color >= 0 ? e->x + 1 : e->x;
+		int y = opengl->border_color >= 0 ? e->y + 1 : e->y;
+		XCopyArea(display, opengl->x_pixmap, bb, gc, 0, 0, e->w, e->h, x, y);
+		if (opengl->border_color >= 0) {
+			XSetForeground(display, gc, colors[opengl->border_color]);
+			XDrawRectangle(display, bb, gc, e->x, e->y, e->w - 1, e->h - 1);
+		}
+	}
+
 	void (*Functions[])(Element*) = {
-		Text, Button, Input, Rect, Image, Checkbox, Console, Ellipse
+		Text, Button, Input, Rect, Image, Checkbox, Console, Ellipse, OpenGL
 	};
 }

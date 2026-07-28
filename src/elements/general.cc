@@ -24,6 +24,14 @@ EXPORT void DeleteElement(int id) {
 		delete (CheckboxElement*)elements[id]->elem;
 	} else if (type == 6) {
 		delete (ConsoleElement*)elements[id]->elem;
+	} else if (type == 7) {
+		delete (EllipseElement*)elements[id]->elem;
+	} else if (type == 8) {
+		auto opengl = (OpenGLElement*)elements[id]->elem;
+		glXDestroyContext(display, opengl->ctx);
+		glXDestroyPixmap(display, opengl->glx_pixmap);
+		XFreePixmap(display, opengl->x_pixmap);
+		delete opengl;
 	}
 
 	delete elements[id];

@@ -81,6 +81,8 @@ EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor) {
 }
 
 EXPORT void TerminateWindow() {
+	glXMakeContextCurrent(display, None, None, NULL);
+
 	for (int i = 0; i < elements.size(); i++) {
 		if (elements[i] != NULL) DeleteElement(i);
 	}
@@ -91,13 +93,6 @@ EXPORT void TerminateWindow() {
 
 	if (active_modal_state.msg != NULL) {
 		free(active_modal_state.msg);
-	}
-
-	if (bb.glx.enabled) {
-		glXMakeContextCurrent(display, None, None, NULL);
-		glXDestroyContext(display, bb.glx.ctx);
-		glXDestroyPixmap(display, bb.glx.glx_pixmap);
-		XFreePixmap(display, bb.glx.gl_pixmap);
 	}
 
 	XFreeFont(display, font);

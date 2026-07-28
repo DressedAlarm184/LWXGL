@@ -87,15 +87,6 @@ struct {
 		pixmap = XCreatePixmap(display, window, w, h, depth);
 		scroll = std::clamp(scroll, 0, std::max(0, h - win_h));
 	}
-
-	struct {
-		bool enabled = false;
-		int pm_w, pm_h;
-		GLXPixmap glx_pixmap;
-		Pixmap gl_pixmap;
-		GLXContext ctx;
-		bool rendered = false;
-	} glx;
 } bb;
 
 typedef struct {

@@ -2,8 +2,6 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 	XSetForeground(display, gc, colors[bgcol]);
 	XFillRectangle(display, bb, gc, 0, bb.scroll, win_w, win_h);
 
-	bb.glx.rendered = false;
-
 	if (!bb.frame_cb_after_elem && on_every != NULL) on_every(tick, dt);
 
 	for (Element* e : elements) {
@@ -31,8 +29,7 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 	XSync(display, False);
 }
 
-EXPORT int InitializeOpenGL(int w, int h) {
-	if (bb.glx.enabled) return 0;
+EXPORT int CreateOpenGL(int id, int x, int y, int w, int h, int border) {
 	if (depth != 24 && depth != 32) return 0;
 
 	int fb_attribs[] = {
@@ -73,31 +70,30 @@ EXPORT int InitializeOpenGL(int w, int h) {
 		return 0;
 	}
 
-	bb.glx.gl_pixmap = XCreatePixmap(display, RootWindow(display, screen), w, h, depth);
-	bb.glx.glx_pixmap = glXCreatePixmap(display, fbconfig, bb.glx.gl_pixmap, NULL);
-
-	bb.glx.ctx = glXCreateNewContext(display, fbconfig, GLX_RGBA_TYPE, NULL, True);
-
 	XFree(vi);
-
-	if (!glXMakeContextCurrent(display, bb.glx.glx_pixmap, bb.glx.glx_pixmap, bb.glx.ctx)) {
-		XFree(fbconfigs);
-		return 0;
-	}
-
-	glViewport(0, 0, w, h);
 	XFree(fbconfigs);
 
-	bb.glx.enabled = true;
-	bb.glx.pm_w = w, bb.glx.pm_h = h;
+	Pixmap x_pixmap = XCreatePixmap(display, RootWindow(display, screen), w, h, depth);
+	GLXPixmap glx_pixmap = glXCreatePixmap(display, fbconfig, x_pixmap, NULL);
+	GLXContext ctx = glXCreateNewContext(display, fbconfig, GLX_RGBA_TYPE, NULL, True);
+
+	if (border >= 0) {
+		w += 2, h += 2;
+	}
+
+	_allocate_element(id, 8, new OpenGLElement{
+		glx_pixmap, x_pixmap, ctx, border
+	}, x, y, w, h);
 
 	return 1;
 }
 
-EXPORT void GLXPushPixmap(int x, int y) {
-	if (bb.glx.rendered || !bb.glx.enabled) return;
+EXPORT void SynchronizeOpenGL() {
 	glFlush();
 	glXWaitGL();
-	XCopyArea(display, bb.glx.gl_pixmap, bb, gc, 0, 0, bb.glx.pm_w, bb.glx.pm_h, x, y);
-	bb.glx.rendered = true;
+}
+
+EXPORT void ChangeGLXContext(int id) {
+	auto opengl = (OpenGLElement*)elements[id]->elem;
+	glXMakeContextCurrent(display, opengl->glx_pixmap, opengl->glx_pixmap, opengl->ctx);
 }

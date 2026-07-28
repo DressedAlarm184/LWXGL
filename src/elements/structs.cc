@@ -56,4 +56,11 @@ typedef struct {
 	void *elem;
 } Element;
 
+typedef struct {
+	GLXPixmap glx_pixmap;
+	Pixmap x_pixmap;
+	GLXContext ctx;
+	int border_color;
+} OpenGLElement;
+
 std::vector<Element*> elements;
