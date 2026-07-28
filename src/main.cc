@@ -104,6 +104,14 @@ std::vector<QueuedTask> task_queue;
 #include "elements/tga.cc"
 #include "elements/general.cc"
 
-#include "events.cc"
-#include "renderer.cc"
-#include "windows.cc"
+#include "events/handlers.cc"
+#include "events/misc.cc"
+
+#include "renderer/elements.cc"
+#include "renderer/overlays.cc"
+#include "renderer/main.cc"
+#include "renderer/immediates.cc"
+
+#include "windowing/misc.cc"
+#include "windowing/management.cc"
+#include "windowing/config.cc"
