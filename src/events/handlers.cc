@@ -52,7 +52,8 @@ namespace Events {
 			}
 			return;
 		}
-		for (Element* e : elements) {
+		for (auto it = elements.rbegin(); it != elements.rend(); ++it) {
+			Element* e = *it;
 			if (e == NULL) continue;
 			if (!_inside_elem(e)) continue;
 			if (e->type == 1 && button == 1) {
@@ -123,7 +124,8 @@ namespace Events {
 			}
 			return;
 		}
-		for (Element* e : elements) {
+		for (auto it = elements.rbegin(); it != elements.rend(); ++it) {
+			Element* e = *it;
 			if (e == NULL) continue;
 			if (!_inside_elem(e)) continue;
 			if (e->type == 2) {

@@ -24,15 +24,35 @@ void _console_calc_total_lines(ConsoleElement* console) {
 }
 
 int _inside_elem(Element* e) {
-	int right_extent = e->x + e->w;
+	if (QueryModalOpen()) return 0;
 
-	if (e->type == 5) {
-		auto checkbox = (CheckboxElement*)e->elem;
-		if (checkbox->label != NULL) right_extent += 10 + strlen(checkbox->label) * 9;
+	int scroll_y = mouse_y + bb.scroll;
+
+	auto coords_inside = [scroll_y](Element* el) -> bool {
+		if (el == nullptr || !el->v) return false;
+
+		int right_extent = el->x + el->w;
+		if (el->type == 5) {
+			auto checkbox = (CheckboxElement*)el->elem;
+			if (checkbox->label != NULL) right_extent += 10 + strlen(checkbox->label) * 9;
+		}
+
+		return mouse_x >= el->x && mouse_x < right_extent &&
+		       scroll_y >= el->y && scroll_y < el->y + el->h;
+	};
+
+	if (!coords_inside(e)) return 0;
+
+	bool found_self = false;
+	for (Element* other : elements) {
+		if (!found_self) {
+			if (other == e) found_self = true;
+			continue;
+		}
+		if (coords_inside(other)) {
+			return 0;
+		}
 	}
 
-	int x_inside = mouse_x >= e->x && mouse_x < right_extent;
-	int y_inside = mouse_y + bb.scroll >= e->y && mouse_y + bb.scroll < e->y + e->h;
-
-	return x_inside && y_inside && e->v && !QueryModalOpen();
+	return 1;
 }
