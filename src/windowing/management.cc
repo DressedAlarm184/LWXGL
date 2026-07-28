@@ -97,6 +97,7 @@ EXPORT void TerminateWindow() {
 		glXMakeContextCurrent(display, None, None, NULL);
 		glXDestroyContext(display, bb.glx.ctx);
 		glXDestroyPixmap(display, bb.glx.glx_pixmap);
+		XFreePixmap(display, bb.glx.gl_pixmap);
 	}
 
 	XFreeFont(display, font);
