@@ -1,4 +1,3 @@
-
 EXPORT void ImmediateText(int x, int y, const char* str, int color) {
 	XSetForeground(display, gc, colors[color]);
 	y += 11;
@@ -9,6 +8,16 @@ EXPORT void ImmediateText(int x, int y, const char* str, int color) {
 		str += len, y += 15;
 		if (*str == '\n') str++;
 	}
+}
+
+EXPORT void ImmediateTextF(int x, int y, int color, const char* fmt, ...) {
+	char *buffer = NULL;
+    va_list args;
+    va_start(args, fmt);
+    vasprintf(&buffer, fmt, args);
+    va_end(args);
+	ImmediateText(x, y, buffer, color);
+	free(buffer);
 }
 
 EXPORT void ImmediateEllipse(int x, int y, int w, int h, int fg, int bg) {

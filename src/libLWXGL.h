@@ -92,6 +92,7 @@ void ImmediateLine(int x1, int y1, int x2, int y2, int color);
 const char* GetModalInput();
 double GetElapsedTime();
 void NewQueuedTask(int type, double run_after, void (*task)());
+void ImmediateTextF(int x, int y, int color, const char* fmt, ...);
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171
