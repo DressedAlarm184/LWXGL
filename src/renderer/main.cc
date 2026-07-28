@@ -2,6 +2,8 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 	XSetForeground(display, gc, colors[bgcol]);
 	XFillRectangle(display, bb, gc, 0, bb.scroll, win_w, win_h);
 
+	bb.glx.rendered = false;
+
 	if (!bb.frame_cb_after_elem && on_every != NULL) on_every(tick, dt);
 
 	for (Element* e : elements) {
@@ -29,7 +31,7 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 	XSync(display, False);
 }
 
-EXPORT int InitializeOpenGL(int x, int y, int w, int h) {
+EXPORT int InitializeOpenGL(int w, int h) {
 	if (bb.glx.enabled) return 0;
 	if (depth != 24 && depth != 32) return 0;
 
@@ -87,13 +89,15 @@ EXPORT int InitializeOpenGL(int x, int y, int w, int h) {
 	XFree(fbconfigs);
 
 	bb.glx.enabled = true;
-	bb.glx.pm_x = x, bb.glx.pm_y = y, bb.glx.pm_w = w, bb.glx.pm_h = h;
+	bb.glx.pm_w = w, bb.glx.pm_h = h;
 
 	return 1;
 }
 
-EXPORT void GLXPushPixmap() {
+EXPORT void GLXPushPixmap(int x, int y) {
+	if (bb.glx.rendered || !bb.glx.enabled) return;
 	glFlush();
 	glXWaitGL();
-	XCopyArea(display, bb.glx.gl_pixmap, bb, gc, 0, 0, bb.glx.pm_w, bb.glx.pm_h, bb.glx.pm_x, bb.glx.pm_y);
+	XCopyArea(display, bb.glx.gl_pixmap, bb, gc, 0, 0, bb.glx.pm_w, bb.glx.pm_h, x, y);
+	bb.glx.rendered = true;
 }

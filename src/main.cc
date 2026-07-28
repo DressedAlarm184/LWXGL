@@ -90,11 +90,11 @@ struct {
 
 	struct {
 		bool enabled = false;
-		int pm_x, pm_y;
 		int pm_w, pm_h;
 		GLXPixmap glx_pixmap;
 		Pixmap gl_pixmap;
 		GLXContext ctx;
+		bool rendered = false;
 	} glx;
 } bb;
 
