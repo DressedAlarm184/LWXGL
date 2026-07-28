@@ -35,7 +35,7 @@ namespace Renderers {
 
 	void Rect(Element* e) {
 		auto rect = (RectElement *)e->elem;
-		ImmediateRect(e->x, e->y, e->w, e->y, rect->fg, rect->bg);
+		ImmediateRect(e->x, e->y, e->w, e->h, rect->fg, rect->bg);
 	}
 
 	void Image(Element* e) {
