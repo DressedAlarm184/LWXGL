@@ -1,6 +1,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
 #include "libLWXGL.h"
 #include <sys/mman.h>
 #include <unistd.h>
@@ -85,6 +87,15 @@ struct {
 		pixmap = XCreatePixmap(display, window, w, h, depth);
 		scroll = std::clamp(scroll, 0, std::max(0, h - win_h));
 	}
+
+	struct {
+		bool enabled = false;
+		int pm_x, pm_y;
+		int pm_w, pm_h;
+		GLXPixmap glx_pixmap;
+		Pixmap gl_pixmap;
+		GLXContext ctx;
+	} glx;
 } bb;
 
 typedef struct {

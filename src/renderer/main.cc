@@ -28,3 +28,49 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 	XCopyArea(display, bb, window, gc, 0, bb.scroll, win_w, win_h, 0, 0);
 	XSync(display, False);
 }
+
+EXPORT int InitializeOpenGL(int x, int y, int w, int h) {
+	if (bb.glx.enabled) return 0;
+
+	if (depth != 24 && depth != 32) return 0;
+
+	int fb_attribs[] = {
+		GLX_DRAWABLE_TYPE, GLX_PIXMAP_BIT,
+		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+		GLX_RED_SIZE,      8,
+		GLX_GREEN_SIZE,    8,
+		GLX_BLUE_SIZE,     8,
+		GLX_ALPHA_SIZE,    8,
+		None
+	};
+
+	int num_fbconfigs;
+	GLXFBConfig *fbconfigs = glXChooseFBConfig(display, screen, fb_attribs, &num_fbconfigs);
+	if (!fbconfigs || num_fbconfigs == 0) return 0;
+
+	GLXFBConfig fbconfig = fbconfigs[0];
+
+	bb.glx.gl_pixmap = XCreatePixmap(display, RootWindow(display, screen), w, h, depth);
+	bb.glx.glx_pixmap = glXCreatePixmap(display, fbconfig, bb.glx.gl_pixmap, NULL);
+
+	bb.glx.ctx = glXCreateNewContext(display, fbconfig, GLX_RGBA_TYPE, NULL, True);
+
+	if (!glXMakeContextCurrent(display, bb.glx.glx_pixmap, bb.glx.glx_pixmap, bb.glx.ctx)) {
+		XFree(fbconfigs);
+		return 0;
+	}
+
+	glViewport(0, 0, w, h);
+	XFree(fbconfigs);
+
+	bb.glx.enabled = true;
+	bb.glx.pm_x = x, bb.glx.pm_y = y, bb.glx.pm_w = w, bb.glx.pm_h = h;
+
+	return 1;
+}
+
+EXPORT void GLXPushPixmap() {
+	glFlush();
+	glXWaitGL();
+	XCopyArea(display, bb.glx.gl_pixmap, bb, gc, 0, 0, bb.glx.pm_w, bb.glx.pm_h, bb.glx.pm_x, bb.glx.pm_y);
+}

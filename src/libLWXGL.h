@@ -93,6 +93,8 @@ const char* GetModalInput();
 double GetElapsedTime();
 void NewQueuedTask(int type, double run_after, void (*task)());
 void ImmediateTextF(int x, int y, int color, const char* fmt, ...);
+int InitializeOpenGL(int x, int y, int w, int h);
+void GLXPushPixmap();
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171

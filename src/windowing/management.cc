@@ -93,6 +93,12 @@ EXPORT void TerminateWindow() {
 		free(active_modal_state.msg);
 	}
 
+	if (bb.glx.enabled) {
+		glXMakeContextCurrent(display, None, None, NULL);
+		glXDestroyContext(display, bb.glx.ctx);
+		glXDestroyPixmap(display, bb.glx.glx_pixmap);
+	}
+
 	XFreeFont(display, font);
 	XFreeGC(display, gc);
 	XFreePixmap(display, bb);
