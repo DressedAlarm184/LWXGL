@@ -31,16 +31,19 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 
 EXPORT int InitializeOpenGL(int x, int y, int w, int h) {
 	if (bb.glx.enabled) return 0;
-
 	if (depth != 24 && depth != 32) return 0;
 
 	int fb_attribs[] = {
+		GLX_X_RENDERABLE,  True,
 		GLX_DRAWABLE_TYPE, GLX_PIXMAP_BIT,
 		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+		GLX_DOUBLEBUFFER,  False,
 		GLX_RED_SIZE,      8,
 		GLX_GREEN_SIZE,    8,
 		GLX_BLUE_SIZE,     8,
 		GLX_ALPHA_SIZE,    8,
+		GLX_DEPTH_SIZE,    24,
+		GLX_STENCIL_SIZE,  8,
 		None
 	};
 
@@ -48,12 +51,32 @@ EXPORT int InitializeOpenGL(int x, int y, int w, int h) {
 	GLXFBConfig *fbconfigs = glXChooseFBConfig(display, screen, fb_attribs, &num_fbconfigs);
 	if (!fbconfigs || num_fbconfigs == 0) return 0;
 
-	GLXFBConfig fbconfig = fbconfigs[0];
+	GLXFBConfig fbconfig = NULL;
+	XVisualInfo *vi = NULL;
+
+	for (int i = 0; i < num_fbconfigs; i++) {
+		vi = glXGetVisualFromFBConfig(display, fbconfigs[i]);
+		if (vi) {
+			if (vi->depth == depth) {
+				fbconfig = fbconfigs[i];
+				break;
+			}
+			XFree(vi);
+			vi = NULL;
+		}
+	}
+
+	if (!fbconfig || !vi) {
+		XFree(fbconfigs);
+		return 0;
+	}
 
 	bb.glx.gl_pixmap = XCreatePixmap(display, RootWindow(display, screen), w, h, depth);
 	bb.glx.glx_pixmap = glXCreatePixmap(display, fbconfig, bb.glx.gl_pixmap, NULL);
 
 	bb.glx.ctx = glXCreateNewContext(display, fbconfig, GLX_RGBA_TYPE, NULL, True);
+
+	XFree(vi);
 
 	if (!glXMakeContextCurrent(display, bb.glx.glx_pixmap, bb.glx.glx_pixmap, bb.glx.ctx)) {
 		XFree(fbconfigs);
