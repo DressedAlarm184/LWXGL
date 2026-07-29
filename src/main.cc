@@ -113,6 +113,7 @@ std::vector<QueuedTask> task_queue;
 #include "renderer/overlays.cc"
 #include "renderer/main.cc"
 #include "renderer/immediates.cc"
+#include "renderer/opengl.cc"
 
 #include "windowing/misc.cc"
 #include "windowing/management.cc"
