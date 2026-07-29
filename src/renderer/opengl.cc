@@ -66,3 +66,50 @@ EXPORT void ChangeGLXContext(int id) {
 	auto opengl = (OpenGLElement*)elements[id]->elem;
 	glXMakeContextCurrent(display, opengl->glx_pixmap, opengl->glx_pixmap, opengl->ctx);
 }
+
+EXPORT unsigned int GLConvertTGA(const char* name) {
+	auto it = allocated_TGAs.find(name);
+	if (it == allocated_TGAs.end()) return 0;
+	const auto& TGA = it->second;
+	if (TGA.palette == NULL) return 0;
+
+	GLuint texture_id;
+
+	glGenTextures(1, &texture_id);
+
+	GLint previous_texture;
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &previous_texture);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	std::vector<unsigned char> pixels;
+	pixels.reserve(TGA.width * TGA.height * 4);
+
+	for (int y = 0; y < TGA.height; ++y) {
+		int tga_y = (TGA.height - 1) - y;
+
+		for (int x = 0; x < TGA.width; ++x) {
+			int tga_index = (tga_y * TGA.width) + x;
+			int po = TGA.pixels[tga_index] * 3;
+
+			pixels.push_back(TGA.palette[po + 2]);
+			pixels.push_back(TGA.palette[po + 1]);
+			pixels.push_back(TGA.palette[po + 0]);
+			pixels.push_back(TGA.transparent == (po / 3) ? 0 : 255);
+		}
+	}
+
+	GLint previous_alignment;
+
+	glGetIntegerv(GL_UNPACK_ALIGNMENT, &previous_alignment);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TGA.width, TGA.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glPixelStorei(GL_UNPACK_ALIGNMENT, previous_alignment);
+	glBindTexture(GL_TEXTURE_2D, previous_texture);
+
+	return texture_id;
+}

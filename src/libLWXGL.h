@@ -96,6 +96,7 @@ void ImmediateTextF(int x, int y, int color, const char* fmt, ...);
 int CreateOpenGL(int id, int x, int y, int w, int h, int border);
 void SynchronizeOpenGL();
 void ChangeGLXContext(int id);
+unsigned int GLConvertTGA(const char* name);
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171
