@@ -8,7 +8,7 @@ EXPORT void DeleteWindow() {
 	} else closing = 1;
 }
 
-EXPORT void SpawnModal(int type, const char* msg, void (*on_confirm)()) {
+EXPORT void SpawnModal(int type, const char* msg, void (*on_confirm)(const char* input)) {
 	if (active_modal_state.msg != NULL) {
 		free(active_modal_state.msg);
 	}
@@ -43,10 +43,6 @@ EXPORT void GetXConnection(XConnectionData* data) {
 	for (int i = 0; i < 16; ++i) {
 		data->clrs[i] = colors[i];
 	}
-}
-
-EXPORT const char* GetModalInput() {
-	return active_modal_state.input;
 }
 
 EXPORT double GetElapsedTime() {

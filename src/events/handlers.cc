@@ -46,7 +46,9 @@ namespace Events {
 			int edge = active_modal_state.right_edge_x;
 			if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 35 && mouse_x < edge) {
 				active_modal_state.active = 0;
-				if (active_modal_state.on_confirm != NULL) active_modal_state.on_confirm();
+				if (active_modal_state.on_confirm != NULL) {
+					active_modal_state.on_confirm(active_modal_state.type == MODAL_INPUT ? active_modal_state.input : NULL);
+				}
 			} else if (mouse_y < 200 && mouse_y > 180 && mouse_x > edge - 105 && mouse_x < edge - 35) {
 				if (active_modal_state.type != MODAL_ALERT) active_modal_state.active = 0;
 			}
