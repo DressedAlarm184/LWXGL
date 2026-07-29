@@ -104,6 +104,8 @@ unsigned int GLConvertTGA(const char* name);
 #define KEY_DOWN 173
 #define KEY_FN 150
 
+#define NONE -1
+
 #define CLR_NONE      -1
 #define CLR_BLACK     0x0
 #define CLR_BLUE      0x1

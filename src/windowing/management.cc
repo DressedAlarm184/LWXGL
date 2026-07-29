@@ -81,7 +81,7 @@ EXPORT int CreateWindow(int w, int h, const char* name, int bgcolor) {
 }
 
 EXPORT void TerminateWindow() {
-	glXMakeContextCurrent(display, None, None, NULL);
+	ChangeGLXContext(-1);
 
 	for (int i = 0; i < elements.size(); i++) {
 		if (elements[i] != NULL) DeleteElement(i);

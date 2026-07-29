@@ -63,8 +63,12 @@ EXPORT void SynchronizeOpenGL() {
 }
 
 EXPORT void ChangeGLXContext(int id) {
-	auto opengl = (OpenGLElement*)elements[id]->elem;
-	glXMakeContextCurrent(display, opengl->glx_pixmap, opengl->glx_pixmap, opengl->ctx);
+	if (id == -1) {
+		glXMakeContextCurrent(display, None, None, NULL);
+	} else {
+		auto opengl = (OpenGLElement*)elements[id]->elem;
+		glXMakeContextCurrent(display, opengl->glx_pixmap, opengl->glx_pixmap, opengl->ctx);
+	}
 }
 
 EXPORT unsigned int GLConvertTGA(const char* name) {
