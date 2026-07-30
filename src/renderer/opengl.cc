@@ -118,38 +118,41 @@ EXPORT unsigned int GLConvertTGA(const char* name) {
 	return texture_id;
 }
 
-EXPORT void GLRenderObject(const char* obj) {
+EXPORT unsigned int GLObjectListify(const char* obj) {
 	int read = 0, vertex_count = 0, face_count = 0;
 
 	typedef struct {float x, y, z;} Vertex;
 	typedef struct {int type, r, g, b, v0, v1, v2, v3;} Face;
 
-	if (sscanf(obj, "COUNT %d%n", &vertex_count, &read) != 1) return; obj += read;
+	if (sscanf(obj, "COUNT %d%n", &vertex_count, &read) != 1) return 0; obj += read;
 	Vertex* v = (Vertex*)alloca(sizeof(Vertex) * vertex_count);
 
 	for (int i = 0; i < vertex_count; i++) {
 		float x, y, z;
-		if (sscanf(obj, "V %f %f %f%n", &x, &y, &z, &read) != 3) return; obj += read;
+		if (sscanf(obj, "V %f %f %f%n", &x, &y, &z, &read) != 3) return 0; obj += read;
 		v[i] = (Vertex){x, y, z};
 	}
 
-	if (sscanf(obj, "COUNT %d%n", &face_count, &read) != 1) return; obj += read;
+	if (sscanf(obj, "COUNT %d%n", &face_count, &read) != 1) return 0; obj += read;
 	Face* faces = (Face*)alloca(sizeof(Face) * face_count);
 
 	for (int i = 0; i < face_count; i++) {
 		char type_str[8]; int type, r, g, b, v0, v1, v2, v3 = 0;
-		if (sscanf(obj, "%7s %d %d %d%n", type_str, &r, &g, &b, &read) != 4) return; obj += read;
+		if (sscanf(obj, "%7s %d %d %d%n", type_str, &r, &g, &b, &read) != 4) return 0; obj += read;
 		if (strcmp(type_str, "QUAD") == 0) {
 			type = 0;
-			if (sscanf(obj, "%d %d %d %d%n", &v0, &v1, &v2, &v3, &read) != 4) return; obj += read;
+			if (sscanf(obj, "%d %d %d %d%n", &v0, &v1, &v2, &v3, &read) != 4) return 0; obj += read;
 		} else if (strcmp(type_str, "TRI") == 0) {
 			type = 1;
-			if (sscanf(obj, "%d %d %d%n", &v0, &v1, &v2, &read) != 3) return; obj += read;
-		} else return;
+			if (sscanf(obj, "%d %d %d%n", &v0, &v1, &v2, &read) != 3) return 0; obj += read;
+		} else return 0;
 
 		faces[i] = (Face){type, r, g, b, v0, v1, v2, v3};
 	}
 
+	GLuint list_id = glGenLists(1);
+
+	glNewList(list_id, GL_COMPILE);
 	glPushAttrib(GL_CURRENT_BIT);
 
 	for (int i = 0; i < face_count; i++) {
@@ -165,4 +168,7 @@ EXPORT void GLRenderObject(const char* obj) {
 	}
 
 	glPopAttrib();
+	glEndList();
+
+	return list_id;
 }
