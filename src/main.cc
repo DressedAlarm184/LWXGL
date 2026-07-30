@@ -5,6 +5,7 @@
 #include <GL/glx.h>
 #include "libLWXGL.h"
 #include <sys/mman.h>
+#include <alloca.h>
 #include <unistd.h>
 #include <cctype>
 #include <cmath>

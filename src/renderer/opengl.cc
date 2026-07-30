@@ -117,3 +117,53 @@ EXPORT unsigned int GLConvertTGA(const char* name) {
 
 	return texture_id;
 }
+
+EXPORT void GLRenderObject(const char* obj) {
+	int read = 0, vertex_count, face_count;
+
+	glPushAttrib(GL_CURRENT_BIT);
+
+	typedef struct {float x, y, z;} Vertex;
+	Vertex* v;
+
+	if (sscanf(obj, "COUNT %d%n", &vertex_count, &read) != 1) goto end; obj += read;
+	v = (Vertex*)alloca(sizeof(Vertex) * vertex_count);
+
+	for (int i = 0; i < vertex_count; i++) {
+		float x, y, z;
+		if (sscanf(obj, "V %f %f %f%n", &x, &y, &z, &read) != 3) goto end; obj += read;
+		v[i].x = x, v[i].y = y, v[i].z = z;
+	}
+
+	if (sscanf(obj, "COUNT %d%n", &face_count, &read) != 1) goto end; obj += read;
+
+	for (int i = 0; i < face_count; i++) {
+		char type[8]; int r, g, b;
+		if (sscanf(obj, "%7s %d %d %d%n", type, &r, &g, &b, &read) != 4) goto end; obj += read;
+		if (strcmp(type, "QUAD") == 0) {
+			int v0, v1, v2, v3;
+			if (sscanf(obj, "%d %d %d %d%n", &v0, &v1, &v2, &v3, &read) != 4) goto end; obj += read;
+
+			glColor4ub(r, g, b, 255);
+			glBegin(GL_QUADS);
+				glVertex3f(v[v0].x, v[v0].y, v[v0].z);
+				glVertex3f(v[v1].x, v[v1].y, v[v1].z);
+				glVertex3f(v[v2].x, v[v2].y, v[v2].z);
+				glVertex3f(v[v3].x, v[v3].y, v[v3].z);
+			glEnd();
+		} else if (strcmp(type, "TRI") == 0) {
+			int v0, v1, v2;
+			if (sscanf(obj, "%d %d %d%n", &v0, &v1, &v2, &read) != 3) goto end; obj += read;
+
+			glColor4ub(r, g, b, 255);
+			glBegin(GL_TRIANGLES);
+				glVertex3f(v[v0].x, v[v0].y, v[v0].z);
+				glVertex3f(v[v1].x, v[v1].y, v[v1].z);
+				glVertex3f(v[v2].x, v[v2].y, v[v2].z);
+			glEnd();
+		} else goto end;
+	}
+
+end:
+	glPopAttrib();
+}
