@@ -161,7 +161,7 @@ EXPORT int AllocateMemoryTGA(const char* name, const char* buffer, int size, int
 	int fd = memfd_create("memory_tga", 0);
 	write(fd, buffer, size);
 	auto path = "/proc/self/fd/" + std::to_string(fd);
-	int retval = AllocateTGA(name, path.c_str(), transparent, change_palette);
+	int retval = AllocateTGA(name, path.c_str(), change_palette, transparent);
 	close(fd);
 	return retval;
 }
