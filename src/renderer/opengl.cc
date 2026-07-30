@@ -119,51 +119,50 @@ EXPORT unsigned int GLConvertTGA(const char* name) {
 }
 
 EXPORT void GLRenderObject(const char* obj) {
-	int read = 0, vertex_count, face_count;
-
-	glPushAttrib(GL_CURRENT_BIT);
+	int read = 0, vertex_count = 0, face_count = 0;
 
 	typedef struct {float x, y, z;} Vertex;
-	Vertex* v;
+	typedef struct {int type, r, g, b, v0, v1, v2, v3;} Face;
 
-	if (sscanf(obj, "COUNT %d%n", &vertex_count, &read) != 1) goto end; obj += read;
-	v = (Vertex*)alloca(sizeof(Vertex) * vertex_count);
+	if (sscanf(obj, "COUNT %d%n", &vertex_count, &read) != 1) return; obj += read;
+	Vertex* v = (Vertex*)alloca(sizeof(Vertex) * vertex_count);
 
 	for (int i = 0; i < vertex_count; i++) {
 		float x, y, z;
-		if (sscanf(obj, "V %f %f %f%n", &x, &y, &z, &read) != 3) goto end; obj += read;
-		v[i].x = x, v[i].y = y, v[i].z = z;
+		if (sscanf(obj, "V %f %f %f%n", &x, &y, &z, &read) != 3) return; obj += read;
+		v[i] = (Vertex){x, y, z};
 	}
 
-	if (sscanf(obj, "COUNT %d%n", &face_count, &read) != 1) goto end; obj += read;
+	if (sscanf(obj, "COUNT %d%n", &face_count, &read) != 1) return; obj += read;
+	Face* faces = (Face*)alloca(sizeof(Face) * face_count);
 
 	for (int i = 0; i < face_count; i++) {
-		char type[8]; int r, g, b;
-		if (sscanf(obj, "%7s %d %d %d%n", type, &r, &g, &b, &read) != 4) goto end; obj += read;
-		if (strcmp(type, "QUAD") == 0) {
-			int v0, v1, v2, v3;
-			if (sscanf(obj, "%d %d %d %d%n", &v0, &v1, &v2, &v3, &read) != 4) goto end; obj += read;
+		char type_str[8]; int type, r, g, b, v0, v1, v2, v3 = 0;
+		if (sscanf(obj, "%7s %d %d %d%n", type_str, &r, &g, &b, &read) != 4) return; obj += read;
+		if (strcmp(type_str, "QUAD") == 0) {
+			type = 0;
+			if (sscanf(obj, "%d %d %d %d%n", &v0, &v1, &v2, &v3, &read) != 4) return; obj += read;
+		} else if (strcmp(type_str, "TRI") == 0) {
+			type = 1;
+			if (sscanf(obj, "%d %d %d%n", &v0, &v1, &v2, &read) != 3) return; obj += read;
+		} else return;
 
-			glColor4ub(r, g, b, 255);
-			glBegin(GL_QUADS);
-				glVertex3f(v[v0].x, v[v0].y, v[v0].z);
-				glVertex3f(v[v1].x, v[v1].y, v[v1].z);
-				glVertex3f(v[v2].x, v[v2].y, v[v2].z);
-				glVertex3f(v[v3].x, v[v3].y, v[v3].z);
-			glEnd();
-		} else if (strcmp(type, "TRI") == 0) {
-			int v0, v1, v2;
-			if (sscanf(obj, "%d %d %d%n", &v0, &v1, &v2, &read) != 3) goto end; obj += read;
-
-			glColor4ub(r, g, b, 255);
-			glBegin(GL_TRIANGLES);
-				glVertex3f(v[v0].x, v[v0].y, v[v0].z);
-				glVertex3f(v[v1].x, v[v1].y, v[v1].z);
-				glVertex3f(v[v2].x, v[v2].y, v[v2].z);
-			glEnd();
-		} else goto end;
+		faces[i] = (Face){type, r, g, b, v0, v1, v2, v3};
 	}
 
-end:
+	glPushAttrib(GL_CURRENT_BIT);
+
+	for (int i = 0; i < face_count; i++) {
+		Face *f = &faces[i];
+		glColor4ub(f->r, f->g, f->b, 255);
+
+		glBegin(f->type == 0 ? GL_QUADS : GL_TRIANGLES);
+			glVertex3f(v[f->v0].x, v[f->v0].y, v[f->v0].z);
+			glVertex3f(v[f->v1].x, v[f->v1].y, v[f->v1].z);
+			glVertex3f(v[f->v2].x, v[f->v2].y, v[f->v2].z);
+			if (f->type == 0) glVertex3f(v[f->v3].x, v[f->v3].y, v[f->v3].z);
+		glEnd();
+	}
+
 	glPopAttrib();
 }
