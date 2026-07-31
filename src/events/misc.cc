@@ -37,6 +37,21 @@ EXPORT int QueryKeyDown(int ch) {
 	return 0;
 }
 
+EXPORT unsigned char* QueryKeyboardRaw() {
+	return active_keycodes;
+}
+
+EXPORT int QueryKeysymDown(unsigned long keysym) {
+	unsigned char keycode = XKeysymToKeycode(display, keysym);
+	if (keycode == 0) return 0;
+
+	for (int i = 0; i < 8; i++) {
+		if (active_keycodes[i] == keycode) return 1;
+	}
+
+	return 0;
+}
+
 EXPORT void EnableResizing(void (*Resize)(int x, int y)) {
 	XSizeHints hints = {0};
 	hints.flags = bb.scroll_enabled ? PMaxSize : 0;
