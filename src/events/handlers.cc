@@ -21,6 +21,7 @@ namespace Events {
 		int (*Delete)() = NULL;
 		void (*Resize)(int w, int h) = NULL;
 		void (*Scroll)(int offset) = NULL;
+		void (*Move)(int x, int y) = NULL;
 	}
 
 	void EClientMessage(XEvent& event) {
@@ -29,10 +30,16 @@ namespace Events {
 
 	void EMotionNotify(XEvent& event) {
 		mouse_x = event.xmotion.x, mouse_y = event.xmotion.y;
+		if (UserProvided::Move != NULL) {
+			UserProvided::Move(mouse_x, mouse_y);
+		}
 	}
 
 	void ELeaveNotify(XEvent& event) {
 		mouse_x = -1, mouse_y = -1;
+		if (UserProvided::Move != NULL) {
+			UserProvided::Move(mouse_x, mouse_y);
+		}
 	}
 
 	void EButtonPress(XEvent& event) {

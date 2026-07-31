@@ -66,7 +66,7 @@ void SetImageFont(int id, unsigned char* font, int h);
 void DrawString(int id, int x, int y, const char* txt, int color);
 void SetWindowColor(int color);
 unsigned char* CaptureRegion(int x, int y, unsigned short w, unsigned short h);
-void EnableResizing(void (*Resize)(int x, int y));
+void EnableResizing(void (*Resize)(int w, int h));
 void DrawIndexedTGA(int id, int x, int y, const char* name);
 int AllocateTGA(const char* name, const char* path, int change_palette, int transparent);
 void DeleteTGA(const char* name);
@@ -100,6 +100,7 @@ unsigned int GLObjectListify(const char* obj);
 void CreateLabeledInput(int id1, int id2, int x, int y, const char* label, int clr1, int clr2, int max);
 unsigned char* QueryKeyboardRaw();
 int QueryKeysymDown(unsigned long keysym);
+void EventAttachMove(void (*Move)(int x, int y));
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171

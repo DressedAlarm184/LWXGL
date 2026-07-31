@@ -52,7 +52,7 @@ EXPORT int QueryKeysymDown(unsigned long keysym) {
 	return 0;
 }
 
-EXPORT void EnableResizing(void (*Resize)(int x, int y)) {
+EXPORT void EnableResizing(void (*Resize)(int w, int h)) {
 	XSizeHints hints = {0};
 	hints.flags = bb.scroll_enabled ? PMaxSize : 0;
 	if (bb.scroll_enabled) {
@@ -61,4 +61,8 @@ EXPORT void EnableResizing(void (*Resize)(int x, int y)) {
 	}
 	XSetWMNormalHints(display, window, &hints);
 	Events::UserProvided::Resize = Resize;
+}
+
+EXPORT void EventAttachMove(void (*Move)(int x, int y)) {
+	Events::UserProvided::Move = Move;
 }
