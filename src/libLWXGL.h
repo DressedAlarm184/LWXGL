@@ -97,6 +97,7 @@ void SynchronizeOpenGL();
 void ChangeGLXContext(int id);
 unsigned int GLConvertTGA(const char* name);
 unsigned int GLObjectListify(const char* obj);
+void CreateLabeledInput(int id1, int id2, int x, int y, const char* label, int clr1, int clr2, int max);
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171

@@ -168,3 +168,8 @@ EXPORT void CreateEllipse(int id, int x, int y, int w, int h, int fg, int bg) {
 EXPORT void SetRenderingOrder(int order) {
 	bb.frame_cb_after_elem = order;
 }
+
+EXPORT void CreateLabeledInput(int id1, int id2, int x, int y, const char* label, int clr1, int clr2, int max) {
+	CreateCopiedText(id1, x, y, label, H(clr1));
+	CreateInput(id2, x, y + 18, -1, 24, clr1, clr2, max);
+}
