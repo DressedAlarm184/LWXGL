@@ -1,4 +1,5 @@
 # LWXGL - Lightweight X11 Graphics Library
+
 LWXGL is a graphics library and simple UI toolkit for the X Window System. It provides standard UI elements like text labels, buttons, inputs, and more, along with raster image canvases, support for TGA and XBM images, drawing primitives, event handling, window resizing and scrolling, OpenGL integration, and more.
 
 ## Dependencies
@@ -10,7 +11,7 @@ LWXGL is a graphics library and simple UI toolkit for the X Window System. It pr
 
 ## Building & Installing
 
-Run the `make` command at the project root to build the `libLWXGL.so` compiled library file. Run `make install` to copy the shared object to `/usr/local/lib` and the header file to `/usr/local/include`. You may need to provide superuser privileges to install the library. Attach the `-lLWXGL` flag to your compiler command to link the library.
+Run the `make` command at the project root to build the `libLWXGL.so` shared object. Run `make install` to copy said shared object to `/usr/local/lib` and the header to `/usr/local/include`. You may need to provide superuser privileges to install the library. Attach the `-lLWXGL` flag to your compiler command to link LWXGL.
 
 ## Example Program
 
@@ -37,4 +38,4 @@ int main() {
 
 ## Documentation
 
-LWXGL does not have any documentation. Please reference the source code and headers for details on how to use the library.
+Documentation on LWXGL is currently in the works. It will be hosted at the Wiki tab of the repository host.
