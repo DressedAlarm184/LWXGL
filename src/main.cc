@@ -38,6 +38,8 @@ struct {
 	int avg_wt[60] = {0};
 	float fps;
 	int enabled = 0;
+	int target_fps;
+	int target_ft;
 } debug_metrics;
 
 struct {

@@ -106,7 +106,10 @@ EXPORT void TerminateWindow() {
 EXPORT void MainWindowLoop(int target_fps, void (*on_every)(int, float)) {
 	using namespace std::chrono;
 	
-	const microseconds FRAME_TIME(1000000 / target_fps);
+	debug_metrics.target_fps = target_fps;
+	debug_metrics.target_ft = 1000000 / target_fps;
+
+	const microseconds FRAME_TIME(debug_metrics.target_ft);
 	unsigned long long tick = 0;
 	auto last_time = steady_clock::now();
 	std::vector<QueuedTask> active_tasks;

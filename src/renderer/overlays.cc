@@ -1,15 +1,29 @@
 namespace Renderers {
 	void DrawDebugOverlay() {
-		int wt = 0; for (int i = 0; i < 60; i++) wt += debug_metrics.avg_wt[i]; wt /= 60;
-		XSetForeground(display, gc, colors[0]);
-		XFillRectangle(display, bb, gc, 5, bb.scroll + 5, 140, 40);
-		XSetForeground(display, gc, colors[15]);
-		XDrawRectangle(display, bb, gc, 7, bb.scroll + 7, 135, 35);
-		char wt_buffer[32] = {0}, fps_buffer[32] = {0};
-		int wt_len = sprintf(wt_buffer, "FT: %d (us)", wt);
-		int fps_len = sprintf(fps_buffer, "FPS: %.1f", debug_metrics.fps);
-		XDrawString(display, bb, gc, 11, bb.scroll + 23, wt_buffer, wt_len);
-		XDrawString(display, bb, gc, 11, bb.scroll + 37, fps_buffer, fps_len);
+		ImmediateRect(5, bb.scroll + 5, 189, 100, CLR_NONE, CLR_BLACK);
+		ImmediateRect(7, bb.scroll + 7, 185, 96, CLR_WHITE, CLR_NONE);
+
+		int wt = 0; XPoint points[60];
+		float range = *std::max_element(std::begin(debug_metrics.avg_wt), std::end(debug_metrics.avg_wt)) * 1.3;
+		if (range <= 0) range = 1;
+
+		for (int i = 0; i < 60; i++) {
+			wt += debug_metrics.avg_wt[i];
+
+			float h = debug_metrics.avg_wt[i] / range;
+			if (h < 0) h = 0; if (h > 1) h = 1;
+
+			points[i].x = 11 + i * 3;
+			points[i].y = bb.scroll + 84 - (int)(h * 44);
+		}
+
+		wt /= 60;
+
+		XSetForeground(display, gc, colors[CLR_LGREEN]);
+		XDrawLines(display, bb, gc, points, 60, CoordModeOrigin);
+
+		ImmediateTextF(11, bb.scroll + 12, CLR_LCYAN, "FPS: %.1f / %d\nWork: %d \xb5s", debug_metrics.fps, debug_metrics.target_fps, wt);
+		ImmediateTextF(11, bb.scroll + 86, CLR_YELLOW, "R: %.1f", range);
 	}
 
 	void DrawActiveModal() {
