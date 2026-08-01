@@ -147,22 +147,6 @@ EXPORT void ElemSetVisible(int id, int visible) {
 	e->v = visible;
 }
 
-EXPORT void ElemAnchor(int anchor, int ids[], int count) {
-	for (int i = 0; i < count; i++) {
-		Element* e = elements[ids[i]];
-		if (anchor == 0) e->y = e->anchor;
-		e->anchor = anchor == 0 ? INT_MIN : e->y;
-	}
-}
-
-EXPORT void ResolveAnchors() {
-	for (Element* e : elements) {
-		if (e == NULL) continue;
-		if (e->anchor == INT_MIN) continue;
-		e->y = bb.scroll + e->anchor;
-	}
-}
-
 EXPORT void CreateEllipse(int id, int x, int y, int w, int h, int fg, int bg) {
 	auto rect = new EllipseElement{.fg = fg, .bg = bg};
 	_allocate_element(id, 7, rect, x, y, w, h);

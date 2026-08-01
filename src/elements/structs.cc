@@ -50,8 +50,7 @@ typedef struct {
 } EllipseElement;
 
 typedef struct {
-	int x, y, w, h;
-	int v, anchor;
+	int x, y, w, h, v;
 	int type;
 	void *elem;
 } Element;

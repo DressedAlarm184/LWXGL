@@ -78,8 +78,6 @@ void ReserveScroll(int height, int scrollbar_color, void (*Scroll)(int offset));
 int QueryScroll();
 int AllocateMemoryTGA(const char* name, const char* buffer, int size, int change_palette, int transparent);
 void PrimitiveTriangle(int id, int x1, int y1, int x2, int y2, int x3, int y3, int fg, int bg);
-void ElemAnchor(int anchor, int ids[], int count);
-void ResolveAnchors();
 int SetGlobalBold(int bold);
 int AllocateXBM(const char* name, const char* path, int colors, int transparent);
 int CreateXBMImage(int id, int x, int y, const char* path, int colors);
