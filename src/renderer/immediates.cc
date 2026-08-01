@@ -10,16 +10,23 @@ EXPORT void ImmediateText(int x, int y, const char* str, int color) {
 	}
 }
 
-EXPORT void ImmediateTextF(int x, int y, int color, const char* fmt, ...) {
-	char *buffer = NULL;
-	va_list args;
-	va_start(args, fmt);
-	int ret = vasprintf(&buffer, fmt, args);
-	va_end(args);
-	if (ret >= 0 && buffer) {
-		ImmediateText(x, y, buffer, color);
-		free(buffer);
+EXPORT void ImmediateTextF(int x, int y, int color, const char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+
+	va_list ap_copy;
+	va_copy(ap_copy, ap);
+
+	int req_len = vsnprintf(NULL, 0, fmt, ap_copy);
+	va_end(ap_copy);
+
+	if (req_len >= 0) {
+		auto result = (char*)alloca((size_t)req_len + 1);
+		vsnprintf(result, (size_t)req_len + 1, fmt, ap);
+		ImmediateText(x, y, result, color);
 	}
+
+	va_end(ap);
 }
 
 EXPORT void ImmediateEllipse(int x, int y, int w, int h, int fg, int bg) {
