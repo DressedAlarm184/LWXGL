@@ -113,12 +113,14 @@ EXPORT void ConsolePrint(int id, const char* format, ...) {
 	va_list args;
 	va_start(args, format);
 
-	char* buffer;
-	vasprintf(&buffer, format, args);
+	char* buffer = NULL;
+	int ret = vasprintf(&buffer, format, args);
 	va_end(args);
 
-	console->data += buffer;
-	free(buffer);
+	if (ret >= 0 && buffer) {
+		console->data += buffer;
+		free(buffer);
+	}
 
 	_console_calc_total_lines(console);
 
@@ -155,6 +157,7 @@ EXPORT void ElemAnchor(int anchor, int ids[], int count) {
 
 EXPORT void ResolveAnchors() {
 	for (Element* e : elements) {
+		if (e == NULL) continue;
 		if (e->anchor == INT_MIN) continue;
 		e->y = bb.scroll + e->anchor;
 	}

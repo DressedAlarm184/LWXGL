@@ -137,14 +137,17 @@ EXPORT unsigned int GLObjectListify(const char* obj) {
 	Face* faces = (Face*)alloca(sizeof(Face) * face_count);
 
 	for (int i = 0; i < face_count; i++) {
-		char type_str[8]; int type, r, g, b, v0, v1, v2, v3 = 0;
+		char type_str[8]; int type, r, g, b, v0, v1, v2, v3 = 0, vc = vertex_count;
 		if (sscanf(obj, "%7s %d %d %d%n", type_str, &r, &g, &b, &read) != 4) return 0; obj += read;
+
 		if (strcmp(type_str, "QUAD") == 0) {
 			type = 0;
 			if (sscanf(obj, "%d %d %d %d%n", &v0, &v1, &v2, &v3, &read) != 4) return 0; obj += read;
+			if (v0 < 0 || v0 >= vc || v1 < 0 || v1 >= vc || v2 < 0 || v2 >= vc || v3 < 0 || v3 >= vc) return 0;
 		} else if (strcmp(type_str, "TRI") == 0) {
 			type = 1;
 			if (sscanf(obj, "%d %d %d%n", &v0, &v1, &v2, &read) != 3) return 0; obj += read;
+			if (v0 < 0 || v0 >= vc || v1 < 0 || v1 >= vc || v2 < 0 || v2 >= vc) return 0;
 		} else return 0;
 
 		faces[i] = (Face){type, r, g, b, v0, v1, v2, v3};

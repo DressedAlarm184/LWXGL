@@ -1,5 +1,5 @@
 EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
-	XSetForeground(display, gc, colors[bgcol]);
+	XSetForeground(display, gc, colors[bgcol & 0x0F]);
 	XFillRectangle(display, bb, gc, 0, bb.scroll, win_w, win_h);
 
 	if (!bb.frame_cb_after_elem && on_every != NULL) on_every(tick, dt);

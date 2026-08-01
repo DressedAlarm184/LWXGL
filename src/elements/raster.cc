@@ -31,7 +31,7 @@ EXPORT void UpdateImage(int id) {
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			if (*src != *prev) {
-				put_pixel(img->ximage, x, y, colors[*src]);
+				put_pixel(img->ximage, x, y, colors[(*src) & 0x0F]);
 				*prev = *src, has_changed = true;
 			}
 			src++, prev++;
@@ -185,7 +185,7 @@ EXPORT void DrawString(int id, int x, int y, const char* txt, int color) {
 		if (*txt == 10) {
 			y += height, cx = -1;
 		} else for (int i = 0; i < height; i++) {
-			unsigned char row_bitmap = font[(unsigned int)*txt * height + i];
+			unsigned char row_bitmap = font[(unsigned char)*txt * height + i];
 			for (int rx = 0; rx < 8; rx++) {
 				if (!(row_bitmap & (0x80 >> rx))) continue;
 				int px = x + rx + cx * 9, py = y + i;
