@@ -58,6 +58,7 @@ EXPORT void CreateButton(int id, int x, int y, int w, int h, int u, int hvr, int
 
 EXPORT void CreateInput(int id, int x, int y, int w, int h, int u, int hvr, int max) {
 	if (w == -1) w = (max + 1) * 9 + 10;
+	if (hvr == CLR_NONE) hvr = u;
 
 	auto input = new InputElement{
 		.inactive = u, .hover = hvr, .max = std::min(max, 127)
@@ -78,9 +79,9 @@ EXPORT void CreateRect(int id, int x, int y, int w, int h, int fg, int bg) {
 	_allocate_element(id, 3, rect, x, y, w, h);
 }
 
-EXPORT void CreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label) {
+EXPORT void CreateCheckbox(int id, int x, int y, int size, int cb_col, const char* label) {
 	auto checkbox = new CheckboxElement{
-		.cb_col = cb_col, .txt_col = txt_col, .label = label, .checked = 0
+		.cb_col = cb_col, .txt_col = H(cb_col), .label = label, .checked = 0
 	};
 
 	_allocate_element(id, 5, checkbox, x, y, size, size);

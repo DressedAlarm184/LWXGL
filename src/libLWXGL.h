@@ -115,7 +115,7 @@ void EventAttachDelete(int (*on_exit)());
 int QueryModalOpen();
 unsigned char* QueryKeyboard();
 int QueryKeyDown(int ch);
-void CreateCheckbox(int id, int x, int y, int size, int cb_col, int txt_col, const char* label);
+void CreateCheckbox(int id, int x, int y, int size, int cb_col, const char* label);
 int GetCheckbox(int id);
 void RedrawAllImages();
 void PaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b);
