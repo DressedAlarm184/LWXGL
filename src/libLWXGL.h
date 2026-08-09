@@ -1,10 +1,25 @@
 #pragma once
 
+#include <X11/Xlib.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
+
+#ifdef __cplusplus
+#include <string>
+
+typedef struct {
+	std::string data;
+	int rows, cols;
+	int scroll;
+	int con_clr, txt_clr;
+	int total_lines;
+} ConsoleElement;
+
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifdef XlibSpecificationRelease
 
 typedef struct {
 	Pixmap bb;
@@ -19,9 +34,61 @@ typedef struct {
 	Colormap cmap;
 } XConnectionData;
 
-void GetXConnection(XConnectionData* data);
+typedef struct {
+	int color;
+	const char *text;
+	int copied;
+} TextElement;
 
-#endif
+typedef struct {
+	int unpressed, hover, pressed;
+	const char* label;
+	void (*onclick)(void);
+} ButtonElement;
+
+typedef struct {
+	int inactive, hover;
+	int max;
+	char input[128];
+} InputElement;
+
+typedef struct {
+	int fg, bg;
+} RectElement;
+
+typedef struct {
+	XImage *ximage;
+	unsigned char *data, *prev;
+	char *imgdata;
+	struct {
+		int height;
+		unsigned char* buffer;
+	} fontdata;
+	Pixmap pixmap;
+} ImageElement;
+
+typedef struct {
+	int cb_col, txt_col;
+	const char* label;
+	int checked;
+} CheckboxElement;
+
+typedef struct {
+	GLXPixmap glx_pixmap;
+	Pixmap x_pixmap;
+	GLXContext ctx;
+	int border_color;
+} OpenGLElement;
+
+typedef struct {
+	int fg, bg;
+} EllipseElement;
+
+typedef struct {
+	int x, y, w, h, v;
+	int type;
+	void *elem;
+} Element;
 
 int CreateWindow(int w, int h, const char* name, int bgcolor);
 void TerminateWindow();
@@ -90,15 +157,17 @@ void ImmediateLine(int x1, int y1, int x2, int y2, int color);
 double GetElapsedTime();
 void NewQueuedTask(int type, double run_after, void (*task)());
 void ImmediateTextF(int x, int y, int color, const char* fmt, ...);
-int CreateOpenGL(int id, int x, int y, int w, int h, int border);
-void SynchronizeOpenGL();
-void ChangeGLXContext(int id);
-unsigned int GLConvertTGA(const char* name);
-unsigned int GLObjectListify(const char* obj);
 void CreateLabeledInput(int id1, int id2, int x, int y, const char* label, int clr1, int clr2, int max);
 unsigned char* QueryKeyboardRaw();
 int QueryKeysymDown(unsigned long keysym);
 void EventAttachMove(void (*Move)(int x, int y));
+Element* GetElement(int id);
+void GetXConnection(XConnectionData* data);
+int CreateOpenGL(int id, int x, int y, int w, int h, int border);
+void SynchronizeOpenGL();
+void ChangeGLXContext(int id);
+GLuint GLConvertTGA(const char* name);
+GLuint GLObjectListify(const char* obj);
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171

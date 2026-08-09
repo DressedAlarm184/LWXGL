@@ -3,7 +3,6 @@
 #include <X11/XKBlib.h>
 #include <GL/gl.h>
 #include <GL/glx.h>
-#include "libLWXGL.h"
 #include <sys/mman.h>
 #include <alloca.h>
 #include <unistd.h>
@@ -22,6 +21,7 @@
 #include <unordered_map>
 #include <vector>
 #include <fstream>
+#include "libLWXGL.h"
 
 #define EXPORT __attribute__((visibility("default")))
 
@@ -97,12 +97,12 @@ typedef struct {
 	double repeat_every;
 } QueuedTask;
 
+std::vector<Element*> elements;
 std::vector<QueuedTask> task_queue;
 
 #define L(b)  ((b) & 0x0F)
 #define H(b)  (((b) >> 4) & 0x0F)
 
-#include "elements/structs.cc"
 #include "elements/helpers.cc"
 #include "elements/raster.cc"
 #include "elements/tga.cc"

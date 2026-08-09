@@ -71,7 +71,7 @@ EXPORT void ChangeGLXContext(int id) {
 	}
 }
 
-EXPORT unsigned int GLConvertTGA(const char* name) {
+EXPORT GLuint GLConvertTGA(const char* name) {
 	auto it = allocated_TGAs.find(name);
 	if (it == allocated_TGAs.end()) return 0;
 	const auto& TGA = it->second;
@@ -118,7 +118,7 @@ EXPORT unsigned int GLConvertTGA(const char* name) {
 	return texture_id;
 }
 
-EXPORT unsigned int GLObjectListify(const char* obj) {
+EXPORT GLuint GLObjectListify(const char* obj) {
 	int read = 0, vertex_count = 0, face_count = 0;
 
 	typedef struct {float x, y, z;} Vertex;
