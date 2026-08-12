@@ -54,22 +54,22 @@ struct {
 	unsigned char g;
 	unsigned char b;
 } color_palette[16] = {
-	{12,  12,  16},    // 00: Black
-	{24,  43,  135},   // 01: Dark Blue
-	{32,  130, 48},    // 02: Dark Green
-	{18,  140, 145},   // 03: Dark Cyan
-	{195, 45,  50},    // 04: Dark Red
-	{123, 50,  107},   // 05: Dark Magenta
-	{210, 105, 34},    // 06: Orange
-	{155, 155, 150},   // 07: Light Gray
-	{70,  72,  75},    // 08: Dark Gray
-	{75,  115, 220},   // 09: Light Blue
-	{80,  205, 80},    // 10: Light Green
-	{65,  210, 210},   // 11: Light Cyan
-	{235, 95,  95},    // 12: Light Red
-	{220, 115, 195},   // 13: Light Magenta
-	{235, 210, 50},    // 14: Yellow
-	{245, 245, 245}    // 15: White
+	{0,   0,   0},     // 00: Black
+	{3,   3,   173},   // 01: Dark Blue
+	{0,   170, 0},     // 02: Dark Green
+	{0,   168, 168},   // 03: Dark Cyan
+	{186, 6,   6},     // 04: Dark Red
+	{168, 0,   168},   // 05: Dark Magenta
+	{230, 126, 34},    // 06: Orange
+	{168, 168, 168},   // 07: Light Gray
+	{85,  87,  83},    // 08: Dark Gray
+	{87,  87,  255},   // 09: Light Blue
+	{85,  255, 85},    // 10: Light Green
+	{96,  240, 240},   // 11: Light Cyan
+	{255, 85,  85},    // 12: Light Red
+	{240, 84,  240},   // 13: Light Magenta
+	{244, 242, 54},    // 14: Yellow
+	{255, 255, 255}    // 15: White
 };
 
 struct {
