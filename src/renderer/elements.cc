@@ -1,12 +1,11 @@
 namespace Renderers {
-	void Text(Element* e) {
+	void Text(Element* e, bool inside) {
 		auto txt = (TextElement *)e->elem;
 		ImmediateText(e->x, e->y, txt->text, txt->color);
 	}
 
-	void Button(Element* e) {
+	void Button(Element* e, bool inside) {
 		auto btn = (ButtonElement *)e->elem;
-		int inside = _inside_elem(e);
 		if (inside) {
 			XSetForeground(display, gc, colors[mouse_down == 1 ? L(btn->pressed) : L(btn->hover)]);
 		} else XSetForeground(display, gc, colors[L(btn->unpressed)]);
@@ -18,9 +17,8 @@ namespace Renderers {
 		XDrawString(display, bb, gc, e->x + (e->w / 2) - (strlen(btn->label) * 9) / 2, e->y + e->h / 2 + 4, btn->label, strlen(btn->label));
 	}
 
-	void Input(Element* e) {
+	void Input(Element* e, bool inside) {
 		auto input = (InputElement *)e->elem;
-		int inside = _inside_elem(e);
 		if (inside) {
 			XSetForeground(display, gc, colors[L(input->hover)]);
 		} else XSetForeground(display, gc, colors[L(input->inactive)]);
@@ -33,17 +31,17 @@ namespace Renderers {
 		XDrawString(display, bb, gc, e->x + 5, e->y + e->h / 2 + 4, buffer, strlen(buffer));
 	}
 
-	void Rect(Element* e) {
+	void Rect(Element* e, bool inside) {
 		auto rect = (RectElement *)e->elem;
 		ImmediateRect(e->x, e->y, e->w, e->h, rect->fg, rect->bg);
 	}
 
-	void Image(Element* e) {
+	void Image(Element* e, bool inside) {
 		auto img = (ImageElement *)e->elem;
 		XCopyArea(display, img->pixmap, bb, gc, 0, 0, e->w, e->h, e->x, e->y);
 	}
 
-	void Checkbox(Element *e) {
+	void Checkbox(Element* e, bool inside) {
 		auto checkbox = (CheckboxElement *)e->elem;
 		XSetForeground(display, gc, colors[L(checkbox->cb_col)]);
 		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
@@ -56,7 +54,7 @@ namespace Renderers {
 		}
 	}
 
-	void Console(Element* e) {
+	void Console(Element* e, bool inside) {
 		auto console = (ConsoleElement *)e->elem;
 		XSetForeground(display, gc, colors[L(console->con_clr)]);
 		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
@@ -97,7 +95,7 @@ namespace Renderers {
 				line_len++;
 			}
 		}
-		if (_inside_elem(e)) {
+		if (inside) {
 			XSetForeground(display, gc, colors[L(console->txt_clr)]);
 			char buffer_1[64], buffer_2[64];
 			snprintf(buffer_1, sizeof buffer_1, "Viewing: %d - %d / %d",
@@ -111,12 +109,12 @@ namespace Renderers {
 		}
 	}
 
-	void Ellipse(Element* e) {
+	void Ellipse(Element* e, bool inside) {
 		auto ellipse = (EllipseElement *)e->elem;
 		ImmediateEllipse(e->x, e->y, e->w, e->h, ellipse->fg, ellipse->bg);
 	}
 
-	void OpenGL(Element* e) {
+	void OpenGL(Element* e, bool inside) {
 		auto opengl = (OpenGLElement *)e->elem;
 		int x = opengl->border_color >= 0 ? e->x + 1 : e->x;
 		int y = opengl->border_color >= 0 ? e->y + 1 : e->y;
@@ -127,7 +125,7 @@ namespace Renderers {
 		}
 	}
 
-	void (*Functions[])(Element*) = {
+	void (*Functions[])(Element*, bool) = {
 		Text, Button, Input, Rect, Image, Checkbox, Console, Ellipse, OpenGL
 	};
 }

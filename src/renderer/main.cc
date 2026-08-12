@@ -7,10 +7,11 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 	const char* tooltip = NULL;
 	for (Element* e : elements) {
 		if (e == NULL) continue;
+		bool inside = _inside_elem(e);
 
 		if ((e->type == 0 || (e->y + e->h >= bb.scroll && e->y < bb.scroll + win_h)) && e->v) {
-			Renderers::Functions[e->type](e);
-			if (_inside_elem(e) && e->tooltip != NULL) tooltip = e->tooltip;
+			Renderers::Functions[e->type](e, inside);
+			if (inside && e->tooltip != NULL) tooltip = e->tooltip;
 		}
 	}
 
