@@ -34,6 +34,7 @@ EXPORT void DeleteElement(int id) {
 		delete opengl;
 	}
 
+	if (elements[id]->tooltip != NULL) free(elements[id]->tooltip);
 	delete elements[id];
 	elements[id] = NULL; 
 }
@@ -164,4 +165,14 @@ EXPORT void CreateLabeledInput(int id1, int id2, int x, int y, const char* label
 
 EXPORT Element* GetElement(int id) {
 	return elements[id];
+}
+
+EXPORT void SetTooltip(int id, const char* tooltip) {
+	Element* e = elements[id];
+	if (tooltip == NULL) {
+		if (e->tooltip != NULL) free(e->tooltip);
+		e->tooltip = NULL;
+	} else {
+		e->tooltip = strdup(tooltip);
+	}
 }

@@ -88,6 +88,7 @@ typedef struct {
 	int x, y, w, h, v;
 	int type;
 	void *elem;
+	char* tooltip;
 } Element;
 
 int CreateWindow(int w, int h, const char* name, int bgcolor);
@@ -168,6 +169,7 @@ void SynchronizeOpenGL();
 void ChangeGLXContext(int id);
 GLuint GLConvertTGA(const char* name);
 GLuint GLObjectListify(const char* obj);
+void SetTooltip(int id, const char* tooltip);
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171

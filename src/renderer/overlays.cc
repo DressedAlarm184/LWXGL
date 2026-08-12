@@ -76,4 +76,13 @@ namespace Renderers {
 
 		active_modal_state.right_edge_x = r_edge;
 	}
+
+	void DrawTooltip(const char* tooltip) {
+		int length = strlen(tooltip) * 9 + 10;
+
+		ImmediateRect(5, bb.scroll + win_h - 35, length + 4, 30, CLR_NONE, CLR_BLACK);
+		ImmediateRect(7, bb.scroll + win_h - 33, length, 26, CLR_WHITE, CLR_NONE);
+
+		ImmediateText(12, bb.scroll + win_h - 26, tooltip, CLR_YELLOW);
+	}
 }

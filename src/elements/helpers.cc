@@ -1,7 +1,7 @@
 void _allocate_element(int id, int type, void *data, int x, int y, int w, int h) {
 	if (id >= elements.size()) elements.resize(id + 1, NULL);
 	if (elements[id] != NULL) DeleteElement(id);
-	elements[id] = new Element{x, y, w, h, 1, type, data};
+	elements[id] = new Element{x, y, w, h, 1, type, data, NULL};
 }
 
 void _console_calc_total_lines(ConsoleElement* console) {

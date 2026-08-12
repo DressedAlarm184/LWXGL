@@ -4,11 +4,14 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 
 	if (!bb.frame_cb_after_elem && on_every != NULL) on_every(tick, dt);
 
+	const char* tooltip = NULL;
 	for (Element* e : elements) {
 		if (e == NULL) continue;
 
-		if ((e->type == 0 || (e->y + e->h >= bb.scroll && e->y < bb.scroll + win_h)) && e->v)
+		if ((e->type == 0 || (e->y + e->h >= bb.scroll && e->y < bb.scroll + win_h)) && e->v) {
 			Renderers::Functions[e->type](e);
+			if (_inside_elem(e) && e->tooltip != NULL) tooltip = e->tooltip;
+		}
 	}
 
 	if (bb.frame_cb_after_elem && on_every != NULL) on_every(tick, dt);
@@ -22,6 +25,7 @@ EXPORT void _render_window(void (*on_every)(int, float), int tick, float dt) {
 		XFillRectangle(display, bb, gc, win_w - 7, y, 5, height);
 	}
 
+	if (tooltip != NULL) Renderers::DrawTooltip(tooltip);
 	if (QueryModalOpen()) Renderers::DrawActiveModal();
 	if (debug_metrics.enabled == 1) Renderers::DrawDebugOverlay();
 
