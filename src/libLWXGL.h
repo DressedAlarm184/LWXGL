@@ -98,6 +98,8 @@ typedef struct {
 	int id;
 } Element;
 
+#define CONSOLE_STATE_ARGS const char* input, unsigned long long i, void (*next)(const char* input)
+
 int CreateWindow(int w, int h, const char* name, int bgcolor);
 void TerminateWindow();
 void CreateText(int id, int x, int y, const char* text, int color);
@@ -179,6 +181,7 @@ GLuint GLObjectListify(const char* obj);
 void SetTooltip(int id, const char* tooltip);
 int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const char*));
 Element* GetHoveredElement();
+void ManagedConsoleWindow(const char* name, int cols, int rows, void (*state)(CONSOLE_STATE_ARGS));
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171

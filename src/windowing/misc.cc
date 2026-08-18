@@ -57,3 +57,36 @@ EXPORT void NewQueuedTask(int type, double run_after, void (*task)()) {
 		task_queue.push_back({start_target, task, run_after});
 	}
 }
+
+EXPORT void ManagedConsoleWindow(const char* name, int cols, int rows, void (*state)(CONSOLE_STATE_ARGS)) {
+	if (window != None) {
+		printf("LWXGL Error: A window already exists!\n");
+		exit(3);
+	}
+
+	static void (*callback)(CONSOLE_STATE_ARGS) = state;
+
+	static void (*next)(const char*) = [](const char* input) {
+		static unsigned long long i = 0;
+		i++;
+		callback(input, i - 1, next);
+	};
+
+	CreateConsole(0, 10, 10, cols, rows, 0xF0, 0xAE);
+
+	if (int err = CreateWindow(elements[0]->w + 20, elements[0]->h + 20, name, CLR_BLUE); err != 0) {
+		DeleteElement(0);
+		const char* error = "An unknown error has occurred!";
+		if (err == 3) error = "A window already exists!";
+		else if (err == 1) error = "Could not open display! Is $DISPLAY set?";
+		else if (err == 2) error = "Failed to load font! Ensure the 9x15 X11 font is available.";
+		else if (err >= 127) error = "Failed to allocate one or more colors!";
+		printf("LWXGL Error: %s\n", error);
+		exit(err);
+	}
+
+	next(NULL);
+
+	MainWindowLoop(60, NULL);
+	TerminateWindow();
+}
