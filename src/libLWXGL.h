@@ -9,6 +9,12 @@
 
 typedef struct {
 	std::string data;
+	struct {
+		std::string data;
+		std::string prompt;
+		int is_input_active;
+		void (*on_submit)(const char*);
+	} input;
 	int rows, cols;
 	int scroll;
 	int con_clr, txt_clr;
@@ -89,6 +95,7 @@ typedef struct {
 	int type;
 	void *elem;
 	char* tooltip;
+	int id;
 } Element;
 
 int CreateWindow(int w, int h, const char* name, int bgcolor);
@@ -170,6 +177,7 @@ void ChangeGLXContext(int id);
 GLuint GLConvertTGA(const char* name);
 GLuint GLObjectListify(const char* obj);
 void SetTooltip(int id, const char* tooltip);
+int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const char*));
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171

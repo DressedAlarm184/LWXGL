@@ -102,7 +102,9 @@ EXPORT void ElemModifyBounds(int id, int x, int y, int w, int h) {
 
 EXPORT void CreateConsole(int id, int x, int y, int cols, int rows, int con_clr, int txt_clr) {
 	auto console = new ConsoleElement{
-		.data = std::string{}, .rows = rows, .cols = cols, .scroll = 0, .con_clr = con_clr, .txt_clr = txt_clr, .total_lines = 0
+		.data = std::string{}, .input = { .data = std::string{}, .prompt = std::string{},
+		.is_input_active = false, .on_submit = nullptr}, .rows = rows, .cols = cols, .scroll = 0,
+		.con_clr = con_clr, .txt_clr = txt_clr, .total_lines = 0
 	};
 
 	_allocate_element(id, 6, console, x, y, cols * 9 + 17, rows * 15 + 10);
@@ -175,4 +177,19 @@ EXPORT void SetTooltip(int id, const char* tooltip) {
 	} else {
 		e->tooltip = strdup(tooltip);
 	}
+}
+
+EXPORT int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const char*)) {
+	auto console = (ConsoleElement*)elements[id]->elem;
+	auto& input = console->input;
+
+	if (input.is_input_active) return 0;
+
+	input.is_input_active = true;
+	input.data.clear();
+	input.data.shrink_to_fit();
+	input.prompt = prompt;
+	input.on_submit = on_submit;
+
+	return 1;
 }

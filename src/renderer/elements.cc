@@ -56,6 +56,7 @@ namespace Renderers {
 
 	void Console(Element* e, bool inside) {
 		auto console = (ConsoleElement *)e->elem;
+		auto input = console->input;
 		XSetForeground(display, gc, colors[L(console->con_clr)]);
 		XFillRectangle(display, bb, gc, e->x + 1, e->y + 1, e->w - 1, e->h - 1);
 		XSetForeground(display, gc, colors[H(console->con_clr)]);
@@ -68,7 +69,9 @@ namespace Renderers {
 		XFillRectangle(display, bb, gc, e->x + e->w - 8, thumb_y, 5, thumb_height);
 		XSetForeground(display, gc, colors[H(console->txt_clr)]);
 		std::string expanded_data;
-		expanded_data.reserve(console->data.length());
+		int reserved_length = console->data.length();
+		if (input.is_input_active) reserved_length += 1 + input.data.length() + input.prompt.length();
+		expanded_data.reserve(reserved_length);
 		for (char c : console->data) {
 			if (c == '\t') {
 				expanded_data.append("    ");
@@ -76,6 +79,11 @@ namespace Renderers {
 				int is_valid = c == '\n' || (c >= 27 && c <= 126);
 				expanded_data.push_back(is_valid ? c : '?');
 			}
+		}
+		if (input.is_input_active) {
+			expanded_data.append(input.prompt);
+			expanded_data.append(input.data);
+			expanded_data.push_back('_');
 		}
 		int current_line_idx = 0, line_start = 0, line_len = 0;
 		int data_len = expanded_data.length();
