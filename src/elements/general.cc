@@ -193,3 +193,13 @@ EXPORT int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const cha
 
 	return 1;
 }
+
+EXPORT Element* GetHoveredElement() {
+	for (auto it = elements.rbegin(); it != elements.rend(); ++it) {
+		Element* e = *it;
+		if (e == NULL) continue;
+		if (_inside_elem(e)) return e;
+	}
+
+	return NULL;
+}

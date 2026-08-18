@@ -61,10 +61,7 @@ namespace Events {
 			}
 			return;
 		}
-		for (auto it = elements.rbegin(); it != elements.rend(); ++it) {
-			Element* e = *it;
-			if (e == NULL) continue;
-			if (!_inside_elem(e)) continue;
+		if (auto e = GetHoveredElement(); e != NULL) {
 			if (e->type == 1 && button == 1) {
 				auto btn = (ButtonElement *)e->elem;
 				if (btn->onclick != NULL) btn->onclick();
@@ -133,10 +130,7 @@ namespace Events {
 			}
 			return;
 		}
-		for (auto it = elements.rbegin(); it != elements.rend(); ++it) {
-			Element* e = *it;
-			if (e == NULL) continue;
-			if (!_inside_elem(e)) continue;
+		if (auto e = GetHoveredElement(); e != NULL) {
 			if (e->type == 2) {
 				auto input = (InputElement *)e->elem;
 				int length = strlen(input->input);

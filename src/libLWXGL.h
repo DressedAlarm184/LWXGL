@@ -178,6 +178,7 @@ GLuint GLConvertTGA(const char* name);
 GLuint GLObjectListify(const char* obj);
 void SetTooltip(int id, const char* tooltip);
 int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const char*));
+Element* GetHoveredElement();
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171
