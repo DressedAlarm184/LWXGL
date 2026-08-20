@@ -143,9 +143,7 @@ namespace Events {
 			} else if (e->type == 6) {
 				auto console = (ConsoleElement *)e->elem;
 				auto& input = console->input;
-				if (ch == 32 && (key.state & ControlMask)) {
-					console->scroll = std::max(0, console->total_lines - console->rows);
-				} else if (input.is_input_active) {
+				if (input.is_input_active) {
 					if (ch == 8) {
 						if (!input.data.empty()) input.data.pop_back();
 					} else if (ch == 10 || ch == 13) {
@@ -157,6 +155,8 @@ namespace Events {
 					} else if (ch >= 32 && ch < 127) {
 						input.data.push_back(ch);
 					}
+				} else if (ch == 32) {
+					console->scroll = std::max(0, console->total_lines - console->rows);
 				}
 				return;
 			}
