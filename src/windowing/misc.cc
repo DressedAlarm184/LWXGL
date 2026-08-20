@@ -58,7 +58,7 @@ EXPORT void NewQueuedTask(int type, double run_after, void (*task)()) {
 	}
 }
 
-EXPORT int ManagedConsoleWindow(const char* name, int cols, int rows, void (*state)(CONSOLE_STATE_ARGS), void* userdata) {
+EXPORT int ManagedConsoleWindow(const char* name, int cols, int rows, int threading, void (*state)(CONSOLE_STATE_ARGS), void* userdata) {
 	if (window != None) return 3;
 
 	static void (*callback)(CONSOLE_STATE_ARGS) = state;
@@ -69,7 +69,16 @@ EXPORT int ManagedConsoleWindow(const char* name, int cols, int rows, void (*sta
 		i = index;
 	};
 
-	static void (*next)(const char*) = [](const char* input) {
+	static void (*next)(const char*) = threading == THREAD_MULTI ? [](const char* input) {
+		std::string input_copy = (input != nullptr) ? input : "";
+		bool is_null = (input == nullptr);
+
+		std::thread([input_copy, is_null]() {
+			i++;
+			const char* arg = is_null ? nullptr : input_copy.c_str();
+			callback(arg, i - 1, next, data, setindex);
+		}).detach();
+	} : [](const char* input) {
 		i++;
 		callback(input, i - 1, next, data, setindex);
 	};

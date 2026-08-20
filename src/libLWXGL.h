@@ -183,7 +183,7 @@ GLuint GLObjectListify(const char* obj);
 void SetTooltip(int id, const char* tooltip);
 int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const char*));
 Element* GetHoveredElement();
-int ManagedConsoleWindow(const char* name, int cols, int rows, void (*state)(CONSOLE_STATE_ARGS), void* userdata);
+int ManagedConsoleWindow(const char* name, int cols, int rows, int threading, void (*state)(CONSOLE_STATE_ARGS), void* userdata);
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171
@@ -220,6 +220,9 @@ int ManagedConsoleWindow(const char* name, int cols, int rows, void (*state)(CON
 
 #define TASK_RUN_AFTER 0
 #define TASK_RUN_EVERY 1
+
+#define THREAD_MULTI 1
+#define THREAD_SINGLE 0
 
 #ifdef __cplusplus
 }
