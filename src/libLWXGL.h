@@ -184,6 +184,7 @@ void SetTooltip(int id, const char* tooltip);
 int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const char*));
 Element* GetHoveredElement();
 int ManagedConsoleWindow(const char* name, int cols, int rows, int threading, void (*state)(CONSOLE_STATE_ARGS), void* userdata);
+int ImmediateTextW(int x, int y, const char* str, int color, int wrap_at);
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171

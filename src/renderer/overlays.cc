@@ -31,27 +31,13 @@ namespace Renderers {
 		int width = (max_chars * 9) + 9;
 		int r_edge = win_w / 2 + width / 2, l_edge = win_w / 2 - width / 2;
 
-		auto draw_wrapped_str = [&](const char* str, int max_chars, int y, int offset) {
-			int newlines = 0;
-
-			while (*str != '\0') {
-				int len = 0;
-				while (str[len] != '\0' && str[len] != '\n' && len < max_chars) len++;
-				XDrawString(display, bb, gc, (win_w / 2 - (width - 10) / 2) + (9*offset), y, str, len);
-				str += len, y += 15, newlines++;
-				if (*str == '\n') str++;
-			}
-
-			return newlines;
-		};
-
 		XSetForeground(display, gc, colors[0]);
 		XFillRectangle(display, bb, gc, win_w / 2 - (width + 4) / 2, bb.scroll + 47, width + 5, 156);
 		XSetForeground(display, gc, colors[15]);
 		XDrawRectangle(display, bb, gc, l_edge, bb.scroll + 49, width, 151);
 
 		int y = bb.scroll + 68; const char* str = active_modal_state.msg;
-		int lines = draw_wrapped_str(str, max_chars, y, 0);
+		int lines = ImmediateTextW(win_w / 2 - (width - 10) / 2, y - 11, str, 15, max_chars);
 
 		if (active_modal_state.type == MODAL_INPUT) {
 			char input[152] = {0};
@@ -63,12 +49,12 @@ namespace Renderers {
 			int chars_len = snprintf(chars, sizeof chars, "Limit: %d / 150", input_len);
 			XDrawString(display, bb, gc, l_edge + 5, bb.scroll + 193, chars, chars_len);
 
-			XSetForeground(display, gc, colors[CLR_LCYAN]);
-			draw_wrapped_str(input, max_chars - 2, y + lines * 15 + 7, 1);
+			ImmediateTextW(win_w / 2 - (width - 10) / 2 + 9, y + lines * 15 - 4, input, CLR_LCYAN, max_chars - 2);
 		}
 
 		XSetForeground(display, gc, colors[10]);
 		XDrawString(display, bb, gc, r_edge - 25, bb.scroll + 193, "OK", 2);
+
 		if (active_modal_state.type != MODAL_ALERT) {
 			XSetForeground(display, gc, colors[12]);
 			XDrawString(display, bb, gc, r_edge - 95, bb.scroll + 193, "Cancel", 6);

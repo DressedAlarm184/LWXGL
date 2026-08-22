@@ -69,7 +69,6 @@ namespace Renderers {
 			if (denom > 0) thumb_y += ((e->h - 6) - thumb_height) * console->scroll / denom;
 			XFillRectangle(display, bb, gc, e->x + e->w - 8, thumb_y, 5, thumb_height);
 		}
-		XSetForeground(display, gc, colors[console->txt_clr < 0 ? (-console->txt_clr - 1) : H(console->txt_clr)]);
 		std::string expanded_data;
 		int reserved_length = console->data.length();
 		if (input.is_input_active) reserved_length += inside + input.data.length() + input.prompt.length();
@@ -87,24 +86,18 @@ namespace Renderers {
 			expanded_data.append(input.data);
 			if (inside) expanded_data.push_back('_');
 		}
-		int current_line_idx = 0, line_start = 0, line_len = 0;
-		int data_len = expanded_data.length();
-		for (int i = 0; i <= data_len; ++i) {
-			bool is_end = (i == data_len);
-			bool is_newline = (!is_end && expanded_data[i] == '\n');
-			if (line_len == console->cols || is_newline || is_end) {
-				if (current_line_idx >= console->scroll && current_line_idx < console->scroll + console->rows) {
-					int display_row = current_line_idx - console->scroll;
-					XDrawString(display, bb, gc, e->x + 5, e->y + 16 + (display_row * 15), 
-								expanded_data.c_str() + line_start, line_len);
-				}
-				current_line_idx++, line_start = i, line_len = 0;
-				if (current_line_idx >= console->scroll + console->rows) break;
-				!is_newline && !is_end ? line_len = 1 : line_start = i + 1;
-			} else {
-				line_len++;
-			}
+		const char* str = expanded_data.c_str();
+		for (int i = 0; i < console->scroll && *str; ++i) {
+			int len = 0; while (str[len] && str[len] != '\n' && len < console->cols) len++;
+			str += len + (str[len] == '\n');
 		}
+		const char* end = str;
+		for (int i = 0; i < console->rows && *end; ++i) {
+			int len = 0; while (end[len] && end[len] != '\n' && len < console->cols) len++;
+			end += len + (end[len] == '\n');
+		}
+		int txt_clr = console->txt_clr < 0 ? (-console->txt_clr - 1) : H(console->txt_clr);
+		ImmediateTextW(e->x + 5, e->y + 5, std::string(str, end).c_str(), txt_clr, console->cols);
 		if (inside && console->txt_clr >= 0) {
 			XSetForeground(display, gc, colors[L(console->txt_clr)]);
 			char buffer_1[64], buffer_2[64];

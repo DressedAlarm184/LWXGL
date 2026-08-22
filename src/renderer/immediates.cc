@@ -1,13 +1,20 @@
 EXPORT void ImmediateText(int x, int y, const char* str, int color) {
+	ImmediateTextW(x, y, str, color, std::numeric_limits<int>::max());
+}
+
+EXPORT int ImmediateTextW(int x, int y, const char* str, int color, int wrap_at) {
 	XSetForeground(display, gc, colors[color]);
-	y += 11;
+	y += 11; int newlines = 0;
+
 	while (*str != '\0') {
 		int len = 0;
-		while (str[len] != '\0' && str[len] != '\n') len++;
+		while (str[len] != '\0' && str[len] != '\n' && len < wrap_at) len++;
 		XDrawString(display, bb, gc, x, y, str, len);
-		str += len, y += 15;
+		str += len, y += 15, newlines++;
 		if (*str == '\n') str++;
 	}
+
+	return newlines;
 }
 
 EXPORT void ImmediateTextF(int x, int y, int color, const char *fmt, ...) {
