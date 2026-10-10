@@ -23,7 +23,7 @@ EXPORT void ChangeCursor(int cursor_font_glyph) {
 	XFreeCursor(display, cursor);
 }
 
-EXPORT void ReserveScroll(int height, int scrollbar_color, void (*Scroll)(int offset)) {
+EXPORT void InitializeScrolling(int height, int scrollbar_color, void (*Scroll)(int offset)) {
 	if (window != None) return;
 	bb.scroll_enabled = true;
 	bb.scrollbar_color = scrollbar_color;
@@ -40,7 +40,7 @@ EXPORT int SetGlobalBold(int bold) {
 	return 1;
 }
 
-EXPORT void PaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned char* b) {
+EXPORT void QueryPaletteColor(int idx, unsigned char* r, unsigned char* g, unsigned char* b) {
 	XColor color;
 	color.pixel = colors[idx];
 	XQueryColor(display, colormap, &color);
@@ -49,7 +49,7 @@ EXPORT void PaletteQuery(int idx, unsigned char* r, unsigned char* g, unsigned c
 	*b = color.blue / 257;
 }
 
-EXPORT void PaletteModify(int idx, unsigned char r, unsigned char g, unsigned char b, int redraw) {
+EXPORT void ModifyPaletteColor(int idx, unsigned char r, unsigned char g, unsigned char b, int redraw) {
 	XColor color;
 	color.red   = r * 257;
 	color.green = g * 257;
@@ -61,7 +61,7 @@ EXPORT void PaletteModify(int idx, unsigned char r, unsigned char g, unsigned ch
 	if (redraw) RedrawAllImages();
 }
 
-EXPORT void PaletteReset() {
+EXPORT void ResetPalette() {
 	XFreeColors(display, colormap, colors, 16, 0);
 	XColor color;
 	for (int i = 0; i < 16; i++) {

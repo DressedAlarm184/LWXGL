@@ -1,9 +1,9 @@
-EXPORT void CreateImage(int id, int x, int y, int w, int h) {
+EXPORT void CreateCanvas(int id, int x, int y, int w, int h) {
 	if (w <= 0) w = bb.w - x + w;
 	if (h <= 0) h = bb.h - y + h;
 
 	auto img = new ImageElement;
-	img->ximage = XCreateImage(display, visual, depth, ZPixmap, 0, NULL, w, h, 32, 0);
+	img->ximage = XCreateCanvas(display, visual, depth, ZPixmap, 0, NULL, w, h, 32, 0);
 	img->data = (unsigned char *)calloc(w * h, 1);
 	img->prev = (unsigned char *)calloc(w * h, 1);
 	img->imgdata = (char *)calloc(h * img->ximage->bytes_per_line, 1);
@@ -14,12 +14,12 @@ EXPORT void CreateImage(int id, int x, int y, int w, int h) {
 	_allocate_element(id, 4, img, x, y, w, h);
 }
 
-EXPORT unsigned char* GetImageData(int id) {
+EXPORT unsigned char* GetCanvasData(int id) {
 	auto img = (ImageElement*)elements[id]->elem;
 	return img->data;
 }
 
-EXPORT void UpdateImage(int id) {
+EXPORT void UpdateCanvas(int id) {
 	auto img = (ImageElement *)elements[id]->elem;
 	int w = elements[id]->w, h = elements[id]->h;
 
@@ -151,7 +151,7 @@ EXPORT void PrimitiveSprite(int id, int sx, int sy, int color, const char* sprit
 	draw(sprite, strlen(sprite));
 }
 
-EXPORT void ClearImage(int id, int c) {
+EXPORT void ClearCanvas(int id, int c) {
 	auto img = (ImageElement *)elements[id]->elem;
 	memset(img->data, c, elements[id]->w * elements[id]->h);
 }
@@ -163,7 +163,7 @@ EXPORT void RedrawAllImages() {
 		if (e->type != 4) continue;
 		ImageElement* img = (ImageElement *)e->elem;
 		memset(img->prev, 255, e->w * e->h);
-		UpdateImage(i);
+		UpdateCanvas(i);
 	}
 }
 
@@ -198,7 +198,7 @@ EXPORT void DrawString(int id, int x, int y, const char* txt, int color) {
 	}
 }
 
-EXPORT void ApplyPixelFunc(int id, int (*f)(int, int, int)) {
+EXPORT void ApplyPixelFunction(int id, int (*f)(int, int, int)) {
 	Element *e = elements[id];
 	auto img = (ImageElement*)e->elem;
 

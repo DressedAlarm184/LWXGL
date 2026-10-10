@@ -19,7 +19,7 @@ EXPORT void DrawIndexedTGA(int id, int x, int y, const char* name) {
 	if (TGA.change_palette) {
 		for (int i = 0; i < 16; i++) {
 			unsigned char* c = TGA.palette + i * 3;
-			PaletteModify(i, *(c + 2), *(c + 1), *c, i == 15 ? 1 : 0);
+			ModifyPaletteColor(i, *(c + 2), *(c + 1), *c, i == 15 ? 1 : 0);
 		}
 	}
 
@@ -114,9 +114,9 @@ EXPORT int CreateTGAImage(int id, int x, int y, const char* path, int change_pal
 
 	auto image = allocated_TGAs[name];
 
-	CreateImage(id, x, y, image.width, image.height);
+	CreateCanvas(id, x, y, image.width, image.height);
 	DrawIndexedTGA(id, 0, 0, name.c_str());
-	UpdateImage(id);
+	UpdateCanvas(id);
 
 	return 0;
 }
@@ -135,7 +135,7 @@ EXPORT unsigned char* CaptureRegion(int x, int y, unsigned short w, unsigned sho
 	unsigned char red, green, blue;
 
 	for (int i = 0; i < 16; i++) {
-		PaletteQuery(i, &red, &green, &blue);
+		QueryPaletteColor(i, &red, &green, &blue);
 		int o = 18 + i * 3;
 		buffer[o] = blue, buffer[o + 1] = green, buffer[o + 2] = red;
 	}
@@ -157,7 +157,7 @@ EXPORT unsigned char* CaptureRegion(int x, int y, unsigned short w, unsigned sho
 	return buffer;
 }
 
-EXPORT int AllocateMemoryTGA(const char* name, const char* buffer, int size, int change_palette, int transparent) {
+EXPORT int AllocateBufferedTGA(const char* name, const char* buffer, int size, int change_palette, int transparent) {
 	int fd = memfd_create("memory_tga", 0);
 	write(fd, buffer, size);
 	auto path = "/proc/self/fd/" + std::to_string(fd);
@@ -205,9 +205,9 @@ EXPORT int CreateXBMImage(int id, int x, int y, const char* path, int colors) {
 
 	auto image = allocated_TGAs[name];
 
-	CreateImage(id, x, y, image.width, image.height);
+	CreateCanvas(id, x, y, image.width, image.height);
 	DrawIndexedTGA(id, 0, 0, name.c_str());
-	UpdateImage(id);
+	UpdateCanvas(id);
 
 	return 1;
 }
