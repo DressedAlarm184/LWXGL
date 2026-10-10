@@ -10,11 +10,11 @@ EXPORT void _handle_window_events() {
 	}
 }
 
-EXPORT void EventAttachKey(void (*Key)(int key)) {
+EXPORT void AttachKeyEvent(void (*Key)(int key)) {
 	Events::UserProvided::Key = Key;
 }
 
-EXPORT void EventAttachClick(void (*Click)(int x, int y, int btn)) {
+EXPORT void AttachClickEvent(void (*Click)(int x, int y, int btn)) {
 	Events::UserProvided::Click = Click;
 }
 
@@ -22,7 +22,7 @@ EXPORT void QueryMouse(int* x, int* y, int* btn) {
 	*x = mouse_x, *y = mouse_y, *btn = mouse_down;
 }
 
-EXPORT void EventAttachDelete(int (*on_exit)()) {
+EXPORT void AttachDeleteEvent(int (*on_exit)()) {
 	Events::UserProvided::Delete = on_exit;
 }
 
@@ -63,6 +63,6 @@ EXPORT void EnableResizing(void (*Resize)(int w, int h)) {
 	Events::UserProvided::Resize = Resize;
 }
 
-EXPORT void EventAttachMove(void (*Move)(int x, int y)) {
+EXPORT void AttachMoveEvent(void (*Move)(int x, int y)) {
 	Events::UserProvided::Move = Move;
 }

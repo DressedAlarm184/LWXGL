@@ -88,12 +88,12 @@ EXPORT void CreateCheckbox(int id, int x, int y, int size, int cb_col, const cha
 	_allocate_element(id, 5, checkbox, x, y, size, size);
 }
 
-EXPORT int GetCheckbox(int id) {
+EXPORT int GetCheckedState(int id) {
 	auto checkbox = (CheckboxElement *)elements[id]->elem;
 	return checkbox->checked;
 }
 
-EXPORT void ElemModifyBounds(int id, int x, int y, int w, int h) {
+EXPORT void ModifyBounds(int id, int x, int y, int w, int h) {
 	Element *e = elements[id];
 	e->x = x, e->y = y;
 	if (w != -1) e->w = w;
@@ -110,7 +110,7 @@ EXPORT void CreateConsole(int id, int x, int y, int cols, int rows, int con_clr,
 	_allocate_element(id, 6, console, x, y, cols * 9 + 17, rows * 15 + 10);
 }
 
-EXPORT void ConsolePrint(int id, const char* format, ...) {
+EXPORT void PrintConsole(int id, const char* format, ...) {
 	auto console = (ConsoleElement*)(elements[id]->elem);
 	int old_total_lines = console->total_lines;
 
@@ -134,14 +134,14 @@ EXPORT void ConsolePrint(int id, const char* format, ...) {
 	}
 }
 
-EXPORT void ConsoleClear(int id) {
+EXPORT void ClearConsole(int id) {
 	auto console = (ConsoleElement*)(elements[id]->elem);
 	console->data.clear();
 	console->total_lines = 0;
 	console->scroll = 0;
 }
 
-EXPORT void ElemSetVisible(int id, int visible) {
+EXPORT void SetVisible(int id, int visible) {
 	Element* e = elements[id];
 	e->v = visible;
 }
@@ -174,7 +174,7 @@ EXPORT void SetTooltip(int id, const char* tooltip) {
 	}
 }
 
-EXPORT int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const char*)) {
+EXPORT int GetConsoleInput(int id, const char* prompt, void (*on_submit)(const char*)) {
 	auto console = (ConsoleElement*)elements[id]->elem;
 	auto& input = console->input;
 
@@ -199,7 +199,7 @@ EXPORT Element* GetHoveredElement() {
 	return NULL;
 }
 
-EXPORT int GetHoveredElementID() {
+EXPORT int GetHoveredID() {
 	auto e = GetHoveredElement();
 	if (e == NULL) {
 		return -1;

@@ -25,7 +25,7 @@ EXPORT int QueryModalOpen() {
 	return active_modal_state.active;
 }
 
-EXPORT int QueryScroll() {
+EXPORT int QueryScrollY() {
 	return bb.scroll;
 }
 

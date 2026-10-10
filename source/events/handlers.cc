@@ -148,7 +148,7 @@ namespace Events {
 						if (!input.data.empty()) input.data.pop_back();
 					} else if (ch == 10 || ch == 13) {
 						input.is_input_active = false;
-						ConsolePrint(e->id, "%s%s\n", input.prompt.c_str(), input.data.c_str());
+						PrintConsole(e->id, "%s%s\n", input.prompt.c_str(), input.data.c_str());
 						char* str = strdup(input.data.c_str());
 						input.on_submit(str);
 						free(str);
