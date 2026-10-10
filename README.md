@@ -18,7 +18,7 @@ Run the `make` command at the project root to build the `libLWXGL.so` shared obj
 This is a minimal example program to get you started. Compile with: `gcc -o example example.c -lLWXGL`
 
 ```c
-#include <libLWXGL.h>
+#include <LWXGL.h>
 
 void on_every_frame(int frame, float dt) {
 	static float circle_x = 50, circle_speed = 150;

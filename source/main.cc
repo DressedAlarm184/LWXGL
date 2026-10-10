@@ -21,7 +21,7 @@
 #include <unordered_map>
 #include <vector>
 #include <fstream>
-#include "libLWXGL.h"
+#include "LWXGL.h"
 
 #define EXPORT __attribute__((visibility("default")))
 
@@ -104,8 +104,8 @@ std::vector<QueuedTask> task_queue;
 #define H(b)  (((b) >> 4) & 0x0F)
 
 #include "elements/helpers.cc"
-#include "elements/raster.cc"
-#include "elements/tga.cc"
+#include "elements/canvases.cc"
+#include "elements/imgparser.cc"
 #include "elements/general.cc"
 
 #include "events/handlers.cc"
