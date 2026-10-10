@@ -141,11 +141,6 @@ EXPORT void ConsoleClear(int id) {
 	console->scroll = 0;
 }
 
-EXPORT int ElemInside(int id) {
-	Element* e = elements[id];
-	return _inside_elem(e);
-}
-
 EXPORT void ElemSetVisible(int id, int visible) {
 	Element* e = elements[id];
 	e->v = visible;
@@ -171,8 +166,8 @@ EXPORT Element* GetElement(int id) {
 
 EXPORT void SetTooltip(int id, const char* tooltip) {
 	Element* e = elements[id];
+	if (e->tooltip != NULL) free(e->tooltip);
 	if (tooltip == NULL) {
-		if (e->tooltip != NULL) free(e->tooltip);
 		e->tooltip = NULL;
 	} else {
 		e->tooltip = strdup(tooltip);
@@ -202,4 +197,13 @@ EXPORT Element* GetHoveredElement() {
 	}
 
 	return NULL;
+}
+
+EXPORT int GetHoveredElementID() {
+	auto e = GetHoveredElement();
+	if (e == NULL) {
+		return -1;
+	} else {
+		return e->id;
+	}
 }

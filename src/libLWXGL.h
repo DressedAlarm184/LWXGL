@@ -138,7 +138,6 @@ void ElemModifyBounds(int id, int x, int y, int w, int h);
 void CreateConsole(int id, int x, int y, int cols, int rows, int con_clr, int txt_clr);
 void ConsolePrint(int id, const char* format, ...);
 void ConsoleClear(int id);
-int ElemInside(int id);
 void ElemSetVisible(int id, int visible);
 void SetWindowTitle(const char* title);
 void SetImageFont(int id, unsigned char* font, int h);
@@ -185,6 +184,7 @@ int ConsolePrompt(int id, const char* prompt, void (*on_submit)(const char*));
 Element* GetHoveredElement();
 int ManagedConsoleWindow(const char* name, int cols, int rows, int threading, void (*state)(CONSOLE_STATE_ARGS), void* userdata);
 int ImmediateTextW(int x, int y, const char* str, int color, int wrap_at);
+int GetHoveredElementID();
 
 #define KEY_LEFT 170
 #define KEY_RIGHT 171
